@@ -1,0 +1,763 @@
+/* ============================================================
+   حجزكوم — Public Booking screen layer
+   Consumes global theme tokens (src/styles/global.css).
+   ============================================================ */
+
+.bk-page {
+  min-height: 100vh;
+  background: var(--color-background);
+  color: var(--color-text-primary);
+}
+
+/* ---------- ترويسة الحجز ---------- */
+.bk-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(250, 248, 244, 0.9);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-border-default);
+}
+.bk-topbar-inner {
+  max-width: 1080px;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 24px;
+}
+.bk-topbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.06rem;
+}
+.bk-topbar-logo b {
+  color: var(--color-primary);
+}
+.bk-topbar-badge {
+  margin-inline-start: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: var(--color-primary-subtle);
+  padding: 5px 12px;
+  border-radius: 999px;
+}
+
+/* ---------- تغطية النشاط ---------- */
+.bk-cover {
+  position: relative;
+  height: 240px;
+  overflow: hidden;
+  background: var(--color-primary);
+}
+.bk-cover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle cx='3' cy='3' r='1.6' fill='%23ffffff' fill-opacity='0.12'/%3E%3C/svg%3E");
+  opacity: 0.6;
+}
+.bk-cover-shape {
+  position: absolute;
+  inset-inline-end: -80px;
+  bottom: -90px;
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  background: var(--color-secondary);
+  opacity: 0.35;
+}
+
+/* ---------- بطاقة معلومات النشاط ---------- */
+.bk-biz-card {
+  max-width: 1080px;
+  margin: -72px auto 0;
+  padding-inline: 24px;
+  position: relative;
+  z-index: 2;
+}
+.bk-biz-inner {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: 20px;
+  box-shadow: var(--shadow-md);
+  padding: 24px 28px;
+  display: flex;
+  gap: 22px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.bk-biz-logo {
+  width: 84px;
+  height: 84px;
+  border-radius: 20px;
+  background: var(--color-primary);
+  color: #fff;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  border: 4px solid #fff;
+  box-shadow: var(--shadow-sm);
+}
+.bk-biz-main {
+  flex: 1;
+  min-width: 240px;
+}
+.bk-biz-name {
+  font-family: var(--font-heading);
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: var(--color-text-primary);
+}
+.bk-biz-desc {
+  color: var(--color-text-secondary);
+  font-size: 0.93rem;
+  margin-top: 6px;
+  max-width: 560px;
+}
+.bk-biz-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 220px;
+}
+.bk-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+.bk-meta-row .lucide {
+  width: 16px;
+  height: 16px;
+  color: var(--color-primary);
+  flex: none;
+}
+.bk-hours {
+  font-size: 0.82rem;
+  color: var(--color-text-secondary);
+}
+.bk-hours-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-inline-end: 6px;
+  background: var(--color-success);
+}
+.bk-hours-dot.closed {
+  background: var(--color-error);
+}
+.bk-location-select {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-primary);
+  background: var(--color-primary-subtle);
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.82rem;
+}
+.bk-location-select .lucide {
+  width: 15px;
+  height: 15px;
+}
+
+/* ============================================================
+   تخطيط الأقسام
+   ============================================================ */
+.bk-layout {
+  max-width: 1080px;
+  margin-inline: auto;
+  padding: 30px 24px 60px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 26px;
+  align-items: start;
+}
+.bk-col {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.bk-review-col {
+  position: sticky;
+  top: 90px;
+}
+
+.bk-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: 18px;
+  padding: 24px 26px;
+  box-shadow: var(--shadow-sm);
+}
+.bk-card-head {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--color-border-default);
+}
+.bk-card-ic {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.bk-card-ic .lucide {
+  width: 19px;
+  height: 19px;
+}
+.bk-card-title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.08rem;
+}
+.bk-card-step {
+  margin-inline-start: auto;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  background: var(--color-secondary-subtle);
+  border: 1px solid var(--color-secondary);
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+/* ---------- اختيار الخدمة ---------- */
+.bk-services-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.bk-service {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: start;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border-default);
+  border-radius: 13px;
+  padding: 14px 16px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.bk-service:hover {
+  border-color: var(--color-primary-tint);
+}
+.bk-service.active {
+  border-color: var(--color-primary);
+  background: var(--color-primary-subtle);
+}
+.bk-radio {
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border-strong);
+  position: relative;
+  flex: none;
+}
+.bk-service.active .bk-radio {
+  border-color: var(--color-primary);
+}
+.bk-service.active .bk-radio::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--color-primary);
+}
+.bk-service-name {
+  flex: 1;
+  font-weight: 600;
+  font-size: 0.94rem;
+}
+.bk-service-dur {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  color: var(--color-text-tertiary);
+  background: var(--color-surface-muted);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+.bk-service-dur .lucide {
+  width: 13px;
+  height: 13px;
+  color: var(--color-primary);
+}
+
+/* ---------- اختيار التاريخ والوقت ---------- */
+.bk-dates {
+  display: flex;
+  gap: 9px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scrollbar-width: thin;
+}
+.bk-date {
+  flex: 0 0 auto;
+  min-width: 64px;
+  text-align: center;
+  padding: 10px 8px;
+  border: 1.5px solid var(--color-border-default);
+  border-radius: 12px;
+  background: var(--color-surface);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.bk-date:hover:not(:disabled) {
+  border-color: var(--color-primary-tint);
+}
+.bk-date:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.bk-date.active {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+}
+.bk-date-dow {
+  font-size: 0.72rem;
+  font-weight: 600;
+  display: block;
+}
+.bk-date-num {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 700;
+  display: block;
+  margin: 2px 0;
+}
+.bk-date-mon {
+  font-size: 0.68rem;
+  display: block;
+  opacity: 0.85;
+}
+.bk-date-legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 14px 0 12px;
+  font-size: 0.76rem;
+  color: var(--color-text-tertiary);
+}
+.bk-legend-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  margin-inline-end: 6px;
+  vertical-align: middle;
+}
+.legend-avail {
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-primary);
+}
+.legend-full {
+  background: var(--color-surface-muted);
+}
+.legend-past {
+  background: var(--color-border-strong);
+}
+
+.bk-time-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(86px, 1fr));
+  gap: 9px;
+}
+.bk-time {
+  padding: 9px 6px;
+  text-align: center;
+  border: 1.5px solid var(--color-border-default);
+  border-radius: 10px;
+  background: var(--color-surface);
+  font-weight: 600;
+  font-size: 0.84rem;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.bk-time:hover:not(:disabled):not(.selected) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+.bk-time.selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+}
+.bk-time:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  color: var(--color-text-disabled);
+}
+
+.bk-state-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 26px 18px;
+  border: 1.5px dashed var(--color-border-strong);
+  border-radius: 14px;
+  color: var(--color-text-tertiary);
+}
+.bk-state-box .lucide {
+  width: 30px;
+  height: 30px;
+  color: var(--color-primary);
+  margin-bottom: 10px;
+}
+.bk-state-title {
+  font-weight: 700;
+  color: var(--color-text-primary);
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+.bk-state-text {
+  font-size: 0.83rem;
+  line-height: 1.7;
+  max-width: 340px;
+}
+
+/* ---------- بيانات الزبون ---------- */
+.bk-field {
+  margin-bottom: 15px;
+}
+.bk-field label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.83rem;
+  font-weight: 600;
+  margin-bottom: 7px;
+}
+.bk-req {
+  color: var(--color-error);
+}
+.bk-hint {
+  font-size: 0.74rem;
+  color: var(--color-text-disabled);
+  font-weight: 400;
+}
+.bk-input {
+  width: 100%;
+  padding: 11px 15px;
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: 11px;
+  font-family: inherit;
+  font-size: 0.92rem;
+  background: #fff;
+  color: var(--color-text-primary);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.bk-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-subtle);
+}
+.bk-input.invalid {
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 3px var(--color-error-background);
+}
+.bk-input-err {
+  font-size: 0.75rem;
+  color: var(--color-error);
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.bk-input-err .lucide {
+  width: 13px;
+  height: 13px;
+}
+.bk-textarea {
+  min-height: 84px;
+  resize: vertical;
+}
+
+/* ---------- مراجعة الحجز ---------- */
+.bk-review-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 34px 20px;
+  color: var(--color-text-tertiary);
+}
+.bk-review-empty .lucide {
+  width: 30px;
+  height: 30px;
+  color: var(--color-primary);
+  margin-bottom: 10px;
+}
+.bk-summ {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+.bk-summ-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  font-size: 0.9rem;
+}
+.bk-summ-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  color: var(--color-text-tertiary);
+}
+.bk-summ-label .lucide {
+  width: 16px;
+  height: 16px;
+  color: var(--color-primary);
+  margin-top: 2px;
+  flex: none;
+}
+.bk-summ-val {
+  font-weight: 600;
+  text-align: end;
+  color: var(--color-text-primary);
+}
+.bk-summ-note {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  font-weight: 400;
+  line-height: 1.6;
+}
+.bk-sep {
+  border: none;
+  border-top: 1px solid var(--color-border-subtle);
+  margin: 2px 0;
+}
+.bk-dur-line {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.78rem;
+  color: var(--color-text-tertiary);
+  background: var(--color-surface-muted);
+  padding: 6px 12px;
+  border-radius: 999px;
+  margin-inline-start: auto;
+}
+.bk-dur-line .lucide {
+  width: 13px;
+  height: 13px;
+  color: var(--color-primary);
+}
+.bk-confirm-btn {
+  width: 100%;
+  margin-top: 18px;
+}
+.bk-safety {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 12px;
+  font-size: 0.76rem;
+  color: var(--color-text-tertiary);
+}
+.bk-safety .lucide {
+  width: 14px;
+  height: 14px;
+  color: var(--color-success);
+}
+
+/* ---------- شريط التقدم ---------- */
+.bk-progress {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+.bk-prog {
+  flex: 1;
+  height: 4px;
+  border-radius: 99px;
+  background: var(--color-border-default);
+  transition: background 0.3s ease;
+}
+.bk-prog.done {
+  background: var(--color-primary);
+}
+
+/* ---------- حالة التحميل الابتدائية ---------- */
+.bk-loading {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-background);
+  color: var(--color-text-secondary);
+  gap: 16px;
+}
+.bk-spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid var(--color-primary-subtle);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: rot 0.7s linear infinite;
+}
+.bk-pulse-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-success);
+  animation: pulse 2s infinite;
+}
+@keyframes bk-rot {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- حالة النجاح ---------- */
+.bk-success {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-background);
+  padding: 24px;
+}
+.bk-success-card {
+  max-width: 460px;
+  width: 100%;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: 20px;
+  padding: 40px 32px;
+  text-align: center;
+  box-shadow: var(--shadow-md);
+}
+.bk-suc-ic {
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  background: var(--color-success-background);
+  color: var(--color-success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  animation: pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.bk-suc-ic .lucide {
+  width: 34px;
+  height: 34px;
+}
+.bk-success-card h1 {
+  font-family: var(--font-heading);
+  font-size: 1.45rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+.bk-success-card > p {
+  color: var(--color-text-secondary);
+  font-size: 0.92rem;
+  line-height: 1.8;
+}
+.bk-success-detail {
+  margin: 22px 0;
+  border: 1px solid var(--color-border-default);
+  border-radius: 14px;
+  padding: 16px 18px;
+  text-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--color-surface-subtle);
+}
+.bk-success-detail .bk-summ-row {
+  font-size: 0.86rem;
+}
+.bk-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: var(--color-text-tertiary);
+  background: var(--color-success-background);
+  color: var(--color-success-text);
+  padding: 10px 14px;
+  border-radius: 12px;
+  margin-top: 6px;
+}
+.bk-note .wa-ic {
+  width: 15px;
+  height: 15px;
+  fill: var(--color-success);
+}
+
+/* ---------- تجاوب ---------- */
+@media (max-width: 900px) {
+  .bk-layout {
+    grid-template-columns: 1fr;
+  }
+  .bk-review-col {
+    position: static;
+    order: -1;
+  }
+}
+@media (max-width: 620px) {
+  .bk-biz-inner {
+    padding: 18px;
+    gap: 14px;
+    flex-direction: column;
+  }
+  .bk-biz-logo {
+    width: 68px;
+    height: 68px;
+    font-size: 1.8rem;
+    border-radius: 16px;
+  }
+  .bk-cover {
+    height: 180px;
+  }
+  .bk-card {
+    padding: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bk-spinner,
+  .bk-pulse-dot {
+    animation-duration: 0.001s !important;
+  }
+}

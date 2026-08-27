@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+@theme static {
+  --breakpoint-mobile: 40rem;
+  --breakpoint-tablet: 48rem;
+  --breakpoint-desktop: 64rem;
+
+  --font-sans: 'IBM Plex Sans Arabic', ui-sans-serif, system-ui, sans-serif;
+  --font-heading: 'Alexandria', ui-sans-serif, system-ui, sans-serif;
+
+  --color-primary: #1D5655;
+  --color-primary-hover: #153F3E;
+  --color-primary-pressed: #0F2E2D;
+  --color-primary-subtle: #E3EFEE;
+  --color-primary-tint: #CBE1DF;
+
+  --color-secondary: #B0DEED;
+  --color-secondary-hover: #94CFE2;
+  --color-secondary-pressed: #6FB6CE;
+  --color-secondary-subtle: #E9F5FB;
+
+  --color-background: #FAF8F4;
+  --color-surface: #FFFFFF;
+  --color-surface-subtle: #FCFBF8;
+  --color-surface-muted: #F0EFE9;
+  --color-surface-hover: #F4F1EA;
+
+  --color-text-primary: #16211F;
+  --color-text-secondary: #3E4C4A;
+  --color-text-tertiary: #5F6E6C;
+  --color-text-disabled: #9AA7A4;
+  --color-text-on-primary: #FFFFFF;
+
+  --color-border-default: #E5E1D6;
+  --color-border-subtle: #EEECE4;
+  --color-border-strong: #D6D1C3;
+  --color-border-focus: #1D5655;
+
+  --color-success: #2E7D4F;
+  --color-success-hover: #256843;
+  --color-success-background: #E4F2E9;
+  --color-success-border: #BFDCCB;
+  --color-success-text: #245F3C;
+
+  --color-warning: #A66A12;
+  --color-warning-hover: #8A5710;
+  --color-warning-background: #FBF1DF;
+  --color-warning-border: #EAD9B8;
+  --color-warning-text: #7C520E;
+
+  --color-error: #B5452F;
+  --color-error-hover: #963927;
+  --color-error-background: #F9E9E4;
+  --color-error-border: #EBC4BA;
+  --color-error-text: #8F3826;
+
+  --color-info: #2C7DA0;
+  --color-info-hover: #236781;
+  --color-info-background: #E9F5FB;
+  --color-info-border: #CBE6F2;
+  --color-info-text: #20566B;
+
+  --color-overlay: rgba(11, 33, 31, 0.58);
+
+  --shadow-sm: 0 1px 2px rgba(22, 33, 31, 0.05), 0 2px 10px rgba(22, 33, 31, 0.05);
+  --shadow-md: 0 4px 14px rgba(22, 33, 31, 0.07), 0 14px 34px rgba(22, 33, 31, 0.08);
+  --shadow-lg: 0 12px 30px rgba(15, 46, 45, 0.13), 0 28px 64px rgba(15, 46, 45, 0.12);
+}
+
+@layer base {
+  html {
+    background-color: var(--color-background);
+    scroll-behavior: smooth;
+    scroll-padding-top: 96px;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-heading);
+    color: var(--color-text-primary);
+  }
+
+  ::selection {
+    background-color: var(--color-secondary);
+    color: var(--color-primary-pressed);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+}

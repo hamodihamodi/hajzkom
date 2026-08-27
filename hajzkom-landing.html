@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>حجزكوم | نظام إدارة الحجوزات للصالونات والعيادات</title>
+<meta name="description" content="حجزكوم — منصة عراقية لإدارة حجوزات الصالونات وصالونات الحلاقة والعيادات. صفحة حجز لزبائنك، وجدول يومي وتذكيرات واتساب لفريقك.">
+<script>document.documentElement.classList.add('js')</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============ المتغيراتDesign tokens ============ */
+:root{
+  --primary:#1D5655; --primary-dark:#153F3E; --primary-deep:#0F2E2D;
+  --primary-soft:#E3EFEE; --primary-tint:#CBE1DF;
+  --secondary:#B0DEED; --secondary-soft:#E9F5FB;
+  --paper:#FAF8F4; --card:#FFFFFF; --paper-2:#FCFBF8;
+  --ink:#16211F; --ink-soft:#3E4C4A; --muted:#5F6E6C;
+  --line:#E5E1D6; --line-strong:#D6D1C3;
+  --ok:#2E7D4F; --ok-soft:#E4F2E9;
+  --warn:#A66A12; --warn-soft:#FBF1DF;
+  --bad:#B5452F; --bad-soft:#F9E9E4;
+  --radius:14px;
+  --shadow-sm:0 1px 2px rgba(22,33,31,.05),0 2px 10px rgba(22,33,31,.05);
+  --shadow-md:0 4px 14px rgba(22,33,31,.07),0 14px 34px rgba(22,33,31,.08);
+  --shadow-lg:0 12px 30px rgba(15,46,45,.13),0 28px 64px rgba(15,46,45,.12);
+  --font-head:'Alexandria',sans-serif;
+  --font-body:'IBM Plex Sans Arabic',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:96px}
+body{background:var(--paper);color:var(--ink);font-family:var(--font-body);line-height:1.75;font-size:16px;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--font-head);line-height:1.35;color:var(--ink)}
+img,svg{display:block}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer}
+::selection{background:var(--secondary);color:var(--primary-deep)}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px;border-radius:6px}
+.ltr{direction:ltr;unicode-bidi:isolate}
+.container{max-width:1180px;margin-inline:auto;padding-inline:24px}
+.section{padding-block:96px}
+svg.lucide{width:20px;height:20px;flex:none}
+
+/* ============ الأزرار ============ */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;font-weight:600;font-size:.95rem;
+  padding:12px 24px;border-radius:12px;border:1px solid transparent;transition:all .25s ease;line-height:1.4}
+.btn .lucide{width:18px;height:18px}
+.btn[disabled]{opacity:.75;pointer-events:none}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-dark);transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.btn-ghost{border-color:var(--line-strong);color:var(--ink);background:transparent}
+.btn-ghost:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-soft)}
+.btn-light{background:var(--paper);color:var(--primary)}
+.btn-light:hover{background:var(--secondary);transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.btn-sm{padding:9px 16px;font-size:.86rem;border-radius:10px}
+.btn-lg{padding:15px 30px;font-size:1.02rem}
+.btn-block{width:100%}
+.spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:rot .7s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+
+/* ============ ترويسات الأقسام ============ */
+.sec-head{max-width:660px;margin-bottom:56px}
+.sec-head.center{margin-inline:auto;text-align:center}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:.82rem;color:var(--primary);
+  background:var(--primary-soft);padding:6px 15px;border-radius:999px;margin-bottom:18px}
+.eyebrow::before{content:'';width:8px;height:8px;background:var(--primary);border-radius:2px;transform:rotate(45deg)}
+.sec-head h2{font-size:clamp(1.65rem,3.2vw,2.25rem);font-weight:700}
+.sec-sub{color:var(--muted);font-size:1.03rem;margin-top:12px}
+
+/* ============ شرائح الحالة ============ */
+.pill{display:inline-flex;align-items:center;font-size:.72rem;font-weight:600;padding:3px 11px;border-radius:999px;white-space:nowrap}
+.p-done{background:var(--ok-soft);color:var(--ok)}
+.p-conf{background:var(--primary-soft);color:var(--primary)}
+.p-pend{background:var(--warn-soft);color:var(--warn)}
+.p-canc{background:var(--bad-soft);color:var(--bad)}
+
+/* ============ الهيدر ============ */
+.site-header{position:sticky;top:0;z-index:60;background:rgba(250,248,244,.88);backdrop-filter:blur(12px);
+  border-bottom:1px solid transparent;transition:border-color .3s,box-shadow .3s}
+.site-header.scrolled{border-color:var(--line);box-shadow:var(--shadow-sm)}
+.header-inner{display:flex;align-items:center;gap:28px;height:76px}
+.logo{display:flex;align-items:center;gap:11px;font-family:var(--font-head);font-weight:700;font-size:1.32rem}
+.logo-word b{color:var(--primary)} .logo-word{color:var(--ink)}
+.main-nav{display:flex;gap:4px}
+.main-nav a{padding:8px 15px;border-radius:10px;color:var(--ink-soft);font-weight:500;font-size:.94rem;transition:all .2s}
+.main-nav a:hover{background:var(--primary-soft);color:var(--primary)}
+.header-actions{margin-inline-start:auto;display:flex;align-items:center;gap:10px}
+.lang-switch{display:flex;border:1px solid var(--line-strong);border-radius:999px;padding:3px;background:#fff}
+.lang-btn{padding:5px 13px;border-radius:999px;font-size:.78rem;font-weight:600;color:var(--muted);background:transparent;border:none;transition:all .2s}
+.lang-btn.active{background:var(--primary);color:#fff}
+.burger{display:none;width:42px;height:42px;border:1px solid var(--line-strong);border-radius:10px;background:transparent;color:var(--ink);align-items:center;justify-content:center}
+.m-nav{position:absolute;top:100%;inset-inline:0;background:var(--paper);border-bottom:1px solid var(--line);
+  box-shadow:var(--shadow-md);padding:16px 24px 28px;display:none}
+.m-nav.open{display:block;animation:drop .28s ease}
+@keyframes drop{from{opacity:0;transform:translateY(-10px)}}
+.m-nav nav{display:flex;flex-direction:column;margin-bottom:18px}
+.m-nav nav a{padding:12px 6px;border-bottom:1px solid var(--line);font-weight:500;color:var(--ink-soft)}
+.m-actions{display:flex;gap:10px;margin-top:6px}
+.m-actions .btn{flex:1}
+
+/* ============ الهيرو ============ */
+.hero{overflow:hidden}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:60px;align-items:center;padding-block:72px 96px}
+.hero-copy{animation:fadeUp .7s .05s both}
+.hero-visual{animation:fadeUp .7s .22s both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+.hero h1{font-size:clamp(2.1rem,4.6vw,3.4rem);font-weight:800;margin:20px 0 20px}
+.hl{position:relative;z-index:1;white-space:nowrap}
+.hl::after{content:'';position:absolute;bottom:5px;right:-5px;left:-5px;height:32%;background:var(--secondary);z-index:-1;border-radius:4px;transform:skewX(-8deg) rotate(-.5deg)}
+.hero-sub{color:var(--muted);font-size:1.08rem;max-width:540px}
+.hero-cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:32px}
+.hero-trust{display:flex;gap:20px;flex-wrap:wrap;list-style:none;margin-top:20px}
+.hero-trust li{display:flex;align-items:center;gap:7px;font-size:.85rem;color:var(--muted);font-weight:500}
+.hero-trust .lucide{width:15px;height:15px;color:var(--ok)}
+.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:42px;border-top:1px solid var(--line);padding-top:26px}
+.hero-stats strong{display:block;font-family:var(--font-head);font-size:1.45rem;font-weight:700;color:var(--primary)}
+.hero-stats span{font-size:.8rem;color:var(--muted);line-height:1.5;display:block}
+.hero-visual{position:relative;max-width:520px;justify-self:center;width:100%}
+.hero-deco{position:absolute;inset-inline-start:-18px;top:46px;bottom:-16px;width:66%;background:var(--secondary-soft);border-radius:24px}
+.hero-deco::after{content:'';position:absolute;top:-24px;inset-inline-end:-28px;width:86px;height:86px;background:var(--secondary);border-radius:20px;opacity:.55}
+.hero-pattern{position:absolute;top:-34px;inset-inline-end:-4px;width:150px;height:112px;z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18'%3E%3Ccircle cx='2' cy='2' r='1.6' fill='%231D5655' fill-opacity='0.14'/%3E%3C/svg%3E")}
+.mock-card{position:relative;z-index:1;background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:var(--shadow-lg)}
+.mock-head{display:flex;align-items:center;gap:12px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.mock-ic{width:40px;height:40px;border-radius:12px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center}
+.mock-ic .lucide{width:19px;height:19px}
+.mock-title{flex:1;line-height:1.4}
+.mock-title strong{font-family:var(--font-head);font-size:1rem;display:block}
+.mock-title span{font-size:.76rem;color:var(--muted)}
+.live-pill{display:flex;align-items:center;gap:7px;font-size:.74rem;font-weight:600;color:var(--ok);background:var(--ok-soft);padding:4px 12px;border-radius:999px}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--ok);animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(46,125,79,.4)}70%{box-shadow:0 0 0 8px rgba(46,125,79,0)}100%{box-shadow:0 0 0 0 rgba(46,125,79,0)}}
+.appt-list{padding-top:6px}
+.appt{display:grid;grid-template-columns:52px 1fr auto;gap:14px;align-items:center;padding:12px 4px;border-bottom:1px dashed var(--line)}
+.appt-time{font-family:var(--font-head);font-weight:600;font-size:.92rem;color:var(--primary)}
+.appt-name{font-weight:600;font-size:.9rem;line-height:1.4}
+.appt-meta{font-size:.76rem;color:var(--muted)}
+.appt.new{animation:rowIn 2.2s ease both}
+@keyframes rowIn{0%{opacity:0;transform:translateY(-7px);background:var(--secondary-soft)}30%{opacity:1;transform:none;background:var(--secondary-soft)}100%{background:transparent}}
+.free-slot{display:flex;align-items:center;gap:9px;margin-top:10px;padding:12px 14px;border:1.5px dashed var(--line-strong);border-radius:11px;color:var(--muted);font-size:.83rem;font-weight:500}
+.free-slot .lucide{width:15px;height:15px;color:var(--primary)}
+.mock-foot{margin-top:18px}
+.occ-head{display:flex;justify-content:space-between;align-items:center;font-size:.82rem;color:var(--muted);margin-bottom:8px}
+.occ-head strong{color:var(--ink);font-size:.83rem}
+.occ-bar{height:6px;background:var(--primary-soft);border-radius:99px;overflow:hidden}
+.occ-bar span{display:block;height:100%;background:var(--primary);border-radius:99px;transition:width 1s ease}
+.toast-booking{position:absolute;top:-28px;inset-inline-start:-14px;z-index:2;display:flex;gap:11px;align-items:center;
+  background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 16px;box-shadow:var(--shadow-md);
+  opacity:0;transform:translateY(10px) scale(.96);transition:all .45s cubic-bezier(.34,1.4,.64,1);max-width:290px}
+.toast-booking.show{opacity:1;transform:none}
+.tb-ic{width:36px;height:36px;border-radius:11px;background:var(--primary-soft);color:var(--primary);display:flex;align-items:center;justify-content:center;flex:none}
+.tb-ic .lucide{width:17px;height:17px}
+.toast-booking strong{display:block;font-size:.82rem;font-family:var(--font-head)}
+.toast-booking span{font-size:.76rem;color:var(--muted);line-height:1.5}
+.float-chip{position:absolute;bottom:-24px;inset-inline-end:-8px;z-index:2;display:flex;align-items:center;gap:8px;
+  background:var(--primary-deep);color:#fff;font-size:.78rem;font-weight:500;padding:10px 16px;border-radius:999px;box-shadow:var(--shadow-md);
+  animation:floaty 4s ease-in-out infinite}
+.float-chip .lucide{width:14px;height:14px;color:var(--secondary)}
+.wa-ic{width:16px;height:16px;fill:var(--secondary)}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+
+/* ============ قسم "لمن صُنِع" ============ */
+.who-tabs{display:inline-flex;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:14px;padding:6px;gap:4px;margin-bottom:44px}
+.who-tab{display:flex;align-items:center;gap:9px;padding:10px 20px;border-radius:10px;font-weight:600;font-size:.92rem;color:var(--muted);border:none;background:transparent;transition:all .25s}
+.who-tab .lucide{width:17px;height:17px}
+.who-tab:hover{background:var(--primary-soft);color:var(--primary)}
+.who-tab.active{background:var(--primary);color:#fff}
+.who-panel{transition:opacity .2s}
+.who-panel.fade{opacity:0}
+.who-pane{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.who-pane[hidden]{display:none}
+.who-info h3{font-size:1.6rem;font-weight:700;margin-bottom:4px}
+.who-tagline{color:var(--primary);font-weight:600;font-size:.92rem;margin-bottom:16px}
+.who-desc{color:var(--muted);margin-bottom:22px}
+.who-points{list-style:none;display:flex;flex-direction:column;gap:12px;margin-bottom:26px}
+.who-points li{display:flex;gap:11px;align-items:flex-start;font-size:.94rem;color:var(--ink-soft)}
+.who-points .lucide{width:18px;height:18px;color:var(--ok);margin-top:4px;flex:none}
+.who-slabel{font-size:.82rem;font-weight:600;color:var(--ink-soft);display:block;margin-bottom:10px}
+.chip-row{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 15px;font-size:.83rem;font-weight:500;color:var(--ink-soft)}
+.chip.add{border-style:dashed;border-color:var(--primary-tint);color:var(--primary);display:inline-flex;align-items:center;gap:6px;font-weight:600}
+.chip.add .lucide{width:14px;height:14px}
+/* صفحة الحجز المصغرة */
+.bk-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px;box-shadow:var(--shadow-md)}
+.bk-head{display:flex;align-items:center;gap:13px;padding-bottom:16px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.bk-avatar{width:46px;height:46px;border-radius:14px;background:var(--primary);color:#fff;font-family:var(--font-head);font-weight:700;font-size:1.2rem;display:flex;align-items:center;justify-content:center;flex:none}
+.bk-head strong{font-family:var(--font-head);font-size:1.02rem;display:block;line-height:1.3}
+.bk-sub{font-size:.78rem;color:var(--muted);display:flex;align-items:center;gap:5px}
+.bk-sub .lucide{width:13px;height:13px;color:var(--warn);fill:var(--warn)}
+.bk-tag{margin-inline-start:auto;font-size:.7rem;font-weight:600;color:var(--primary);background:var(--primary-soft);padding:4px 11px;border-radius:999px}
+.bk-label{font-size:.8rem;font-weight:600;color:var(--ink-soft);margin:14px 0 9px}
+.bk-services{display:flex;flex-direction:column;gap:8px}
+.bk-svc{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;width:100%;text-align:start;
+  background:transparent;border:1.5px solid var(--line);border-radius:12px;padding:10px 14px;font-family:inherit;transition:all .2s;font-size:.86rem}
+.bk-svc:hover{border-color:var(--primary-tint)}
+.bk-svc.active{border-color:var(--primary);background:var(--primary-soft)}
+.bk-radio{width:17px;height:17px;border-radius:50%;border:2px solid var(--line-strong);position:relative;flex:none}
+.bk-svc.active .bk-radio{border-color:var(--primary)}
+.bk-svc.active .bk-radio::after{content:'';position:absolute;inset:3px;border-radius:50%;background:var(--primary)}
+.bk-svc-meta{display:flex;align-items:center;gap:4px;color:var(--muted);font-size:.76rem}
+.bk-svc-meta .lucide{width:13px;height:13px}
+.bk-price{font-weight:700;color:var(--primary);font-size:.82rem}
+.bk-times{display:flex;gap:8px;flex-wrap:wrap}
+.bk-time{border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:8px 15px;font-size:.83rem;font-weight:600;color:var(--ink-soft);transition:all .2s}
+.bk-time:hover{border-color:var(--primary-tint)}
+.bk-time.sel{border-color:var(--primary);background:var(--primary);color:#fff}
+.bk-confirm{margin-top:18px}
+.bk-note{display:flex;align-items:center;justify-content:center;gap:7px;font-size:.76rem;color:var(--muted);margin-top:12px}
+.bk-note .lucide{width:14px;height:14px;color:var(--ok)}
+
+/* ============ كيف يعمل ============ */
+.section-how{background:var(--card);border-block:1px solid var(--line)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:52px;position:relative;list-style:none}
+.steps::before{content:'';position:absolute;top:34px;right:24px;left:24px;border-top:2px dashed var(--line-strong)}
+.step{position:relative}
+.step-num{font-family:var(--font-head);font-weight:800;font-size:3.9rem;line-height:1;color:transparent;
+  -webkit-text-stroke:1.6px var(--primary);background:var(--card);display:inline-block;padding-inline:20px;margin-inline-start:-20px}
+@supports not (-webkit-text-stroke:1px black){.step-num{color:var(--primary)}}
+.step-title{font-size:1.22rem;font-weight:700;margin:18px 0 8px}
+.step-text{color:var(--muted);font-size:.94rem}
+.step-visual{margin-top:22px}
+.link-bar{display:flex;align-items:center;gap:10px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.link-bar .lucide{width:16px;height:16px;color:var(--primary)}
+.link-url{flex:1;font-size:.8rem;color:var(--muted)}
+.copy-btn{border:none;background:var(--primary-soft);color:var(--primary);border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.copy-btn:hover{background:var(--primary);color:#fff}
+.copy-btn .lucide{width:14px;height:14px}
+.qr-row{display:flex;align-items:center;gap:9px;margin-top:10px;font-size:.78rem;color:var(--muted)}
+.qr-box{width:34px;height:34px;border:1.5px dashed var(--primary-tint);border-radius:9px;display:flex;align-items:center;justify-content:center;color:var(--primary)}
+.qr-box .lucide{width:17px;height:17px}
+.notif-card{display:flex;gap:12px;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:13px 15px;box-shadow:var(--shadow-sm)}
+.notif-ic{width:38px;height:38px;border-radius:11px;background:var(--ok-soft);color:var(--ok);display:flex;align-items:center;justify-content:center;flex:none}
+.notif-ic .lucide{width:17px;height:17px}
+.notif-card strong{display:block;font-size:.85rem;font-family:var(--font-head)}
+.notif-card small{font-size:.76rem;color:var(--muted)}
+.delivered{margin-inline-start:auto;color:var(--ok)}
+.delivered .lucide{width:16px;height:16px}
+.svc-chips{display:flex;flex-wrap:wrap;gap:8px}
+.tag-line{display:inline-flex;align-items:center;gap:7px;margin-top:12px;font-size:.78rem;font-weight:600;color:var(--primary);background:var(--secondary-soft);padding:6px 13px;border-radius:999px}
+
+/* ============ شبكة المزايا ============ */
+.bento{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:minmax(150px,auto);gap:20px}
+.tile{background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px;display:flex;flex-direction:column;gap:6px;transition:transform .3s,box-shadow .3s,border-color .3s}
+.tile:hover{transform:translateY(-4px);box-shadow:var(--shadow-md);border-color:var(--primary-tint)}
+.t-big{grid-column:span 2;grid-row:span 2}
+.t-wide{grid-column:span 2}
+.t-xwide{grid-column:span 3}
+.tile-head{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.tile-ic{width:42px;height:42px;border-radius:12px;background:var(--primary-soft);color:var(--primary);display:flex;align-items:center;justify-content:center;flex:none}
+.tile-ic .lucide{width:19px;height:19px}
+.tile-ic.wa{background:var(--ok-soft);color:var(--ok)}
+.tile-ic .wa-ic{width:19px;height:19px;fill:var(--ok)}
+.tile h3{font-size:1.05rem;font-weight:700}
+.tile p{color:var(--muted);font-size:.9rem}
+.tile-visual{margin-top:auto;padding-top:18px}
+.slots{display:flex;flex-direction:column;gap:8px}
+.slot{display:flex;align-items:center;gap:12px;padding:9px 14px;border-radius:10px;font-size:.82rem;font-weight:500}
+.slot b{font-family:var(--font-head);font-weight:600;width:48px;flex:none}
+.slot-b{background:var(--primary-soft);color:var(--primary)}
+.slot-r{background:var(--warn-soft);color:var(--warn)}
+.slot-f{border:1.5px dashed var(--line-strong);color:var(--muted)}
+.slot-note{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:.78rem;color:var(--muted)}
+.slot-note .lucide{width:15px;height:15px;color:var(--primary)}
+.chat{display:flex;flex-direction:column;gap:9px;max-width:400px}
+.bub{padding:10px 15px;font-size:.84rem;line-height:1.6;max-width:88%}
+.bub-out{align-self:flex-end;background:var(--primary);color:#fff;border-radius:15px 15px 15px 4px}
+.bub-in{align-self:flex-start;background:var(--secondary-soft);color:var(--ink);border-radius:15px 15px 4px 15px}
+.bub-meta{display:flex;align-items:center;gap:5px;justify-content:flex-end;font-size:.66rem;margin-top:4px;opacity:.75}
+.bub-meta .lucide{width:13px;height:13px}
+.role-list{display:flex;flex-direction:column;gap:9px}
+.role{display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid var(--line);border-radius:11px;font-size:.84rem}
+.role .lucide{width:17px;height:17px;color:var(--primary)}
+.role b{font-family:var(--font-head);font-weight:600}
+.role span{color:var(--muted);font-size:.76rem;margin-inline-start:auto}
+.bars{display:flex;gap:9px;align-items:flex-end;height:104px;padding-top:8px}
+.bar{flex:1;background:var(--primary);border-radius:6px 6px 2px 2px;height:var(--h);opacity:.9;transition:opacity .2s}
+.bar:hover{opacity:1}
+.bar.today{background:var(--secondary)}
+.bars-labels{display:flex;gap:9px;margin-top:7px}
+.bars-labels span{flex:1;text-align:center;font-size:.66rem;color:var(--muted)}
+.bars-cap{display:flex;align-items:center;gap:7px;margin-top:12px;font-size:.8rem;font-weight:600;color:var(--ink-soft)}
+.bars-cap .lucide{width:15px;height:15px;color:var(--ok)}
+.sync-row{display:flex;align-items:center;gap:14px}
+.sync-node{display:flex;flex-direction:column;align-items:center;gap:7px;font-size:.72rem;color:var(--muted);font-weight:600}
+.sync-ic{width:52px;height:52px;border-radius:15px;border:1px solid var(--line);background:var(--paper);display:flex;align-items:center;justify-content:center;color:var(--primary)}
+.sync-ic .lucide{width:23px;height:23px}
+.sync-arrow{color:var(--primary);animation:spinIc 7s linear infinite}
+.sync-arrow .lucide{width:20px;height:20px}
+@keyframes spinIc{to{transform:rotate(360deg)}}
+.t-xwide .tile-flex{display:flex;gap:36px;align-items:center}
+.t-xwide .tile-flex>div:first-child{flex:1}
+.quick-book{flex:none;width:290px;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px}
+.qb-url{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 12px;font-size:.72rem;color:var(--muted);margin-bottom:10px}
+.qb-url .lucide{width:13px;height:13px;color:var(--primary)}
+.qb-btn{display:block;width:100%;text-align:center;background:var(--primary);color:#fff;font-weight:600;font-size:.85rem;padding:10px;border-radius:9px;border:none}
+.qb-tag{text-align:center;font-size:.68rem;color:var(--muted);margin-top:8px}
+
+/* ============ معاينة اللوحة ============ */
+.section-preview{background:var(--secondary-soft);border-block:1px solid var(--line)}
+.preview-wrap{position:relative;max-width:1040px;margin-inline:auto}
+.anno{position:absolute;z-index:3;display:flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--line);
+  border-radius:12px;padding:10px 16px;font-size:.79rem;font-weight:600;box-shadow:var(--shadow-md);max-width:230px;line-height:1.5}
+.anno .lucide{width:16px;height:16px;color:var(--primary);flex:none}
+.anno-1{top:-18px;inset-inline-end:-16px}
+.anno-2{bottom:-18px;inset-inline-start:-14px}
+.browser{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow-lg)}
+.browser-bar{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line);background:var(--paper-2)}
+.dots{display:flex;gap:6px}
+.dots span{width:10px;height:10px;border-radius:50%;background:var(--line-strong)}
+.dots span:first-child{background:var(--secondary)}
+.url{flex:1;max-width:420px;margin-inline:auto;background:#fff;border:1px solid var(--line);border-radius:8px;padding:5px 16px;
+  font-size:.76rem;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:7px}
+.url .lucide{width:12px;height:12px;color:var(--ok)}
+.dash{display:grid;grid-template-columns:216px 1fr;min-height:540px;text-align:start}
+.dash-side{border-inline-end:1px solid var(--line);padding:18px 14px;background:var(--paper-2);display:flex;flex-direction:column}
+.side-logo{display:flex;align-items:center;gap:9px;font-family:var(--font-head);font-weight:700;font-size:1rem;padding:4px 10px 16px}
+.side-logo b{color:var(--primary)}
+.side-nav{display:flex;flex-direction:column;gap:3px}
+.side-item{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:10px;color:var(--ink-soft);font-size:.86rem;font-weight:500;transition:all .2s}
+.side-item .lucide{width:17px;height:17px}
+.side-item:hover{background:var(--primary-soft);color:var(--primary)}
+.side-item.active{background:var(--primary);color:#fff}
+.side-user{margin-top:auto;display:flex;align-items:center;gap:11px;padding:12px 10px;border-top:1px solid var(--line)}
+.side-av{width:38px;height:38px;border-radius:50%;background:var(--primary-soft);color:var(--primary);font-family:var(--font-head);font-weight:700;display:flex;align-items:center;justify-content:center;flex:none}
+.side-user b{font-size:.84rem;display:block;line-height:1.3}
+.side-user small{font-size:.7rem;color:var(--muted)}
+.dash-main{padding:24px 28px;overflow:hidden}
+.dash-top{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.dash-top h3{font-size:1.3rem;font-weight:700}
+.dash-top p{font-size:.83rem;color:var(--muted);margin-top:3px}
+.dash-clock{display:inline-flex;align-items:center;gap:7px;font-size:.75rem;color:var(--muted);margin-top:8px}
+.dash-clock .lucide{width:13px;height:13px}
+.dash-actions{margin-inline-start:auto;display:flex;gap:9px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:22px}
+.stat{border:1px solid var(--line);border-radius:13px;padding:14px 16px;background:var(--paper-2)}
+.stat-top{display:flex;align-items:center;gap:9px;font-size:.76rem;color:var(--muted);font-weight:600}
+.stat-ic{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex:none}
+.stat-ic .lucide{width:15px;height:15px}
+.si-a{background:var(--primary-soft);color:var(--primary)}
+.si-b{background:var(--ok-soft);color:var(--ok)}
+.stat b{display:block;font-family:var(--font-head);font-size:1.25rem;font-weight:700;margin-top:8px;line-height:1.2}
+.stat small{font-size:.7rem;color:var(--ok);font-weight:600}
+.dash-tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:24px 0 4px}
+.dash-tab{border:none;background:transparent;padding:10px 20px;font-size:.88rem;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s}
+.dash-tab.active{color:var(--primary);border-color:var(--primary)}
+.d-rows{padding-top:10px}
+.d-row{display:grid;grid-template-columns:58px 1fr auto auto;gap:14px;align-items:center;padding:12px 10px;border-bottom:1px dashed var(--line);transition:background .2s}
+.d-row:hover{background:var(--paper-2)}
+.d-row.st-canc{opacity:.5}
+.d-time{font-family:var(--font-head);font-weight:600;font-size:.88rem;color:var(--primary)}
+.d-cli{display:flex;align-items:center;gap:11px;min-width:0}
+.d-av{width:36px;height:36px;border-radius:50%;background:var(--secondary-soft);color:var(--primary);font-family:var(--font-head);font-weight:700;font-size:.85rem;display:flex;align-items:center;justify-content:center;flex:none}
+.d-name{font-weight:600;font-size:.87rem;line-height:1.35}
+.d-meta{font-size:.74rem;color:var(--muted)}
+.d-act{display:flex;gap:7px}
+.act{width:32px;height:32px;border-radius:9px;border:1px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .2s}
+.act .lucide{width:15px;height:15px}
+.act.ok:hover{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.act.bad:hover{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+/* عرض الأسبوع */
+.wk{display:grid;grid-template-columns:repeat(7,1fr);gap:9px;padding-top:12px}
+.wk-col{display:flex;flex-direction:column;gap:6px;min-width:0}
+.wk-head{text-align:center;font-size:.72rem;font-weight:700;color:var(--muted);padding-bottom:7px;border-bottom:2px solid var(--line);margin-bottom:4px}
+.wk-col.today{background:var(--paper-2);border-radius:10px;padding:6px}
+.wk-col.today .wk-head{color:var(--primary);border-color:var(--primary)}
+.wb{border-radius:8px;padding:5px 8px;font-size:.66rem;font-weight:600;line-height:1.5;overflow:hidden;text-overflow:ellipsis}
+.wb b{display:block;font-family:var(--font-head);font-weight:600}
+.wb-conf{background:var(--primary-soft);color:var(--primary)}
+.wb-pend{background:var(--secondary-soft);color:var(--ink-soft)}
+.wb-done{background:#F0EFE9;color:var(--muted)}
+.wb-free{border:1.5px dashed var(--line-strong);color:var(--muted);background:transparent;text-align:center}
+.hint{display:flex;align-items:center;justify-content:center;gap:9px;margin-top:26px;font-size:.83rem;color:var(--muted)}
+.hint .lucide{width:16px;height:16px;color:var(--primary)}
+
+/* ============ الأسعار ============ */
+.pricing-top{text-align:center;display:flex;flex-direction:column;align-items:center}
+.bill-toggle{display:flex;align-items:center;gap:14px;margin:30px 0 52px;flex-wrap:wrap;justify-content:center}
+.bill-note-txt{font-size:.83rem;color:var(--muted)}
+.bill-switch{position:relative;display:flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px}
+.bill-btn{padding:9px 26px;border-radius:999px;font-weight:600;font-size:.9rem;color:var(--muted);border:none;background:transparent;transition:all .25s}
+.bill-btn.active{background:var(--primary);color:#fff;box-shadow:var(--shadow-sm)}
+.save-badge{position:absolute;top:-13px;inset-inline-end:-14px;background:var(--warn-soft);color:var(--warn);font-size:.68rem;font-weight:700;padding:3px 11px;border-radius:999px;border:1px solid #EAD9B8}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;align-items:stretch}
+.plan{background:#fff;border:1px solid var(--line);border-radius:20px;padding:34px 30px;display:flex;flex-direction:column;position:relative;transition:transform .3s,box-shadow .3s,border-color .3s}
+.plan:hover{transform:translateY(-4px);box-shadow:var(--shadow-md);border-color:var(--primary-tint)}
+.plan-pro{background:var(--primary);border-color:var(--primary);color:#fff}
+.plan-pro:hover{box-shadow:var(--shadow-lg)}
+.plan-flag{position:absolute;top:-15px;inset-inline-start:30px;display:flex;align-items:center;gap:7px;background:var(--secondary);color:var(--primary-deep);font-size:.75rem;font-weight:700;padding:6px 15px;border-radius:999px;box-shadow:var(--shadow-sm)}
+.plan-flag .lucide{width:13px;height:13px;fill:var(--primary-deep)}
+.plan-name{font-family:var(--font-head);font-weight:700;font-size:1.15rem}
+.plan-desc{font-size:.83rem;color:var(--muted);margin-top:4px}
+.plan-pro .plan-desc{color:rgba(255,255,255,.8)}
+.price-row{display:flex;align-items:baseline;gap:9px;margin:22px 0 4px}
+.price{font-family:var(--font-head);font-weight:800;font-size:2.55rem;line-height:1}
+.plan-pro .price{color:#fff}
+.price-unit{font-size:.8rem;color:var(--muted);font-weight:500}
+.plan-pro .price-unit{color:rgba(255,255,255,.8)}
+.price-num.flip{animation:priceIn .3s ease}
+@keyframes priceIn{from{opacity:0;transform:translateY(6px)}}
+.bill-note{font-size:.74rem;color:var(--muted);min-height:22px}
+.plan-pro .bill-note{color:var(--secondary)}
+.plan-sep{border:none;border-top:1px solid var(--line);margin:20px 0}
+.plan-pro .plan-sep{border-color:rgba(255,255,255,.2)}
+.plan-feats{list-style:none;display:flex;flex-direction:column;gap:11px;flex:1}
+.plan-feats li{display:flex;gap:10px;align-items:flex-start;font-size:.88rem}
+.plan-feats .lucide{width:16px;height:16px;color:var(--ok);margin-top:4px;flex:none}
+.plan-pro .plan-feats .lucide{color:var(--secondary)}
+.plan .btn{margin-top:26px}
+.plan-inc{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:44px}
+.plan-inc .chip{background:#fff}
+.table-wrap{overflow-x:auto;margin-top:44px;border:1px solid var(--line);border-radius:16px;background:#fff}
+table{width:100%;border-collapse:collapse;min-width:720px}
+th,td{padding:15px 18px;border-bottom:1px solid var(--line);font-size:.88rem;text-align:center}
+thead th{background:var(--paper-2);font-family:var(--font-head);font-size:.95rem;padding-block:17px}
+thead th:first-child{text-align:start;color:var(--muted);font-size:.8rem;font-weight:600}
+tbody tr:last-child td{border-bottom:none}
+tbody td:first-child{text-align:start;font-weight:600;color:var(--ink-soft)}
+tbody td .lucide{width:17px;height:17px;margin-inline:auto}
+td .ok-ic{color:var(--ok)} td .no-ic{color:var(--line-strong)}
+th:nth-child(3),td:nth-child(3){background:var(--primary-soft)}
+.price-note{text-align:center;font-size:.8rem;color:var(--muted);margin-top:22px}
+
+/* ============ الدعوة الختامية ============ */
+.cta-final{position:relative;background:var(--primary-deep);color:#fff;overflow:hidden;padding-block:110px;text-align:center}
+.cta-final::before{content:'';position:absolute;inset:0;opacity:.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Ccircle cx='2' cy='2' r='1.5' fill='%23ffffff' fill-opacity='0.07'/%3E%3C/svg%3E")}
+.cta-ghost{position:absolute;bottom:-56px;inset-inline-start:-20px;font-family:var(--font-head);font-weight:800;font-size:15rem;line-height:1;color:rgba(255,255,255,.035);pointer-events:none;user-select:none}
+.cta-inner{position:relative;max-width:640px;margin-inline:auto}
+.cta-eyebrow{color:var(--secondary);font-weight:600;font-size:.85rem}
+.cta-inner h2{color:#fff;font-size:clamp(1.8rem,3.6vw,2.5rem);font-weight:800;margin-bottom:16px}
+.cta-hl{border-bottom:7px solid var(--secondary);padding-bottom:2px}
+.cta-inner p{color:rgba(255,255,255,.82);font-size:1.05rem}
+.cta-inner .btn{margin-top:34px}
+.cta-sub{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin-top:24px;font-size:.82rem;color:rgba(255,255,255,.75)}
+.cta-sub .lucide{width:14px;height:14px;color:var(--secondary)}
+.cta-sub span{display:flex;align-items:center;gap:7px}
+.cta-mail{display:inline-flex;align-items:center;gap:8px;margin-top:26px;font-size:.88rem;color:var(--secondary);font-weight:600;transition:color .2s}
+.cta-mail:hover{color:#fff}
+.cta-mail .lucide{width:15px;height:15px}
+
+/* ============ الفوتر ============ */
+.site-footer{background:#0B211F;color:#C9D6D3;padding-block:70px 0}
+.footer-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:44px;padding-bottom:52px}
+.f-brand p{font-size:.88rem;color:#8FA5A1;margin:18px 0 22px;max-width:300px}
+.f-contact{display:flex;flex-direction:column;gap:11px}
+.f-contact a,.f-contact span{display:flex;align-items:center;gap:10px;font-size:.85rem;color:#C9D6D3;transition:color .2s}
+.f-contact a:hover{color:var(--secondary)}
+.f-contact .lucide{width:15px;height:15px;color:var(--secondary)}
+.f-col h4{color:#fff;font-size:.95rem;font-weight:700;margin-bottom:20px}
+.f-col ul{list-style:none;display:flex;flex-direction:column;gap:12px}
+.f-col a,.f-col button{font-size:.87rem;color:#8FA5A1;transition:color .2s;background:none;border:none;padding:0;text-align:start;font-family:inherit}
+.f-col a:hover,.f-col button:hover{color:var(--secondary)}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.1);padding-block:24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.footer-bottom p{font-size:.78rem;color:#8FA5A1}
+.f-social{margin-inline-start:auto;display:flex;gap:9px}
+.f-social button{width:38px;height:38px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:transparent;color:#C9D6D3;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.f-social button:hover{background:var(--primary);border-color:var(--primary);color:#fff}
+.f-social .lucide{width:16px;height:16px}
+
+/* ============ النوافذ المنبثقة ============ */
+.modal{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+.modal.open{display:flex}
+.modal-backdrop{position:absolute;inset:0;background:rgba(11,33,31,.58);backdrop-filter:blur(3px)}
+.modal-card{position:relative;background:#fff;border-radius:20px;max-width:470px;width:100%;padding:34px;box-shadow:var(--shadow-lg);animation:modalIn .35s cubic-bezier(.34,1.3,.64,1);max-height:92vh;overflow-y:auto}
+@keyframes modalIn{from{opacity:0;transform:translateY(26px) scale(.97)}}
+.modal-close{position:absolute;top:16px;inset-inline-end:16px;width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--muted);display:flex;align-items:center;justify-content:center;transition:all .2s}
+.modal-close:hover{color:var(--bad);border-color:var(--bad)}
+.modal-close .lucide{width:16px;height:16px}
+.modal-card h3{font-size:1.35rem;font-weight:700}
+.modal-sub{font-size:.86rem;color:var(--muted);margin:6px 0 24px}
+.info-box{display:flex;gap:12px;background:var(--secondary-soft);border:1px solid #CBE6F2;border-radius:12px;padding:13px 15px;font-size:.8rem;color:var(--ink-soft);line-height:1.7;margin-bottom:22px}
+.info-box .lucide{width:18px;height:18px;color:var(--primary);flex:none;margin-top:3px}
+.info-box b{color:var(--primary)}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:.83rem;font-weight:600;margin-bottom:7px}
+.field input,.field select{width:100%;padding:11px 15px;border:1.5px solid var(--line);border-radius:11px;font-family:inherit;font-size:.9rem;background:#fff;color:var(--ink);transition:border-color .2s,box-shadow .2s}
+.field input:focus,.field select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
+.form-foot{display:flex;justify-content:flex-end;align-items:center;margin:4px 0 18px;font-size:.83rem}
+.modal-link{border:none;background:none;color:var(--primary);font-weight:600;font-size:.85rem;padding:0}
+.modal-link:hover{text-decoration:underline}
+.plan-chip{display:inline-flex;align-items:center;gap:9px;background:var(--primary-soft);color:var(--primary);font-size:.8rem;font-weight:600;padding:8px 15px;border-radius:999px;margin-bottom:20px}
+.plan-chip .lucide{width:15px;height:15px}
+.suc-view{text-align:center;padding-block:14px}
+.suc-ic{width:68px;height:68px;border-radius:50%;background:var(--ok-soft);color:var(--ok);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;animation:pop .5s cubic-bezier(.34,1.56,.64,1) both}
+.suc-ic .lucide{width:30px;height:30px}
+@keyframes pop{from{transform:scale(.35);opacity:0}}
+.suc-view h4{font-size:1.2rem;margin-bottom:10px}
+.suc-view p{font-size:.87rem;color:var(--muted);margin-bottom:24px}
+
+/* ============ الإشعارات Toasts ============ */
+.toasts{position:fixed;bottom:24px;inset-inline-start:24px;z-index:120;display:flex;flex-direction:column;gap:10px}
+.toast{display:flex;gap:11px;align-items:flex-start;background:var(--ink);color:#fff;padding:13px 17px;border-radius:13px;
+  box-shadow:var(--shadow-lg);max-width:340px;font-size:.85rem;line-height:1.6;animation:toastIn .35s cubic-bezier(.34,1.3,.64,1);transition:opacity .3s,transform .3s}
+.toast.hide{opacity:0;transform:translateY(10px)}
+.toast .lucide{width:17px;height:17px;color:var(--secondary);flex:none;margin-top:3px}
+.toast.t-ok .lucide{color:#7ED9A4}
+@keyframes toastIn{from{opacity:0;transform:translateY(14px)}}
+
+/* ============ الظهور عند التمرير (فقط عند عمل الجافاسكربت) ============ */
+html.js .reveal{opacity:0;transform:translateY(20px);transition:opacity .65s ease,transform .65s ease}
+html.js .reveal.in{opacity:1;transform:none}
+
+/* ============ التجاوب ============ */
+@media (max-width:1150px){.anno{display:none}}
+@media (max-width:1080px){
+  .hero-grid{grid-template-columns:1fr;gap:70px;padding-block:56px 90px}
+  .hero-copy{text-align:center;display:flex;flex-direction:column;align-items:center}
+  .who-pane{grid-template-columns:1fr;gap:44px}
+}
+@media (max-width:1020px){.main-nav{display:none}.burger{display:flex}}
+@media (max-width:1000px){
+  .bento{grid-template-columns:repeat(2,1fr)}
+  .t-big{grid-column:span 2}
+  .t-xwide{grid-column:span 2}
+  .t-xwide .tile-flex{flex-direction:column;align-items:stretch}
+  .quick-book{width:100%}
+  .plans{grid-template-columns:1fr;max-width:460px;margin-inline:auto}
+}
+@media (max-width:900px){
+  .steps{grid-template-columns:1fr;gap:44px}
+  .steps::before{display:none}
+  .step-num{font-size:2.9rem;padding-inline:0;margin-inline-start:0}
+  .dash{grid-template-columns:1fr}
+  .dash-side{display:none}
+}
+@media (max-width:680px){
+  .section{padding-block:68px}
+  .btn-login span{display:none}
+  .hero-stats{grid-template-columns:1fr;gap:16px}
+  .bento{grid-template-columns:1fr}
+  .t-big,.t-wide,.t-xwide{grid-column:span 1}
+  .stats{grid-template-columns:1fr 1fr}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .f-brand{grid-column:span 2}
+  .toast-booking{inset-inline-start:4px;top:-20px}
+  .float-chip{inset-inline-end:0;bottom:-20px}
+  .d-row{grid-template-columns:48px 1fr auto}
+  .d-act{display:none}
+  .cta-ghost{font-size:9rem}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001s!important;transition-duration:.001s!important}
+}
+</style>
+</head>
+<body>
+
+<!-- رمز واتساب مخصص (أيقونة براند غير موجودة في مكتبات الأيقونات العامة) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="ic-whatsapp" viewBox="0 0 448 512">
+    <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/>
+  </symbol>
+</svg>
+
+<!-- ================= الهيدر ================= -->
+<header class="site-header" id="siteHeader">
+  <div class="container header-inner">
+    <a class="logo" href="#hero" aria-label="حجزكوم — الرئيسية">
+      <svg width="40" height="40" viewBox="0 0 44 44" aria-hidden="true">
+        <rect x="2" y="2" width="40" height="40" rx="12" fill="#1D5655"/>
+        <circle cx="15" cy="9.5" r="2.6" fill="#B0DEED"/>
+        <circle cx="29" cy="9.5" r="2.6" fill="#B0DEED"/>
+        <path d="M13 24 l6.5 6.5 L31 16.5" fill="none" stroke="#B0DEED" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="logo-word"><b>حجز</b>كوم</span>
+    </a>
+    <nav class="main-nav" aria-label="التنقل الرئيسي">
+      <a href="#who">لمن صُنِع</a>
+      <a href="#how">كيف يعمل</a>
+      <a href="#features">المزايا</a>
+      <a href="#preview">معاينة</a>
+      <a href="#pricing">الأسعار</a>
+    </nav>
+    <div class="header-actions">
+      <div class="lang-switch" role="group" aria-label="اختيار اللغة">
+        <button class="lang-btn active" type="button">عربي</button>
+        <button class="lang-btn" type="button" id="langEn">EN</button>
+      </div>
+      <button class="btn btn-ghost btn-sm btn-login" id="loginBtn"><i data-lucide="log-in"></i><span>دخول</span></button>
+      <button class="btn btn-primary btn-sm" id="signupBtn"><i data-lucide="user-plus"></i><span>إنشاء حساب</span></button>
+      <button class="burger" id="burger" aria-label="فتح القائمة"><i data-lucide="menu"></i></button>
+    </div>
+  </div>
+  <div class="m-nav" id="mnav">
+    <nav aria-label="قائمة الجوال">
+      <a href="#who">لمن صُنِع</a>
+      <a href="#how">كيف يعمل</a>
+      <a href="#features">المزايا</a>
+      <a href="#preview">معاينة اللوحة</a>
+      <a href="#pricing">الأسعار</a>
+    </nav>
+    <div class="m-actions">
+      <button class="btn btn-ghost" data-login><i data-lucide="log-in"></i> دخول الفريق</button>
+      <button class="btn btn-primary" data-signup><i data-lucide="user-plus"></i> إنشاء حساب</button>
+    </div>
+  </div>
+</header>
+
+<main>
+<!-- ================= الهيرو ================= -->
+<section class="hero" id="hero">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow">منصة عراقية لإدارة الحجوزات</span>
+      <h1>استقبل <span class="hl">الحجوزات</span>،<br>لا المكالمات الهاتفية.</h1>
+      <p class="hero-sub">حجزكوم يمنح نشاطك صفحة حجز ذكية يستخدمها زبائنك <strong>دون أي حساب</strong>، ويمنحك أنت وفريقك جدولاً يومياً منظماً مع تذكيرات واتساب تلقائية تُقلّل الغياب.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary btn-lg" data-signup><i data-lucide="user-plus"></i> أنشئ حساب نشاطك</button>
+        <a class="btn btn-ghost btn-lg" href="#how">كيف يعمل؟ <i data-lucide="arrow-left"></i></a>
+      </div>
+      <ul class="hero-trust">
+        <li><i data-lucide="check"></i> ابدأ مجاناً</li>
+        <li><i data-lucide="check"></i> بدون بطاقة ائتمانية</li>
+        <li><i data-lucide="check"></i> إعداد خلال 5 دقائق</li>
+      </ul>
+      <div class="hero-stats">
+        <div><strong>+840</strong><span>نشاطاً تجارياً يدير مواعيده عبر حجزكوم</span></div>
+        <div><strong>40%</strong><span>انخفاض في حالات عدم الحضور</span></div>
+        <div><strong>96%</strong><span>من التذكيرات تُسلَّم بنجاح</span></div>
+      </div>
+    </div>
+
+    <div class="hero-visual" aria-hidden="true">
+      <div class="hero-deco"></div>
+      <div class="hero-pattern"></div>
+      <div class="mock-card">
+        <div class="mock-head">
+          <span class="mock-ic"><i data-lucide="calendar-days"></i></span>
+          <div class="mock-title"><strong>مواعيد اليوم</strong><span>الجمعة 14 حزيران</span></div>
+          <span class="live-pill"><span class="live-dot"></span> مباشر</span>
+        </div>
+        <div class="appt-list" id="heroList">
+          <div class="appt"><div class="appt-time">3:00</div><div><div class="appt-name">سيف عبد الله</div><div class="appt-meta">قص وتصفيف · مع كرار</div></div><span class="pill p-done">مكتمل</span></div>
+          <div class="appt"><div class="appt-time">3:45</div><div><div class="appt-name">نور أحمد</div><div class="appt-meta">مكياج مناسبات · مع ريم</div></div><span class="pill p-conf">مؤكد</span></div>
+          <div class="appt"><div class="appt-time">4:15</div><div><div class="appt-name">فاطمة علي</div><div class="appt-meta">عناية بالبشرة · مع دانا</div></div><span class="pill p-conf">مؤكد</span></div>
+          <div class="free-slot"><i data-lucide="plus"></i> 5:00 — متاح للحجز من رابطك</div>
+        </div>
+        <div class="mock-foot">
+          <div class="occ-head"><span>إشغال اليوم</span><strong><b id="heroCount">24</b> حجزاً · <b id="heroPct">78</b>%</strong></div>
+          <div class="occ-bar"><span id="heroBar" style="width:78%"></span></div>
+        </div>
+      </div>
+      <div class="toast-booking" id="heroToast">
+        <span class="tb-ic"><i data-lucide="bell"></i></span>
+        <div><strong>حجز جديد من صفحتك</strong><span id="heroToastText"></span></div>
+      </div>
+      <div class="float-chip"><svg class="wa-ic"><use href="#ic-whatsapp"/></svg> تم إرسال تذكير واتساب <i data-lucide="check"></i></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= لمن صُنِع ================= -->
+<section class="section" id="who">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow">لمن صُنِع حجزكوم؟</span>
+      <h2>ثلاثة نشاطات… ونظام واحد يفهمها كلها</h2>
+      <p class="sec-sub">سواء كان عملك بالمقص والتصفيف أو بالعلاج والاستشارة، يجهّزك حجزكوم بخدمات وجدول يناسب طبيعة نشاطك. اختر نوع نشاطك وشاهد الفرق.</p>
+    </div>
+    <div class="who-tabs reveal" role="tablist" aria-label="نوع النشاط">
+      <button class="who-tab active" data-who="salon" role="tab" aria-selected="true"><i data-lucide="sparkles"></i> صالونات التجميل</button>
+      <button class="who-tab" data-who="barber" role="tab" aria-selected="false"><i data-lucide="scissors"></i> صالونات الحلاقة</button>
+      <button class="who-tab" data-who="clinic" role="tab" aria-selected="false"><i data-lucide="stethoscope"></i> العيادات</button>
+    </div>
+
+    <div class="who-panel reveal" id="whoPanel">
+      <!-- لوحة: صالونات التجميل -->
+      <div class="who-pane" data-pane="salon">
+        <div class="who-info">
+          <h3>صالونات التجميل</h3>
+          <p class="who-tagline">خدمات متعددة المدد، وزبائن يعودون إليك</p>
+          <p class="who-desc">من التسريحة السريعة إلى مكياج المناسبات الذي يستغرق ساعتين — يتعامل الجدول مع كل خدمة بمدتها الحقيقية ويحجز على المصففة المناسبة تلقائياً.</p>
+          <ul class="who-points">
+            <li><i data-lucide="check"></i> خدمات بمدد وأسعار مختلفة تُحسب تلقائياً في الجدول</li>
+            <li><i data-lucide="check"></i> تذكير قبل مواعيد المناسبات يقلّل الغياب في أوقات الذروة</li>
+            <li><i data-lucide="check"></i> سجل لكل زبونة مع تاريخ خدماتها وتفضيلاتها</li>
+          </ul>
+          <span class="who-slabel">قوالب خدمات جاهزة مثل:</span>
+          <div class="chip-row">
+            <span class="chip">تسريحة مناسبات</span>
+            <span class="chip">مكياج</span>
+            <span class="chip">صبغة كاملة</span>
+            <span class="chip">عناية بالبشرة</span>
+            <span class="chip">مانيكير وبديكير</span>
+          </div>
+        </div>
+        <div class="bk-card">
+          <div class="bk-head">
+            <span class="bk-avatar">ل</span>
+            <div><strong>صالون لمسة</strong><span class="bk-sub"><i data-lucide="star"></i> 4.9 · 320 تقييماً</span></div>
+            <span class="bk-tag">صفحة عامة</span>
+          </div>
+          <span class="bk-label">اختر الخدمة</span>
+          <div class="bk-services">
+            <button class="bk-svc active" type="button"><span class="bk-radio"></span> صبغة كاملة<span class="bk-svc-meta"><i data-lucide="clock"></i> ساعتان</span><span class="bk-price">45,000 د.ع</span></button>
+            <button class="bk-svc" type="button"><span class="bk-radio"></span> قص وتصفيف<span class="bk-svc-meta"><i data-lucide="clock"></i> 45 دقيقة</span><span class="bk-price">15,000 د.ع</span></button>
+            <button class="bk-svc" type="button"><span class="bk-radio"></span> عناية بالبشرة<span class="bk-svc-meta"><i data-lucide="clock"></i> ساعة</span><span class="bk-price">30,000 د.ع</span></button>
+          </div>
+          <span class="bk-label">اختر الوقت</span>
+          <div class="bk-times">
+            <button class="bk-time" type="button">4:00</button>
+            <button class="bk-time sel" type="button">4:30</button>
+            <button class="bk-time" type="button">6:00</button>
+            <button class="bk-time" type="button">7:30</button>
+          </div>
+          <button class="btn btn-primary btn-block bk-confirm" type="button">تأكيد الحجز</button>
+          <div class="bk-note"><i data-lucide="check"></i> بدون تسجيل — تأكيد فوري</div>
+        </div>
+      </div>
+
+      <!-- لوحة: صالونات الحلاقة -->
+      <div class="who-pane" data-pane="barber" hidden>
+        <div class="who-info">
+          <h3>صالونات الحلاقة</h3>
+          <p class="who-tagline">طابور منظم بدل الزحام على الكرسي</h3>
+          <p class="who-desc">بدل ما يقف الزبون بانتظار دوره، يشاركه رابط الحجز ليختار وقته وحلاقه المفضل — وتبقى أنت تدير الكراسي والفريق من شاشة واحدة.</p>
+          <ul class="who-points">
+            <li><i data-lucide="check"></i> جدول مستقل لكل حلاق مع أوقات دوامه واستراحاته</li>
+            <li><i data-lucide="check"></i> باقات (قص + ذقن) بسعر واحد تُحجز بضغطة واحدة</li>
+            <li><i data-lucide="check"></i> أوقات الذروة المسائية تمتلئ بدل ما تبقى فاضية</li>
+          </ul>
+          <span class="who-slabel">قوالب خدمات جاهزة مثل:</span>
+          <div class="chip-row">
+            <span class="chip">قص وتصفيف</span>
+            <span class="chip">حلاقة ذقن</span>
+            <span class="chip">باقة كاملة</span>
+            <span class="chip">غسيل وعلاج فروة</span>
+            <span class="chip">قص أطفال</span>
+          </div>
+        </div>
+        <div class="bk-card">
+          <div class="bk-head">
+            <span class="bk-avatar">أ</span>
+            <div><strong>صالون الأناقة للحلاقة</strong><span class="bk-sub"><i data-lucide="star"></i> 4.8 · 540 تقييماً</span></div>
+            <span class="bk-tag">صفحة عامة</span>
+          </div>
+          <span class="bk-label">اختر الخدمة</span>
+          <div class="bk-services">
+            <button class="bk-svc active" type="button"><span class="bk-radio"></span> باقة كاملة (قص + ذقن)<span class="bk-svc-meta"><i data-lucide="clock"></i> 45 دقيقة</span><span class="bk-price">15,000 د.ع</span></button>
+            <button class="bk-svc" type="button"><span class="bk-radio"></span> قص وتصفيف<span class="bk-svc-meta"><i data-lucide="clock"></i> 30 دقيقة</span><span class="bk-price">10,000 د.ع</span></button>
+            <button class="bk-svc" type="button"><span class="bk-radio"></span> حلاقة ذقن<span class="bk-svc-meta"><i data-lucide="clock"></i> 20 دقيقة</span><span class="bk-price">5,000 د.ع</span></button>
+          </div>
+          <span class="bk-label">اختر الوقت</span>
+          <div class="bk-times">
+            <button class="bk-time" type="button">5:00</button>
+            <button class="bk-time" type="button">5:30</button>
+            <button class="bk-time sel" type="button">6:00</button>
+            <button class="bk-time" type="button">8:30</button>
+          </div>
+          <button class="btn btn-primary btn-block bk-confirm" type="button">تأكيد الحجز</button>
+          <div class="bk-note"><i data-lucide="check"></i> بدون تسجيل — تأكيد فوري</div>
+        </div>
+      </div>
+
+      <!-- لوحة: العيادات -->
+      <div class="who-pane" data-pane="clinic" hidden>
+        <div class="who-info">
+          <h3>العيادات</h3>
+          <p class="who-tagline">مواعيد هادئة، وسجل مرضى منظم</p>
+          <p class="who-desc">فترات كافية بين المواعيد حسب نوع الاستشارة، مع سجل زيارات وملاحظات متابعة لكل مريض — وتذكيرات تقلّل المواعيد الضائعة التي تُفرّغ جدولك.</p>
+          <ul class="who-points">
+            <li><i data-lucide="check"></i> مدد مختلفة لكل نوع استشارة أو جلسة علاج</li>
+            <li><i data-lucide="check"></i> سجل زيارات وملاحظات متابعة لكل مريض</li>
+            <li><i data-lucide="check"></i> صلاحيات دقيقة تحمي خصوصية بيانات المرضى</li>
+          </ul>
+          <span class="who-slabel">قوالب خدمات جاهزة مثل:</span>
+          <div class="chip-row">
+            <span class="chip">استشارة عامة</span>
+            <span class="chip">جلسة علاج طبيعي</span>
+            <span class="chip">تنظيف أسنان</span>
+            <span class="chip">متابعة</span>
+            <span class="chip">فحص دوري</span>
+          </div>
+        </div>
+        <div class="bk-card">
+          <div class="bk-head">
+            <span class="bk-avatar">ن</span>
+            <div><strong>عيادة النور</strong><span class="bk-sub"><i data-lucide="star"></i> 4.9 · 210 تقييمات</span></div>
+            <span class="bk-tag">صفحة عامة</span>
+          </div>
+          <span class="bk-label">اختر الخدمة</span>
+          <div class="bk-services">
+            <button class="bk-svc active" type="button"><span class="bk-radio"></span> استشارة عامة<span class="bk-svc-meta"><i data-lucide="clock"></i> 30 دقيقة</span><span class="bk-price">25,000 د.ع</span></button>
+            <button class="bk-svc" type="button"><span class="bk-radio"></span> جلسة علاج طبيعي<span class="bk-svc-meta"><i data-lucide="clock"></i> ساعة</span><span class="bk-price">35,000 د.ع</span></button>
+            <button class="bk-svc" type="button"><span class="bk-radio"></span> متابعة<span class="bk-svc-meta"><i data-lucide="clock"></i> 15 دقيقة</span><span class="bk-price">15,000 د.ع</span></button>
+          </div>
+          <span class="bk-label">اختر الوقت</span>
+          <div class="bk-times">
+            <button class="bk-time sel" type="button">9:00</button>
+            <button class="bk-time" type="button">9:30</button>
+            <button class="bk-time" type="button">11:00</button>
+            <button class="bk-time" type="button">12:30</button>
+          </div>
+          <button class="btn btn-primary btn-block bk-confirm" type="button">تأكيد الحجز</button>
+          <div class="bk-note"><i data-lucide="check"></i> بدون تسجيل — تأكيد فوري</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= كيف يعمل ================= -->
+<section class="section section-how" id="how">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow">كيف يعمل</span>
+      <h2>من الصفر إلى أول حجز… بثلاث خطوات</h2>
+      <p class="sec-sub">لا تحتاج خبرة تقنية ولا أجهزة جديدة — هاتفك وإنترنتك يكفيان.</p>
+    </div>
+    <ol class="steps" data-stagger>
+      <li class="step reveal">
+        <span class="step-num" dir="ltr">01</span>
+        <h3 class="step-title">أنشئ صفحة نشاطك</h3>
+        <p class="step-text">أضف خدماتك وأسعارك وأوقات دوام فريقك خلال دقائق — مع قوالب خدمات جاهزة لنوع نشاطك.</p>
+        <div class="step-visual">
+          <div class="svc-chips">
+            <span class="chip">قص وتصفيف</span>
+            <span class="chip">صبغة كاملة</span>
+            <span class="chip">مكياج مناسبات</span>
+            <span class="chip add"><i data-lucide="plus"></i> إضافة خدمة</span>
+          </div>
+        </div>
+      </li>
+      <li class="step reveal">
+        <span class="step-num" dir="ltr">02</span>
+        <h3 class="step-title">شارك رابط الحجز</h3>
+        <p class="step-text">رابط واحد تشاركه على مواقع التواصل أو تعلّقه في متجرك — زبائنك يحجزون منه مباشرة.</p>
+        <div class="step-visual">
+          <div class="link-bar">
+            <i data-lucide="link-2"></i>
+            <span class="link-url ltr">hajzkom.iq/lamsa</span>
+            <button class="copy-btn" id="copyLink" aria-label="نسخ الرابط" type="button"><i data-lucide="copy"></i></button>
+          </div>
+          <div class="qr-row"><span class="qr-box"><i data-lucide="qr-code"></i></span> أو اعرض رمز QR على طاولة الاستقبال</div>
+          <span class="tag-line"><i data-lucide="badge-check"></i> الزبون يحجز بدون تطبيق وبدون حساب</span>
+        </div>
+      </li>
+      <li class="step reveal">
+        <span class="step-num" dir="ltr">03</span>
+        <h3 class="step-title">استلم واستقبل</h3>
+        <p class="step-text">يصلك كل حجز على جدولك فوراً، ويُرسل النظام تذكير واتساب تلقائياً قبل الموعد — فيقل الغياب وتنظم الحركة.</p>
+        <div class="step-visual">
+          <div class="notif-card">
+            <span class="notif-ic"><i data-lucide="bell"></i></span>
+            <div><strong>تذكير واتساب — قبل الموعد بساعة</strong><small>يُرسل تلقائياً لكل حجز مؤكد</small></div>
+            <span class="delivered" title="تم التسليم"><i data-lucide="check-check"></i></span>
+          </div>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ================= المزايا ================= -->
+<section class="section" id="features">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow">المزايا</span>
+      <h2>أدوات إدارة تُريح رأسك، لا تزيده</h2>
+      <p class="sec-sub">كل ما يحتاجه صاحب النشاط لإدارة المواعيد والفريق والملخص المالي — دون تعقيد.</p>
+    </div>
+    <div class="bento" data-stagger>
+      <div class="tile t-big reveal">
+        <div class="tile-head"><span class="tile-ic"><i data-lucide="calendar-check"></i></span><h3>جدولة ذكية بلا تعارض</h3></div>
+        <p>أوقات دوام، استراحات، ومدد خدمة مختلفة — النظام يحسبها كلها ويمنع حجزين في وقت واحد تلقائياً.</p>
+        <div class="tile-visual">
+          <div class="slots">
+            <div class="slot slot-b"><b>9:00</b> محجوز — قص وتصفيف</div>
+            <div class="slot slot-f"><b>10:00</b> متاح للحجز</div>
+            <div class="slot slot-r"><b>10:30</b> استراحة الفريق</div>
+            <div class="slot slot-b"><b>11:00</b> محجوز — صبغة كاملة</div>
+            <div class="slot slot-f"><b>12:00</b> متاح للحجز</div>
+          </div>
+          <div class="slot-note"><i data-lucide="shield-check"></i> تعارض في المواعيد؟ مستحيل — يحسبها النظام عنك.</div>
+        </div>
+      </div>
+      <div class="tile t-wide reveal">
+        <div class="tile-head"><span class="tile-ic wa"><svg class="wa-ic"><use href="#ic-whatsapp"/></svg></span><h3>تذكيرات واتساب تلقائية</h3></div>
+        <p>تذكير قبل الموعد يصل زبونك مباشرة على واتساب، فيقلّ الغياب لديك حتى 40%.</p>
+        <div class="tile-visual">
+          <div class="chat">
+            <div class="bub bub-out">مرحباً زينب، تذكير بموعدك غداً الساعة 5:00 م — صبغة كاملة مع دانا.
+              <div class="bub-meta"><span>10:30 ص</span><i data-lucide="check-check"></i></div>
+            </div>
+            <div class="bub bub-in">شكراً لالتذكير، سأحضر في وقتي.
+              <div class="bub-meta"><span>10:32 ص</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tile reveal">
+        <div class="tile-head"><span class="tile-ic"><i data-lucide="users"></i></span><h3>صلاحيات الفريق</h3></div>
+        <p>مالك ومشرف وموظف — كلٌّ يرى ما يخصه فقط.</p>
+        <div class="tile-visual">
+          <div class="role-list">
+            <div class="role"><i data-lucide="shield-check"></i><b>مالك</b><span>كل الصلاحيات</span></div>
+            <div class="role"><i data-lucide="user-cog"></i><b>مشرف</b><span>الجدول والتقارير</span></div>
+            <div class="role"><i data-lucide="users"></i><b>موظف</b><span>جدوله فقط</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="tile reveal">
+        <div class="tile-head"><span class="tile-ic"><i data-lucide="bar-chart-3"></i></span><h3>تقارير واضحة</h3></div>
+        <p>الإشغال، أكثر الخدمات طلباً، والإيراد — بلمحة واحدة.</p>
+        <div class="tile-visual">
+          <div class="bars">
+            <span class="bar" style="--h:88%"></span><span class="bar" style="--h:34%"></span>
+            <span class="bar" style="--h:52%"></span><span class="bar" style="--h:66%"></span>
+            <span class="bar" style="--h:58%"></span><span class="bar" style="--h:74%"></span>
+            <span class="bar today" style="--h:92%"></span>
+          </div>
+          <div class="bars-labels"><span>سبت</span><span>أحد</span><span>اثنين</span><span>ثلاثاء</span><span>أربعاء</span><span>خميس</span><span>جمعة</span></div>
+          <div class="bars-cap"><i data-lucide="trending-up"></i> الإشغال الأسبوعي 78% (+12%)</div>
+        </div>
+      </div>
+      <div class="tile reveal">
+        <div class="tile-head"><span class="tile-ic"><i data-lucide="refresh-cw"></i></span><h3>مزامنة التقويم</h3></div>
+        <p>كل حجز جديد يظهر فوراً في Google Calendar.</p>
+        <div class="tile-visual">
+          <div class="sync-row">
+            <span class="sync-node"><span class="sync-ic"><i data-lucide="calendar-days"></i></span>Google</span>
+            <span class="sync-arrow"><i data-lucide="refresh-cw"></i></span>
+            <span class="sync-node"><span class="sync-ic"><i data-lucide="calendar-check"></i></span>حجزكوم</span>
+          </div>
+        </div>
+      </div>
+      <div class="tile t-xwide reveal">
+        <div class="tile-flex">
+          <div>
+            <div class="tile-head"><span class="tile-ic"><i data-lucide="link-2"></i></span><h3>زبونك يحجز… بلا حساب ولا تطبيق</h3></div>
+            <p>يفتح زبونك رابطك من أي هاتف، يختار الخدمة والوقت، ويصل الحجز إلى لوحتك فوراً — لا تطبيق يُحمَّل، لا تسجيل، لا كلمة مرور. الحسابات في حجزكوم مخصصة لك ولفريقك فقط: مالك، مشرف، أو موظف.</p>
+          </div>
+          <div class="quick-book">
+            <div class="qb-url"><i data-lucide="link-2"></i><span class="ltr">hajzkom.iq/lamsa</span></div>
+            <button class="qb-btn" type="button">احجز موعدك الآن</button>
+            <div class="qb-tag">بدون تسجيل — أقل من دقيقة</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= معاينة اللوحة ================= -->
+<section class="section section-preview" id="preview">
+  <div class="container">
+    <div class="sec-head center reveal">
+      <span class="eyebrow">معاينة حيّة</span>
+      <h2>لوحة تحكم يفتحها فريقك كل صباح</h2>
+      <p class="sec-sub">شاشة المالك والمشرف والموظف: جدول اليوم، الإحصاءات، وإجراءات سريعة — جرّبها بنفسك الآن.</p>
+    </div>
+    <div class="preview-wrap reveal">
+      <div class="anno anno-1"><i data-lucide="zap"></i> كل حجز جديد يظهر هنا فوراً وصولاً من صفحة الحجز</div>
+      <div class="anno anno-2"><i data-lucide="users"></i> ما يراه كل موظف تحدده أنت من صلاحيات الفريق</div>
+      <div class="browser">
+        <div class="browser-bar">
+          <div class="dots"><span></span><span></span><span></span></div>
+          <div class="url"><i data-lucide="lock"></i><span class="ltr">app.hajzkom.iq/dashboard</span></div>
+        </div>
+        <div class="dash">
+          <aside class="dash-side">
+            <div class="side-logo">
+              <svg width="26" height="26" viewBox="0 0 44 44"><rect x="2" y="2" width="40" height="40" rx="12" fill="#1D5655"/><circle cx="15" cy="9.5" r="2.6" fill="#B0DEED"/><circle cx="29" cy="9.5" r="2.6" fill="#B0DEED"/><path d="M13 24 l6.5 6.5 L31 16.5" fill="none" stroke="#B0DEED" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span><b>حجز</b>كوم</span>
+            </div>
+            <nav class="side-nav" aria-label="قائمة اللوحة">
+              <a href="#preview" class="side-item active"><i data-lucide="layout-dashboard"></i> لوحة التحكم</a>
+              <a href="#preview" class="side-item"><i data-lucide="calendar-days"></i> المواعيد</a>
+              <a href="#preview" class="side-item"><i data-lucide="users"></i> العملاء</a>
+              <a href="#preview" class="side-item"><i data-lucide="scissors"></i> الخدمات</a>
+              <a href="#preview" class="side-item"><i data-lucide="user-cog"></i> الفريق</a>
+              <a href="#preview" class="side-item"><i data-lucide="bar-chart-3"></i> التقارير</a>
+              <a href="#preview" class="side-item"><i data-lucide="settings"></i> الإعدادات</a>
+            </nav>
+            <div class="side-user">
+              <span class="side-av">س</span>
+              <div><b>سيف الحسيني</b><small>مالك — كل الصلاحيات</small></div>
+            </div>
+          </aside>
+          <div class="dash-main">
+            <div class="dash-top">
+              <div>
+                <h3>أهلاً، سيف</h3>
+                <p>هذه حالة نشاطك اليوم — الجمعة 14 حزيران</p>
+                <span class="dash-clock"><i data-lucide="clock"></i> الساعة الآن <b id="dashClock">--:--</b></span>
+              </div>
+              <div class="dash-actions">
+                <button class="btn btn-ghost btn-sm" id="exportBtn" type="button"><i data-lucide="download"></i> تصدير</button>
+                <button class="btn btn-primary btn-sm" id="newBookingBtn" type="button"><i data-lucide="plus"></i> حجز جديد</button>
+              </div>
+            </div>
+            <div class="stats">
+              <div class="stat"><div class="stat-top"><span class="stat-ic si-a"><i data-lucide="calendar-check"></i></span> حجوزات اليوم</div><b><span id="statBookings">24</span> حجزاً</b><small>+3 عن أمس</small></div>
+              <div class="stat"><div class="stat-top"><span class="stat-ic si-b"><i data-lucide="banknote"></i></span> إيراد اليوم المتوقع</div><b>465,000 د.ع</b><small>+8% عن أمس</small></div>
+              <div class="stat"><div class="stat-top"><span class="stat-ic si-a"><i data-lucide="gauge"></i></span> نسبة الإشغال</div><b>78%</b><small>الأفضل هذا الأسبوع</small></div>
+              <div class="stat"><div class="stat-top"><span class="stat-ic si-a"><i data-lucide="bell"></i></span> تذكيرات مُسلَّمة</div><b>96%</b><small>عبر واتساب</small></div>
+            </div>
+            <div class="dash-tabs" role="tablist" aria-label="طريقة العرض">
+              <button class="dash-tab active" data-view="day" role="tab" aria-selected="true" type="button">جدول اليوم</button>
+              <button class="dash-tab" data-view="week" role="tab" aria-selected="false" type="button">نظرة الأسبوع</button>
+            </div>
+            <div id="viewDay">
+              <div class="d-rows" id="dRows">
+                <div class="d-row">
+                  <div class="d-time">3:30</div>
+                  <div class="d-cli"><span class="d-av">س</span><div><div class="d-name">سيف عبدالله</div><div class="d-meta">قص وتصفيف · مع كرار</div></div></div>
+                  <span class="pill p-pend">قيد الانتظار</span>
+                  <div class="d-act"><button class="act ok" title="إكمال" type="button"><i data-lucide="check"></i></button><button class="act bad" title="إلغاء" type="button"><i data-lucide="x"></i></button></div>
+                </div>
+                <div class="d-row">
+                  <div class="d-time">4:15</div>
+                  <div class="d-cli"><span class="d-av">ن</span><div><div class="d-name">نور أحمد</div><div class="d-meta">مكياج مناسبات · مع ريم</div></div></div>
+                  <span class="pill p-conf">مؤكد</span>
+                  <div class="d-act"><button class="act ok" title="إكمال" type="button"><i data-lucide="check"></i></button><button class="act bad" title="إلغاء" type="button"><i data-lucide="x"></i></button></div>
+                </div>
+                <div class="d-row">
+                  <div class="d-time">5:00</div>
+                  <div class="d-cli"><span class="d-av">ف</span><div><div class="d-name">فاطمة علي</div><div class="d-meta">عناية بالبشرة · مع دانا</div></div></div>
+                  <span class="pill p-conf">مؤكد</span>
+                  <div class="d-act"><button class="act ok" title="إكمال" type="button"><i data-lucide="check"></i></button><button class="act bad" title="إلغاء" type="button"><i data-lucide="x"></i></button></div>
+                </div>
+                <div class="d-row">
+                  <div class="d-time">6:30</div>
+                  <div class="d-cli"><span class="d-av">م</span><div><div class="d-name">محمد حسين</div><div class="d-meta">حلاقة ذقن · مع كرار</div></div></div>
+                  <span class="pill p-done">مكتمل</span>
+                  <div class="d-act"><button class="act ok" title="إكمال" type="button"><i data-lucide="check"></i></button><button class="act bad" title="إلغاء" type="button"><i data-lucide="x"></i></button></div>
+                </div>
+                <div class="d-row st-canc">
+                  <div class="d-time">7:15</div>
+                  <div class="d-cli"><span class="d-av">ر</span><div><div class="d-name">رنا خالد</div><div class="d-meta">صبغة كاملة · مع دانا</div></div></div>
+                  <span class="pill p-canc">ملغى</span>
+                  <div class="d-act"><button class="act ok" title="إكمال" type="button"><i data-lucide="check"></i></button><button class="act bad" title="إلغاء" type="button"><i data-lucide="x"></i></button></div>
+                </div>
+              </div>
+            </div>
+            <div id="viewWeek" hidden>
+              <div class="wk">
+                <div class="wk-col"><div class="wk-head">سبت</div><div class="wb wb-done"><b>9:00</b> قص</div><div class="wb wb-done"><b>11:00</b> صبغة</div><div class="wb wb-free">حجوزات مكتملة</div></div>
+                <div class="wk-col"><div class="wk-head">أحد</div><div class="wb wb-conf"><b>10:00</b> مكياج</div><div class="wb wb-free">+3 أوقات متاحة</div></div>
+                <div class="wk-col"><div class="wk-head">اثنين</div><div class="wb wb-pend"><b>4:30</b> عناية</div><div class="wb wb-conf"><b>6:00</b> قص</div></div>
+                <div class="wk-col"><div class="wk-head">ثلاثاء</div><div class="wb wb-conf"><b>9:30</b> استشارة</div><div class="wb wb-free">يوم هادئ</div></div>
+                <div class="wk-col"><div class="wk-head">أربعاء</div><div class="wb wb-conf"><b>5:00</b> صبغة</div><div class="wb wb-pend"><b>7:00</b> حلاقة</div></div>
+                <div class="wk-col"><div class="wk-head">خميس</div><div class="wb wb-conf"><b>3:00</b> باقة</div><div class="wb wb-conf"><b>4:30</b> مكياج</div><div class="wb wb-free">+1 وقت متاح</div></div>
+                <div class="wk-col today"><div class="wk-head">جمعة</div><div class="wb wb-conf"><b>3:45</b> مكياج</div><div class="wb wb-conf"><b>4:15</b> عناية</div><div class="wb wb-free">5:00 متاح</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hint"><i data-lucide="mouse-pointer-click"></i> معاينة تفاعلية — بدّل بين (اليوم / الأسبوع)، ونفّذ إجراءات الإكمال أو الإلغاء على أي موعد.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= الأسعار ================= -->
+<section class="section" id="pricing">
+  <div class="container">
+    <div class="pricing-top reveal">
+      <div class="sec-head center" style="margin-bottom:0">
+        <span class="eyebrow">الأسعار</span>
+        <h2>ابدأ مجاناً، وادفع فقط عندما يكبر نشاطك</h2>
+        <p class="sec-sub">أسعار بالدينار العراقي، بلا رسوم خفية — ترقية أو إلغاء في أي وقت.</p>
+      </div>
+      <div class="bill-toggle">
+        <div class="bill-switch">
+          <button class="bill-btn active" data-bill="m" type="button">شهري</button>
+          <button class="bill-btn" data-bill="y" type="button">سنوي</button>
+          <span class="save-badge">شهران مجاناً</span>
+        </div>
+        <span class="bill-note-txt">اختر الدفع السنوي ووفّر قيمة شهرين كاملين</span>
+      </div>
+    </div>
+
+    <div class="plans" data-stagger>
+      <div class="plan reveal">
+        <div class="plan-name">مجاني</div>
+        <p class="plan-desc">لتبدأ وتجرّب النظام على نشاطك الصغير</p>
+        <div class="price-row"><span class="price"><span class="price-num" data-plan="free">0</span></span><span class="price-unit">د.ع / شهرياً</span></div>
+        <p class="bill-note" data-plan="free">لا تحتاج بطاقة ائتمانية</p>
+        <hr class="plan-sep">
+        <ul class="plan-feats">
+          <li><i data-lucide="check"></i> صفحة حجز عامة لزبائنك</li>
+          <li><i data-lucide="check"></i> حتى عضوين في الفريق</li>
+          <li><i data-lucide="check"></i> حتى 100 حجز شهرياً</li>
+          <li><i data-lucide="check"></i> تذكيرات يدوية عبر واتساب</li>
+        </ul>
+        <button class="btn btn-ghost btn-block plan-cta" data-plan-name="مجاني" type="button">ابدأ مجاناً</button>
+      </div>
+
+      <div class="plan plan-pro reveal">
+        <div class="plan-flag"><i data-lucide="star"></i> الأكثر اختياراً</div>
+        <div class="plan-name">برو</div>
+        <p class="plan-desc">للنشاطات المزدحمة التي تريد تنظيماً كاملاً</p>
+        <div class="price-row"><span class="price"><span class="price-num" data-plan="pro">15,000</span></span><span class="price-unit">د.ع / شهرياً</span></div>
+        <p class="bill-note" data-plan="pro">تُدفع شهرياً — بإمكانك الإلغاء بأي وقت</p>
+        <hr class="plan-sep">
+        <ul class="plan-feats">
+          <li><i data-lucide="check"></i> كل مزايا الخطة المجانية</li>
+          <li><i data-lucide="check"></i> حتى 8 أعضاء وفرعين</li>
+          <li><i data-lucide="check"></i> 1,000 حجز شهرياً + تذكيرات تلقائية</li>
+          <li><i data-lucide="check"></i> مزامنة Google Calendar</li>
+          <li><i data-lucide="check"></i> تقارير متقدمة وإحصاءات</li>
+        </ul>
+        <button class="btn btn-light btn-block plan-cta" data-plan-name="برو" type="button">اشترك في برو</button>
+      </div>
+
+      <div class="plan reveal">
+        <div class="plan-name">ماكس</div>
+        <p class="plan-desc">للسلاسل والنشاطات متعددة الفروع — بلا حدود</p>
+        <div class="price-row"><span class="price"><span class="price-num" data-plan="max">36,000</span></span><span class="price-unit">د.ع / شهرياً</span></div>
+        <p class="bill-note" data-plan="max">تُدفع شهرياً — بإمكانك الإلغاء بأي وقت</p>
+        <hr class="plan-sep">
+        <ul class="plan-feats">
+          <li><i data-lucide="check"></i> كل مزايا برو — بلا حدود</li>
+          <li><i data-lucide="check"></i> أعضاء وحجوزات وفروع غير محدودة</li>
+          <li><i data-lucide="check"></i> علامة بيضاء وقوالب تذكير خاصة</li>
+          <li><i data-lucide="check"></i> مدير حساب ودعم مباشر عبر واتساب</li>
+        </ul>
+        <button class="btn btn-primary btn-block plan-cta" data-plan-name="ماكس" type="button">اشترك في ماكس</button>
+      </div>
+    </div>
+
+    <div class="plan-inc reveal">
+      <span class="chip">صفحة الحجز العامة</span>
+      <span class="chip">واجهة عربية كاملة</span>
+      <span class="chip">تحديثات مجانية</span>
+      <span class="chip">بياناتك محفوظة ومشفّرة</span>
+    </div>
+
+    <div class="table-wrap reveal">
+      <table aria-label="مقارنة الخطط">
+        <thead>
+          <tr><th>المقارنة</th><th>مجاني</th><th>برو</th><th>ماكس</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>عدد أعضاء الفريق</td><td>2</td><td>8</td><td>غير محدود</td></tr>
+          <tr><td>المواعيد شهرياً</td><td>100</td><td>1,000</td><td>غير محدود</td></tr>
+          <tr><td>الفروع (المواقع)</td><td>1</td><td>2</td><td>غير محدود</td></tr>
+          <tr><td>مدة حفظ البيانات</td><td>90 يوماً</td><td>سنتان</td><td>غير محدودة</td></tr>
+          <tr><td>تذكيرات واتساب</td><td><i data-lucide="minus" class="no-ic"></i></td><td>تلقائية</td><td>تلقائية + قوالب مخصصة</td></tr>
+          <tr><td>مزامنة Google Calendar</td><td><i data-lucide="minus" class="no-ic"></i></td><td><i data-lucide="check" class="ok-ic"></i></td><td><i data-lucide="check" class="ok-ic"></i></td></tr>
+          <tr><td>التقارير والإحصاءات</td><td>أساسية</td><td>متقدمة</td><td>شاملة + تصدير</td></tr>
+          <tr><td>العلامة التجارية</td><td>شعار حجزكوم</td><td>تخصيص الألوان</td><td>علامة بيضاء كاملة</td></tr>
+          <tr><td>الدعم</td><td>مركز المساعدة</td><td>أولوية بالبريد</td><td>مدير حساب + واتساب</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="price-note">جميع الأسعار بالدينار العراقي (IQD) وتشمل التحديثات والدعم الفني ضمن خطتك.</p>
+  </div>
+</section>
+
+<!-- ================= الدعوة الختامية ================= -->
+<section class="cta-final">
+  <span class="cta-ghost" aria-hidden="true">حجزكوم</span>
+  <div class="container cta-inner reveal">
+    <span class="cta-eyebrow">ابدأ اليوم</span>
+    <h2>نشاطك يستحق مواعيد <span class="cta-hl">بلا فوضى</span></h2>
+    <p>أنشئ حساب نشاطك مجاناً خلال دقائق، شارك رابط الحجز مع زبائنك، واستلم أول حجز اليوم نفسه.</p>
+    <button class="btn btn-light btn-lg" data-signup><i data-lucide="user-plus"></i> أنشئ حساب نشاطك — مجاناً</button>
+    <div class="cta-sub">
+      <span><i data-lucide="check"></i> بدون بطاقة ائتمانية</span>
+      <span><i data-lucide="check"></i> إلغاء في أي وقت</span>
+      <span><i data-lucide="check"></i> دعم بالعربية</span>
+    </div>
+    <a class="cta-mail" href="mailto:support@hajzkom.iq">أو تحدث مع فريقنا أولاً <i data-lucide="arrow-left"></i></a>
+  </div>
+</section>
+</main>
+
+<!-- ================= الفوتر ================= -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="f-brand">
+        <a class="logo" href="#hero" aria-label="حجزكوم — الرئيسية">
+          <svg width="38" height="38" viewBox="0 0 44 44" aria-hidden="true">
+            <rect x="2" y="2" width="40" height="40" rx="12" fill="#B0DEED"/>
+            <circle cx="15" cy="9.5" r="2.6" fill="#0F2E2D"/>
+            <circle cx="29" cy="9.5" r="2.6" fill="#0F2E2D"/>
+            <path d="M13 24 l6.5 6.5 L31 16.5" fill="none" stroke="#0F2E2D" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="logo-word" style="color:#fff"><b style="color:#B0DEED">حجز</b>كوم</span>
+        </a>
+        <p>نظام إدارة الحجوزات للصالونات وصالونات الحلاقة والعيادات في العراق — لصاحب النشاط وفريقه، وزبائنكم يحجزون بلا حساب.</p>
+        <div class="f-contact">
+          <a href="mailto:support@hajzkom.iq"><i data-lucide="mail"></i><span class="ltr">support@hajzkom.iq</span></a>
+          <a href="tel:+9647700000000"><i data-lucide="phone"></i><span class="ltr">+964 770 000 0000</span></a>
+          <span><i data-lucide="map-pin"></i> بغداد، العراق</span>
+        </div>
+      </div>
+      <div class="f-col">
+        <h4>المنتج</h4>
+        <ul>
+          <li><a href="#how">كيف يعمل</a></li>
+          <li><a href="#features">المزايا</a></li>
+          <li><a href="#preview">معاينة اللوحة</a></li>
+          <li><a href="#pricing">الأسعار</a></li>
+        </ul>
+      </div>
+      <div class="f-col">
+        <h4>الأنشطة</h4>
+        <ul>
+          <li><a href="#who">صالونات التجميل</a></li>
+          <li><a href="#who">صالونات الحلاقة</a></li>
+          <li><a href="#who">العيادات</a></li>
+        </ul>
+      </div>
+      <div class="f-col">
+        <h4>الشركة</h4>
+        <ul>
+          <li><button type="button" data-soon>من نحن</button></li>
+          <li><button type="button" data-soon>الأسئلة الشائعة</button></li>
+          <li><button type="button" data-soon>الشروط والأحكام</button></li>
+          <li><button type="button" data-soon>سياسة الخصوصية</button></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 حجزكوم — جميع الحقوق محفوظة. صُنع في العراق.</p>
+      <div class="f-social">
+        <button type="button" data-social="انستغرام" aria-label="انستغرام"><i data-lucide="instagram"></i></button>
+        <button type="button" data-social="فيسبوك" aria-label="فيسبوك"><i data-lucide="facebook"></i></button>
+        <button type="button" data-social="تلغرام" aria-label="تلغرام"><i data-lucide="send"></i></button>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ================= نافذة تسجيل الدخول ================= -->
+<div class="modal" id="loginModal" aria-hidden="true">
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+    <button class="modal-close" data-close type="button" aria-label="إغلاق"><i data-lucide="x"></i></button>
+    <h3 id="loginTitle">تسجيل الدخول</h3>
+    <p class="modal-sub">حسابات حجزكوم مخصصة لصاحب النشاط وفريقه فقط: مالك، مشرف، أو موظف.</p>
+    <div class="info-box"><i data-lucide="info"></i><div>هل أنت زبون وتريد الحجز؟ <b>لا تحتاج حساباً</b> — استخدم رابط الحجز الذي شاركه معك النشاط.</div></div>
+    <form id="loginForm">
+      <div class="field">
+        <label for="loginId">البريد الإلكتروني أو رقم الهاتف</label>
+        <input id="loginId" type="text" required placeholder="0770 000 0000">
+      </div>
+      <div class="field">
+        <label for="loginPass">كلمة المرور</label>
+        <input id="loginPass" type="password" required placeholder="••••••••">
+      </div>
+      <div class="form-foot"><button type="button" class="modal-link" data-soon>نسيت كلمة المرور؟</button></div>
+      <button class="btn btn-primary btn-block" type="submit">دخول</button>
+    </form>
+    <p style="text-align:center;font-size:.85rem;margin-top:18px">ليس لديك حساب؟ <button type="button" class="modal-link" id="toSignup">أنشئ حساب نشاطك</button></p>
+  </div>
+</div>
+
+<!-- ================= نافذة إنشاء حساب ================= -->
+<div class="modal" id="signupModal" aria-hidden="true">
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="signupTitle">
+    <button class="modal-close" data-close type="button" aria-label="إغلاق"><i data-lucide="x"></i></button>
+    <h3 id="signupTitle">إنشاء حساب نشاط</h3>
+    <p class="modal-sub">حساب واحد لنشاطك — تضيف إليه فريقك (مشرفين وموظفين) من داخل اللوحة لاحقاً.</p>
+    <div class="plan-chip" id="planChip" hidden><i data-lucide="star"></i><span id="planChipText"></span></div>
+    <form id="signupForm">
+      <div class="field">
+        <label for="suBiz">اسم النشاط</label>
+        <input id="suBiz" type="text" required placeholder="مثال: صالون لمسة">
+      </div>
+      <div class="field">
+        <label for="suType">نوع النشاط</label>
+        <select id="suType" required>
+          <option value="salon">صالون تجميل</option>
+          <option value="barber">صالون حلاقة</option>
+          <option value="clinic">عيادة</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="suName">اسمك الكامل</label>
+        <input id="suName" type="text" required placeholder="الاسم">
+      </div>
+      <div class="field">
+        <label for="suPhone">رقم الواتساب</label>
+        <input id="suPhone" type="tel" required placeholder="07XX XXX XXXX" dir="ltr" style="text-align:end">
+      </div>
+      <div class="field">
+        <label for="suPass">كلمة المرور</label>
+        <input id="suPass" type="password" required minlength="8" placeholder="8 أحرف على الأقل">
+      </div>
+      <button class="btn btn-primary btn-block" type="submit">إنشاء الحساب</button>
+    </form>
+    <div class="suc-view" id="signupSuccess" hidden>
+      <div class="suc-ic"><i data-lucide="check"></i></div>
+      <h4>تم إنشاء حساب نشاطك</h4>
+      <p>أرسلنا رابط التفعيل إلى رقم الواتساب الذي أدخلته. بعد التفعيل، جهّز خدماتك وأوقاتك وشارك رابط الحجز — كله خلال دقائق.</p>
+      <button class="btn btn-primary btn-block" data-close type="button">تم، فهمت</button>
+    </div>
+  </div>
+</div>
+
+<!-- حاوية الإشعارات -->
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<!-- مكتبة الأيقونات (نسخة مثبتة لضمان ثبات أسماء الأيقونات) -->
+<script src="https://unpkg.com/lucide@0.294.0/dist/umd/lucide.min.js"></script>
+<script>
+(function(){
+  'use strict';
+  var hasLucide = typeof window.lucide !== 'undefined';
+  function icons(){ if(hasLucide) lucide.createIcons(); }
+
+  /* ---------- إشعارات Toast ---------- */
+  var toastsEl = document.getElementById('toasts');
+  function toast(msg, ok){
+    var t = document.createElement('div');
+    t.className = 'toast' + (ok === false ? '' : ' t-ok');
+    t.innerHTML = '<i data-lucide="' + (ok === false ? 'bell' : 'check-circle') + '"></i><span>' + msg + '</span>';
+    toastsEl.appendChild(t);
+    icons();
+    setTimeout(function(){ t.classList.add('hide'); setTimeout(function(){ t.remove(); }, 350); }, 3600);
+  }
+
+  /* ---------- الهيدر: حالة التمرير والقائمة ---------- */
+  var header = document.getElementById('siteHeader');
+  window.addEventListener('scroll', function(){
+    header.classList.toggle('scrolled', window.scrollY > 8);
+  }, { passive: true });
+
+  var mnav = document.getElementById('mnav');
+  document.getElementById('burger').addEventListener('click', function(){
+    mnav.classList.toggle('open');
+  });
+  mnav.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', function(){ mnav.classList.remove('open'); });
+  });
+
+  /* ---------- مبدّل اللغة (النسخة الإنجليزية قيد الإعداد) ---------- */
+  document.getElementById('langEn').addEventListener('click', function(){
+    toast('النسخة الإنجليزية من الموقع قيد الإعداد حالياً.', false);
+  });
+
+  /* ---------- محاكاة الحجوزات المباشرة في الهيرو ---------- */
+  var heroFeed = [
+    { n: 'مريم سامي', s: 'مانيكير · مع ريم', t: '5:00' },
+    { n: 'علي كريم', s: 'قص شعر · مع كرار', t: '5:30' },
+    { n: 'هدى فاضل', s: 'تنظيف بشرة · مع دانا', t: '6:00' },
+    { n: 'زينب موسى', s: 'تسريحة مناسبات · مع ريم', t: '6:30' }
+  ];
+  var heroIdx = 0, heroCount = 24;
+  var heroList = document.getElementById('heroList');
+  var heroToast = document.getElementById('heroToast');
+  function cycleBooking(){
+    var b = heroFeed[heroIdx % heroFeed.length]; heroIdx++;
+    document.getElementById('heroToastText').textContent = b.n + ' — ' + b.s + ' الساعة ' + b.t;
+    heroToast.classList.add('show');
+    setTimeout(function(){
+      heroToast.classList.remove('show');
+      var row = document.createElement('div');
+      row.className = 'appt new';
+      row.innerHTML = '<div class="appt-time">' + b.t + '</div><div><div class="appt-name">' + b.n + '</div><div class="appt-meta">' + b.s + '</div></div><span class="pill p-conf">مؤكد</span>';
+      heroList.insertBefore(row, heroList.querySelector('.free-slot'));
+      var rows = heroList.querySelectorAll('.appt');
+      if(rows.length > 4) rows[0].remove();
+      heroCount++;
+      var pct = Math.min(96, 78 + Math.floor(heroIdx / 2));
+      document.getElementById('heroCount').textContent = heroCount;
+      document.getElementById('heroPct').textContent = pct;
+      document.getElementById('heroBar').style.width = pct + '%';
+    }, 2600);
+  }
+  setTimeout(function(){ cycleBooking(); setInterval(cycleBooking, 5200); }, 1800);
+
+  /* ---------- تبويبات "لمن صُنِع" ---------- */
+  var whoPanel = document.getElementById('whoPanel');
+  document.querySelectorAll('.who-tab').forEach(function(tab){
+    tab.addEventListener('click', function(){
+      if(tab.classList.contains('active')) return;
+      document.querySelectorAll('.who-tab').forEach(function(x){
+        x.classList.toggle('active', x === tab);
+        x.setAttribute('aria-selected', x === tab);
+      });
+      whoPanel.classList.add('fade');
+      setTimeout(function(){
+        document.querySelectorAll('.who-pane').forEach(function(p){
+          p.hidden = p.dataset.pane !== tab.dataset.who;
+        });
+        whoPanel.classList.remove('fade');
+      }, 200);
+    });
+  });
+
+  /* ---------- تفاعلات صفحة الحجز المصغرة ---------- */
+  whoPanel.addEventListener('click', function(e){
+    var svc = e.target.closest('.bk-svc');
+    if(svc){
+      svc.closest('.bk-services').querySelectorAll('.bk-svc').forEach(function(s){ s.classList.toggle('active', s === svc); });
+      return;
+    }
+    var tm = e.target.closest('.bk-time');
+    if(tm){
+      tm.closest('.bk-times').querySelectorAll('.bk-time').forEach(function(s){ s.classList.toggle('sel', s === tm); });
+      return;
+    }
+    if(e.target.closest('.bk-confirm')){
+      toast('تم تأكيد الحجز وإرسال تأكيد واتساب للزبون.');
+    }
+  });
+
+  /* ---------- زر نسخ الرابط ---------- */
+  document.getElementById('copyLink').addEventListener('click', function(){
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText('https://hajzkom.iq/lamsa').then(function(){
+        toast('تم نسخ رابط الحجز — شاركه مع زبائنك.');
+      }, function(){ toast('انسخ الرابط يدوياً: hajzkom.iq/lamsa', false); });
+    } else {
+      toast('انسخ الرابط يدوياً: hajzkom.iq/lamsa', false);
+    }
+  });
+
+  /* ---------- لوحة التحكم: الساعة ---------- */
+  function tick(){
+    var d = new Date();
+    document.getElementById('dashClock').textContent = d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
+  }
+  tick(); setInterval(tick, 30000);
+
+  /* ---------- لوحة التحكم: تبويب اليوم / الأسبوع ---------- */
+  document.querySelectorAll('.dash-tab').forEach(function(t){
+    t.addEventListener('click', function(){
+      document.querySelectorAll('.dash-tab').forEach(function(x){
+        x.classList.toggle('active', x === t);
+        x.setAttribute('aria-selected', x === t);
+      });
+      document.getElementById('viewDay').hidden = t.dataset.view !== 'day';
+      document.getElementById('viewWeek').hidden = t.dataset.view !== 'week';
+    });
+  });
+
+  /* ---------- لوحة التحكم: إجراءات المواعيد ---------- */
+  document.getElementById('dRows').addEventListener('click', function(e){
+    var btn = e.target.closest('.act');
+    if(!btn) return;
+    var row = btn.closest('.d-row');
+    var pill = row.querySelector('.pill');
+    if(btn.classList.contains('ok')){
+      pill.className = 'pill p-done';
+      pill.textContent = 'مكتمل';
+      toast('تم إكمال الموعد وتحديث سجل الزبون.');
+    } else {
+      row.classList.add('st-canc');
+      pill.className = 'pill p-canc';
+      pill.textContent = 'ملغى';
+      toast('تم إلغاء الموعد وإشعار الزبون عبر واتساب.', false);
+    }
+  });
+
+  /* ---------- لوحة التحكم: إضافة حجز يدوي ---------- */
+  var demoBookings = [
+    ['سارة جاسم', 'تنظيف بشرة · مع دانا'],
+    ['حسن علي', 'قص شعر · مع كرار'],
+    ['ملاك صباح', 'مكياج مناسبات · مع ريم']
+  ];
+  var demoTimes = ['7:00', '7:45', '8:30'];
+  var bi = 0;
+  document.getElementById('newBookingBtn').addEventListener('click', function(){
+    var d = demoBookings[bi % demoBookings.length];
+    var t = demoTimes[bi % demoTimes.length]; bi++;
+    var row = document.createElement('div');
+    row.className = 'd-row';
+    row.style.animation = 'rowIn 1.6s ease';
+    row.innerHTML = '<div class="d-time">' + t + '</div>' +
+      '<div class="d-cli"><span class="d-av">' + d[0].charAt(0) + '</span><div><div class="d-name">' + d[0] + '</div><div class="d-meta">' + d[1] + '</div></div></div>' +
+      '<span class="pill p-conf">مؤكد</span>' +
+      '<div class="d-act"><button class="act ok" title="إكمال" type="button"><i data-lucide="check"></i></button><button class="act bad" title="إلغاء" type="button"><i data-lucide="x"></i></button></div>';
+    document.getElementById('dRows').prepend(row);
+    icons();
+    var sb = document.getElementById('statBookings');
+    sb.textContent = parseInt(sb.textContent, 10) + 1;
+    toast('تمت إضافة الحجز يدوياً — وأُرسل تأكيد للزبون.');
+  });
+
+  /* ---------- زر التصدير ---------- */
+  document.getElementById('exportBtn').addEventListener('click', function(){
+    toast('تم تجهيز جدول اليوم للتنزيل بصيغة CSV.');
+  });
+
+  /* ---------- الأسعار: شهري / سنوي ---------- */
+  var prices = {
+    free: { m: '0', y: '0' },
+    pro:  { m: '15,000', y: '150,000' },
+    max:  { m: '36,000', y: '360,000' }
+  };
+  document.querySelectorAll('.bill-btn').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('.bill-btn').forEach(function(x){ x.classList.toggle('active', x === b); });
+      var yearly = b.dataset.bill === 'y';
+      document.querySelectorAll('.price-num').forEach(function(el){
+        el.textContent = yearly ? prices[el.dataset.plan].y : prices[el.dataset.plan].m;
+        el.classList.add('flip');
+        setTimeout(function(){ el.classList.remove('flip'); }, 320);
+      });
+      document.querySelectorAll('.price-unit').forEach(function(u){
+        u.textContent = yearly ? 'د.ع / سنوياً' : 'د.ع / شهرياً';
+      });
+      document.querySelectorAll('.bill-note').forEach(function(el){
+        if(el.dataset.plan === 'free'){
+          el.textContent = yearly ? 'مجانية للأبد — سنوياً وشهرياً' : 'لا تحتاج بطاقة ائتمانية';
+        } else {
+          el.textContent = yearly ? 'تُدفع سنوياً — وفّرت قيمة شهرين' : 'تُدفع شهرياً — بإمكانك الإلغاء بأي وقت';
+        }
+      });
+    });
+  });
+
+  /* ---------- النوافذ المنبثقة ---------- */
+  function openModal(id){ document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }
+  function closeModal(m){ m.classList.remove('open'); document.body.style.overflow = ''; }
+  document.addEventListener('click', function(e){
+    var c = e.target.closest('[data-close]');
+    if(c){ var m = c.closest('.modal'); if(m) closeModal(m); }
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') document.querySelectorAll('.modal.open').forEach(closeModal);
+  });
+
+  function openSignup(plan){
+    document.getElementById('signupForm').hidden = false;
+    document.getElementById('signupSuccess').hidden = true;
+    var chip = document.getElementById('planChip');
+    if(plan){
+      document.getElementById('planChipText').textContent = 'الخطة المختارة: ' + plan;
+      chip.hidden = false;
+    } else {
+      chip.hidden = true;
+    }
+    openModal('signupModal');
+  }
+
+  document.getElementById('loginBtn').addEventListener('click', function(){ openModal('loginModal'); });
+  document.getElementById('signupBtn').addEventListener('click', function(){ openSignup(null); });
+  document.querySelectorAll('[data-login]').forEach(function(b){
+    b.addEventListener('click', function(){ openModal('loginModal'); });
+  });
+  document.querySelectorAll('[data-signup]').forEach(function(b){
+    b.addEventListener('click', function(){ openSignup(null); });
+  });
+  document.querySelectorAll('.plan-cta').forEach(function(b){
+    b.addEventListener('click', function(){ openSignup(b.dataset.planName); });
+  });
+  document.getElementById('toSignup').addEventListener('click', function(){
+    closeModal(document.getElementById('loginModal'));
+    openSignup(null);
+  });
+
+  /* ---------- حالة تحميل الأزرار ---------- */
+  function setLoading(btn, on, label){
+    if(on){
+      btn.dataset.label = btn.innerHTML;
+      btn.innerHTML = '<span class="spin"></span> ' + label;
+      btn.disabled = true;
+    } else {
+      btn.innerHTML = btn.dataset.label;
+      btn.disabled = false;
+    }
+  }
+
+  /* ---------- إرسال النماذج (وضع معاينة) ---------- */
+  document.getElementById('loginForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var btn = e.target.querySelector('button[type=submit]');
+    setLoading(btn, true, 'جاري التحقق...');
+    setTimeout(function(){
+      setLoading(btn, false);
+      closeModal(document.getElementById('loginModal'));
+      toast('أهلاً بعودتك! هذه معاينة تفاعلية للواجهة.');
+    }, 1200);
+  });
+
+  document.getElementById('signupForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var btn = e.target.querySelector('button[type=submit]');
+    setLoading(btn, true, 'جاري الإنشاء...');
+    setTimeout(function(){
+      setLoading(btn, false);
+      e.target.hidden = true;
+      document.getElementById('signupSuccess').hidden = false;
+      toast('تم إنشاء حساب نشاطك بنجاح.');
+    }, 1400);
+  });
+
+  /* ---------- روابط "قريباً" ووسائل التواصل ---------- */
+  document.querySelectorAll('[data-soon]').forEach(function(b){
+    b.addEventListener('click', function(){
+      toast('هذه الصفحة قيد الإعداد — راسلنا على support@hajzkom.iq لأي استفسار.', false);
+    });
+  });
+  document.querySelectorAll('[data-social]').forEach(function(b){
+    b.addEventListener('click', function(){
+      toast('صفحتنا على ' + b.dataset.social + ' قادمة قريباً.', false);
+    });
+  });
+
+  /* ---------- الظهور عند التمرير (مع تأخير متدرج) ---------- */
+  document.querySelectorAll('[data-stagger]').forEach(function(w){
+    Array.prototype.forEach.call(w.querySelectorAll(':scope > .reveal'), function(el, i){
+      el.style.transitionDelay = (i * 90) + 'ms';
+    });
+  });
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+  } else {
+    document.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('in'); });
+  }
+
+  icons();
+})();
+</script>
+</body>
+</html>
