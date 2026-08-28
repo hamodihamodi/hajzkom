@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { LogIn, Menu, UserPlus } from 'lucide-react'
 import { LogoLink } from './BrandMark'
-import { openLoginModal, openSignupModal } from '../../utils/authModal'
 import { toast } from '../../utils/toast'
 
 const NAV_LINKS = [
@@ -48,14 +47,14 @@ export function SiteHeader() {
               EN
             </button>
           </div>
-          <button className="btn btn-ghost btn-sm btn-login" type="button" onClick={openLoginModal}>
+          <a className="btn btn-ghost btn-sm btn-login" href="#/login">
             <LogIn />
             <span>دخول</span>
-          </button>
-          <button className="btn btn-primary btn-sm" type="button" onClick={() => openSignupModal()}>
+          </a>
+          <a className="btn btn-primary btn-sm" href="#/signup">
             <UserPlus />
             <span>إنشاء حساب</span>
-          </button>
+          </a>
           <button
             className="burger"
             type="button"
@@ -76,12 +75,12 @@ export function SiteHeader() {
           ))}
         </nav>
         <div className="m-actions">
-          <button className="btn btn-ghost" type="button" onClick={openLoginModal}>
-            <LogIn /> دخول الفريق
-          </button>
-          <button className="btn btn-primary" type="button" onClick={() => openSignupModal()}>
+          <a className="btn btn-ghost" href="#/login" onClick={closeMenu}>
+            <LogIn /> دخول
+          </a>
+          <a className="btn btn-primary" href="#/signup" onClick={closeMenu}>
             <UserPlus /> إنشاء حساب
-          </button>
+          </a>
         </div>
       </div>
     </header>

@@ -1,6 +1,5 @@
 import { ArrowLeft, Check, UserPlus } from 'lucide-react'
 import { Reveal } from '../../../components/marketing/Reveal'
-import { openSignupModal } from '../../../utils/authModal'
 
 export function FinalCtaSection() {
   return (
@@ -14,9 +13,9 @@ export function FinalCtaSection() {
           نشاطك يستحق مواعيد <span className="cta-hl">بلا فوضى</span>
         </h2>
         <p>أنشئ حساب نشاطك مجاناً خلال دقائق، شارك رابط الحجز مع زبائنك، واستلم أول حجز اليوم نفسه.</p>
-        <button className="btn btn-light btn-lg" type="button" onClick={() => openSignupModal()}>
+        <a className="btn btn-light btn-lg" href="#/signup">
           <UserPlus /> أنشئ حساب نشاطك — مجاناً
-        </button>
+        </a>
         <div className="cta-sub">
           <span>
             <Check /> بدون بطاقة ائتمانية

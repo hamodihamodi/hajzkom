@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowLeft, Bell, CalendarDays, Check, Plus, UserPlus } from 'lucide-react'
 import { WhatsAppIcon } from '../../../components/marketing/icons'
-import { openSignupModal } from '../../../utils/authModal'
 
 type ApptStatus = 'done' | 'conf'
 
@@ -86,9 +85,9 @@ export function HeroSection() {
             منظماً مع تذكيرات واتساب تلقائية تُقلّل الغياب.
           </p>
           <div className="hero-cta">
-            <button className="btn btn-primary btn-lg" type="button" onClick={() => openSignupModal()}>
+            <a className="btn btn-primary btn-lg" href="#/signup">
               <UserPlus /> أنشئ حساب نشاطك
-            </button>
+            </a>
             <a className="btn btn-ghost btn-lg" href="#how">
               كيف يعمل؟ <ArrowLeft />
             </a>
