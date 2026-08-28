@@ -345,6 +345,115 @@
   margin: 0 0 22px;
 }
 
+/* ===== Invite / Accept invitation detail ===== */
+.invite-detail {
+  padding-block: 4px;
+}
+.invite-biz {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 14px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 14px;
+  background: var(--color-surface-subtle);
+  margin-bottom: 12px;
+}
+.invite-biz-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  background: var(--color-primary);
+  color: #fff;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 1.2rem;
+  flex: none;
+}
+.invite-biz > div {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.5;
+}
+.invite-biz strong {
+  font-size: 1rem;
+}
+.invite-biz > div > span {
+  font-size: 0.78rem;
+  color: var(--color-text-tertiary);
+}
+.invite-rows {
+  border: 1px solid var(--color-border-default);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+.invite-row {
+  display: grid;
+  grid-template-columns: 34px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.invite-row:last-child {
+  border-bottom: none;
+}
+.invite-ic {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+}
+.invite-ic .lucide {
+  width: 16px;
+  height: 16px;
+}
+.invite-k {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+.invite-v {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  text-align: end;
+}
+.invite-role {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 5px 12px;
+  border-radius: 999px;
+}
+.invite-role .lucide {
+  width: 14px;
+  height: 14px;
+}
+.invite-cta {
+  margin-bottom: 10px;
+}
+.invite-detail .btn-ghost {
+  margin-top: 0;
+}
+
+.auth-suc-ic.invalid-ic {
+  background: var(--color-warning-background);
+  color: var(--color-warning);
+}
+
 /* ===== Reactivate account ===== */
 .reactivate-box {
   text-align: center;

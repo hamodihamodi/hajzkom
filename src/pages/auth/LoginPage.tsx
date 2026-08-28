@@ -9,6 +9,7 @@ import {
   getSession,
   type AccountRole,
 } from '../../utils/accounts'
+import { lookupInvitation, isInviteValid } from '../../utils/invites'
 import { toast } from '../../utils/toast'
 
 type Errors = { email?: string; password?: string }
@@ -18,7 +19,13 @@ type ReactivateState =
   | { phase: 'confirming' }
   | { phase: 'done' }
 
-export function LoginPage() {
+interface LoginPageProps {
+  invitationId?: string
+}
+
+export function LoginPage({ invitationId }: LoginPageProps) {
+  const invitation = invitationId ? lookupInvitation(invitationId) : null
+  const inviteValid = invitation ? isInviteValid(invitation) : false
   const initialEmail = getSession()?.email ?? ''
   const [email, setEmail] = useState(initialEmail)
   const [password, setPassword] = useState('')
@@ -62,6 +69,10 @@ export function LoginPage() {
 
       const account = result.value
       startSession(account)
+      if (inviteValid && invitation) {
+        window.location.hash = `#/accept-invite?invite=${invitation.id}`
+        return
+      }
       window.location.hash = resolveDashboard(account.role as AccountRole)
       toast(`أهلاً بعودتك يا ${account.fullName.split(' ')[0]}!`)
     }, 1200)
@@ -231,7 +242,7 @@ export function LoginPage() {
       footer={
         <p>
           ليس لديك حساب؟{' '}
-          <a href="#/signup" className="auth-link">
+          <a href={invitation ? `#/invite/${invitation.id}` : '#/signup'} className="auth-link">
             أنشئ حساب نشاطك
           </a>
         </p>

@@ -1,12 +1,18 @@
 import { useState, type FormEvent } from 'react'
 import { ArrowRight, Check, Eye, EyeOff, Info, Loader2, Mail, User } from 'lucide-react'
 import { AuthShell } from './AuthShell'
-import { signUp } from '../../utils/accounts'
+import { signUp, attachInvitation, startSession } from '../../utils/accounts'
+import { lookupInvitation, roleDisplay } from '../../utils/invites'
 import { toast } from '../../utils/toast'
 
 type Errors = { fullName?: string; email?: string; password?: string; confirm?: string }
 
-export function SignupPage() {
+interface SignupPageProps {
+  invitationId?: string
+}
+
+export function SignupPage({ invitationId }: SignupPageProps) {
+  const invitation = invitationId ? lookupInvitation(invitationId) : null
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -20,6 +26,7 @@ export function SignupPage() {
   const validate = (): Errors => {
     const next: Errors = {}
     if (!fullName.trim()) next.fullName = 'يرجى إدخال الاسم الكامل.'
+    else if (fullName.trim().length < 3) next.fullName = 'الاسم الكامل يجب أن يكون 3 أحرف على الأقل.'
     if (!email.trim()) next.email = 'يرجى إدخال البريد الإلكتروني.'
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))
       next.email = 'صيغة البريد الإلكتروني غير صحيحة.'
@@ -38,20 +45,36 @@ export function SignupPage() {
 
     setLoading(true)
     window.setTimeout(() => {
-      const result = signUp({ fullName, email, password })
+      const result = signUp({
+        fullName,
+        email,
+        password,
+        role: invitation?.role,
+        businessId: invitation?.businessId,
+      })
       if (!result.ok) {
         setErrors({ email: result.error })
         setLoading(false)
         return
       }
+      const account = result.value
+      if (invitation) {
+        attachInvitation(account.id, invitation.role, invitation.businessId)
+        startSession(account)
+      }
       setLoading(false)
       setDone(true)
       setCreatedEmail(email.trim())
+      if (invitation) {
+        window.location.hash = `#/accept-invite?invite=${invitation.id}`
+        return
+      }
       toast('تم إنشاء حسابك بنجاح.')
     }, 1100)
   }
 
   if (done) {
+    if (invitation) return null
     return (
       <AuthShell
         title="تم إنشاء حسابك"
@@ -82,21 +105,33 @@ export function SignupPage() {
 
   return (
     <AuthShell
-      title="إنشاء حساب نشاط"
-      subtitle="حساب واحد لنشاطك. ستضيف لاحقاً مشرفين وموظفين من داخل اللوحة."
+      title={invitation ? 'إنشاء حسابك' : 'إنشاء حساب نشاط'}
+      subtitle={
+        invitation
+          ? `أنت مدعو للانضمام إلى ${invitation.businessName} كـ ${roleDisplay(invitation.role)}.`
+          : 'حساب واحد لنشاطك. ستضيف لاحقاً مشرفين وموظفين من داخل اللوحة.'
+      }
       footer={
         <p>
           لديك حساب بالفعل؟{' '}
-          <a href="#/login" className="auth-link">
+          <a
+            href={invitation ? `#/invite/${invitation.id}?login=1` : '#/login'}
+            className="auth-link"
+          >
             تسجيل الدخول
           </a>
         </p>
       }
     >
-      <div className="info-box">
-        <Info />
-        <div>حسابك هو حساب المالك الرئيسي للنشاط. لا حاجة لتحديد دور — يُحدد الدور لاحقاً عند دعوة الفريق.</div>
-      </div>
+      {invitation && (
+        <div className="info-box">
+          <Info />
+          <div>
+            سيُحدد دورك تلقائياً من دعوتك: {roleDisplay(invitation.role)}
+            {invitation.locationName ? ` في ${invitation.locationName}` : ''}. لن تحتاج لاختيار دور.
+          </div>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} noValidate>
         <div className={`field${errors.fullName ? ' has-error' : ''}`}>

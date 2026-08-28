@@ -151,3 +151,18 @@ export function getSession(): Session | null {
 export function clearSession(): void {
   localStorage.removeItem(SESSION_KEY)
 }
+
+export function getAccountByEmail(email: string): Account | null {
+  const normalized = normalizeEmail(email)
+  return loadAccounts().find((a) => a.email === normalized) ?? null
+}
+
+export function attachInvitation(accountId: string, role: AccountRole, businessId: string): Account | null {
+  const accounts = loadAccounts()
+  const account = accounts.find((a) => a.id === accountId)
+  if (!account) return null
+  account.role = role
+  account.businessId = businessId
+  saveAccounts(accounts)
+  return account
+}
