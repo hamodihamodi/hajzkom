@@ -15,8 +15,19 @@ function readInviteId(): string | null {
   return params.get('invite')
 }
 
+const ARABIC_MONTHS = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر']
+
+function toArabicIndic(n: number): string {
+  const map = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩']
+  return String(n)
+    .split('')
+    .map((d) => map[Number(d)] ?? d)
+    .join('')
+}
+
 function formatDate(ts: number): string {
-  return new Date(ts).toLocaleDateString('ar-IQ', { day: 'numeric', month: 'long', year: 'numeric' })
+  const d = new Date(ts)
+  return `${toArabicIndic(d.getDate())} ${ARABIC_MONTHS[d.getMonth()]} ${toArabicIndic(d.getFullYear())}`
 }
 
 interface AcceptInvitationPageProps {
@@ -130,8 +141,8 @@ export function AcceptInvitationPage({ invitationId }: AcceptInvitationPageProps
             <span className="invite-ic">
               <CalendarDays />
             </span>
-            <span className="invite-k">تنتهي الدعوة</span>
-            <span className="invite-v">{formatDate(invitation.expiresAt)} · صلاحية يوم واحد</span>
+            <span className="invite-k">صالحة حتى</span>
+            <span className="invite-v">{formatDate(invitation.expiresAt)} · تنتهي خلال يوم</span>
           </div>
         </div>
 
