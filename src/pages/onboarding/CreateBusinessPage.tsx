@@ -125,7 +125,7 @@ export function CreateBusinessPage() {
       }
       setLoading(false)
       toast('تم حفظ معلومات النشاط.')
-      window.location.hash = '#/dashboard'
+      window.location.hash = '#/onboarding/location'
     }, 800)
   }
 

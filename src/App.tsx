@@ -9,9 +9,12 @@ import { DashboardPage } from './pages/dashboard/DashboardPage'
 import { AcceptInvitationPage } from './pages/auth/AcceptInvitationPage'
 import { InvitationInvalidPage } from './pages/auth/InvitationInvalidPage'
 import { CreateBusinessPage } from './pages/onboarding/CreateBusinessPage'
+import { CreateLocationPage } from './pages/onboarding/CreateLocationPage'
+import { SetOpeningHoursPage } from './pages/onboarding/SetOpeningHoursPage'
+import { AddFirstServicePage } from './pages/onboarding/AddFirstServicePage'
 import { lookupInvitation, isInviteValid } from './utils/invites'
 import { getSession } from './utils/accounts'
-import { getBusinessByOwner } from './utils/business'
+import { getBusinessByOwner, getOnboardingStatus } from './utils/business'
 
 import './styles/booking.css'
 import './styles/auth.css'
@@ -48,12 +51,34 @@ function renderRoute() {
       return <AcceptInvitationPage invitationId={invite ?? undefined} />
     case 'onboarding':
       return <CreateBusinessPage />
+    case 'onboarding/location':
+      return <CreateLocationPage />
+    case 'onboarding/hours':
+      return <SetOpeningHoursPage />
+    case 'onboarding/service':
+      return <AddFirstServicePage />
     case 'schedule':
     case 'dashboard': {
       const session = getSession()
-      if (session?.role === 'owner' && !getBusinessByOwner(session.accountId)) {
-        window.location.hash = '#/onboarding'
-        return <CreateBusinessPage />
+      if (session?.role === 'owner') {
+        const business = getBusinessByOwner(session.accountId)
+        if (!business) {
+          window.location.hash = '#/onboarding'
+          return <CreateBusinessPage />
+        }
+        const status = getOnboardingStatus(business)
+        if (!status.hasLocation) {
+          window.location.hash = '#/onboarding/location'
+          return <CreateLocationPage />
+        }
+        if (!status.hasHours) {
+          window.location.hash = '#/onboarding/hours'
+          return <SetOpeningHoursPage />
+        }
+        if (!status.hasService) {
+          window.location.hash = '#/onboarding/service'
+          return <AddFirstServicePage />
+        }
       }
       return <DashboardPage />
     }

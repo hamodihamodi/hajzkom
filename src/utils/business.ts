@@ -1,4 +1,8 @@
+import type { DayHours, ServiceInfo, BusinessLocationInfo } from '../types'
+
 const KEY = 'hajzkom:businesses'
+
+export type PlanTier = 'free' | 'pro' | 'max'
 
 export interface Business {
   id: string
@@ -15,6 +19,9 @@ export interface Business {
   tiktokUrl: string
   websiteUrl: string
   ownerId: string
+  plan: PlanTier
+  locations: BusinessLocationInfo[]
+  services: ServiceInfo[]
   createdAt: number
 }
 
@@ -23,7 +30,13 @@ function loadAll(): Business[] {
     const raw = localStorage.getItem(KEY)
     if (!raw) return []
     const parsed = JSON.parse(raw)
-    return Array.isArray(parsed) ? parsed : []
+    if (!Array.isArray(parsed)) return []
+    return parsed.map((b: Business) => ({
+      ...b,
+      plan: b.plan ?? 'free',
+      locations: b.locations ?? [],
+      services: b.services ?? [],
+    }))
   } catch {
     return []
   }
@@ -31,6 +44,10 @@ function loadAll(): Business[] {
 
 function saveAll(list: Business[]): void {
   localStorage.setItem(KEY, JSON.stringify(list))
+}
+
+function makeId(): string {
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`
 }
 
 export function getBusinessByOwner(ownerId: string): Business | null {
@@ -41,11 +58,14 @@ export function getBusinessById(id: string): Business | null {
   return loadAll().find((b) => b.id === id) ?? null
 }
 
-export function createBusiness(input: Omit<Business, 'id' | 'createdAt'>): Business {
+export function createBusiness(input: Omit<Business, 'id' | 'createdAt' | 'plan' | 'locations' | 'services'>): Business {
   const list = loadAll()
   const biz: Business = {
     ...input,
-    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+    plan: 'free',
+    locations: [],
+    services: [],
+    id: makeId(),
     createdAt: Date.now(),
   }
   list.push(biz)
@@ -69,4 +89,74 @@ export function deleteBusiness(id: string): boolean {
   list.splice(idx, 1)
   saveAll(list)
   return true
+}
+
+export function locationLimitForPlan(plan: PlanTier): number {
+  switch (plan) {
+    case 'max':
+      return Infinity
+    default:
+      return 1
+  }
+}
+
+export function canAddLocation(business: Business): boolean {
+  return business.locations.length < locationLimitForPlan(business.plan)
+}
+
+export function addLocation(businessId: string, input: Omit<BusinessLocationInfo, 'id'>): BusinessLocationInfo | null {
+  const list = loadAll()
+  const biz = list.find((b) => b.id === businessId)
+  if (!biz) return null
+  if (!canAddLocation(biz)) return null
+  const loc: BusinessLocationInfo = { ...input, id: makeId() }
+  biz.locations.push(loc)
+  saveAll(list)
+  return loc
+}
+
+export function updateLocation(businessId: string, locationId: string, patch: Partial<BusinessLocationInfo>): BusinessLocationInfo | null {
+  const list = loadAll()
+  const biz = list.find((b) => b.id === businessId)
+  if (!biz) return null
+  const loc = biz.locations.find((l) => l.id === locationId)
+  if (!loc) return null
+  Object.assign(loc, patch)
+  saveAll(list)
+  return loc
+}
+
+export function updateLocationHours(businessId: string, locationId: string, hours: DayHours[]): boolean {
+  const list = loadAll()
+  const biz = list.find((b) => b.id === businessId)
+  if (!biz) return false
+  const loc = biz.locations.find((l) => l.id === locationId)
+  if (!loc) return false
+  loc.hours = hours
+  saveAll(list)
+  return true
+}
+
+export function addService(businessId: string, input: Omit<ServiceInfo, 'id'>): ServiceInfo | null {
+  const list = loadAll()
+  const biz = list.find((b) => b.id === businessId)
+  if (!biz) return null
+  const svc: ServiceInfo = { ...input, id: makeId() }
+  biz.services.push(svc)
+  saveAll(list)
+  return svc
+}
+
+export function getOnboardingStatus(business: Business): {
+  hasLocation: boolean
+  hasHours: boolean
+  hasService: boolean
+  complete: boolean
+} {
+  const hasLocation = business.locations.length > 0
+  const hasHours =
+    hasLocation &&
+    business.locations.some((loc) => loc.hours.some((h) => !h.closed && h.open && h.close))
+  const hasService = business.services.length > 0
+  return { hasLocation, hasHours, hasService, complete: hasLocation && hasHours && hasService }
 }

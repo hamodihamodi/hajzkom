@@ -2,6 +2,7 @@ export interface DayHours {
   day: string
   open?: string
   close?: string
+  closed?: boolean
 }
 
 export interface ServiceInfo {

@@ -484,6 +484,134 @@
   flex: 1;
 }
 
+/* ===== Opening hours editor ===== */
+.oh-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.oh-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 12px;
+  background: var(--color-surface);
+  transition: background 0.15s;
+}
+.oh-row-closed {
+  background: var(--color-surface-subtle);
+  opacity: 0.7;
+}
+.oh-day {
+  min-width: 60px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+.oh-times {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+.oh-time {
+  padding: 7px 10px;
+  border: 1.5px solid var(--color-border-default);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  background: #fff;
+  color: var(--color-text-primary);
+  text-align: center;
+  transition: border-color 0.2s;
+}
+.oh-time:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-subtle);
+}
+.oh-sep {
+  color: var(--color-text-tertiary);
+  font-size: 0.85rem;
+}
+.oh-closed {
+  color: var(--color-text-disabled);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+.oh-error {
+  margin-top: 12px;
+}
+
+/* ===== Toggle switch ===== */
+.oh-toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: var(--color-border-default);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex: none;
+  border: none;
+  padding: 0;
+}
+.oh-toggle.on {
+  background: var(--color-primary);
+}
+.oh-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  transition: right 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+.oh-toggle.on::after {
+  right: 22px;
+}
+
+/* ===== Upgrade wall ===== */
+.onboard-upgrade {
+  text-align: center;
+  padding: 20px 0;
+}
+.onboard-upgrade-ic {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: var(--color-warning-background);
+  color: var(--color-warning);
+  margin-bottom: 14px;
+}
+.onboard-upgrade-ic .lucide {
+  width: 26px;
+  height: 26px;
+}
+.onboard-upgrade h3 {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+.onboard-upgrade p {
+  color: var(--color-text-secondary);
+  font-size: 0.88rem;
+  line-height: 1.7;
+  margin: 0 0 18px;
+  max-width: 380px;
+  margin-inline: auto;
+}
+
 /* ===== Responsive ===== */
 @media (min-width: 640px) {
   .onboard-card {
@@ -523,5 +651,24 @@
   }
   .onboard-uploads {
     grid-template-columns: 1fr;
+  }
+  .oh-row {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+  .oh-day {
+    min-width: 50px;
+    font-size: 0.8rem;
+  }
+  .oh-times {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .oh-time {
+    flex: 1;
+    min-width: 0;
+    font-size: 0.82rem;
+    padding: 8px 6px;
   }
 }
