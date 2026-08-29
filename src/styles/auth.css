@@ -385,6 +385,23 @@
   font-size: 0.78rem;
   color: var(--color-text-tertiary);
 }
+.invite-note {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+.invite-note .lucide {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
 .invite-rows {
   border: 1px solid var(--color-border-default);
   border-radius: 14px;

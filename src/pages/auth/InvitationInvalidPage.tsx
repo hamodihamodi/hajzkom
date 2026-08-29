@@ -1,4 +1,4 @@
-import { AlarmClock, Ban, CheckCircle2, Lock, SearchX } from 'lucide-react'
+import { AlarmClock, Ban, CheckCircle2, Lock, SearchX, Send } from 'lucide-react'
 import { AuthShell } from './AuthShell'
 import { getInviteInvalidReason, type Invitation } from '../../utils/invites'
 
@@ -56,14 +56,14 @@ export function InvitationInvalidPage({ invitation }: InvitationInvalidPageProps
           <Lock /> تسجيل الدخول
         </a>
         <button
-          className="auth-link"
+          className="btn btn-ghost btn-block"
           type="button"
-          style={{ marginTop: 16 }}
+          style={{ marginTop: 10 }}
           onClick={() => {
             window.location.hash = '#/'
           }}
         >
-          تواصل مع النشاط
+          <Send /> تواصل مع النشاط
         </button>
       </div>
     </AuthShell>

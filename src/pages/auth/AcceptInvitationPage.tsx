@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Briefcase, CalendarDays, CheckCircle2, MapPin, ShieldCheck, X } from 'lucide-react'
+import { Briefcase, CalendarDays, CheckCircle2, Info, MapPin, ShieldCheck, X } from 'lucide-react'
 import { AuthShell } from './AuthShell'
 import {
   lookupInvitation,
@@ -105,6 +105,10 @@ export function AcceptInvitationPage({ invitationId }: AcceptInvitationPageProps
           </div>
         </div>
 
+        <div className="invite-note">
+          <Info /> دورك محدد مسبقاً من قبل النشاط ولا يمكن تغييره من هنا.
+        </div>
+
         <div className="invite-rows">
           <div className="invite-row">
             <span className="invite-ic">
@@ -117,21 +121,21 @@ export function AcceptInvitationPage({ invitationId }: AcceptInvitationPageProps
               </span>
             </span>
           </div>
-          {invitation.locationName && (
+          {invitation.role === 'staff' && (
             <div className="invite-row">
               <span className="invite-ic">
                 <MapPin />
               </span>
               <span className="invite-k">الفرع</span>
-              <span className="invite-v">{invitation.locationName}</span>
+              <span className="invite-v">{invitation.locationName ?? 'غير محدد'}</span>
             </div>
           )}
           <div className="invite-row">
             <span className="invite-ic">
               <CalendarDays />
             </span>
-            <span className="invite-k">صالحة حتى</span>
-            <span className="invite-v">{formatDate(invitation.expiresAt)} · تنتهي خلال يوم</span>
+            <span className="invite-k">تنتهي الدعوة</span>
+            <span className="invite-v">{formatDate(invitation.expiresAt)} · صلاحية يوم واحد</span>
           </div>
         </div>
 
