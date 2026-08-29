@@ -8,10 +8,14 @@ import { SignupPage } from './pages/auth/SignupPage'
 import { DashboardPage } from './pages/dashboard/DashboardPage'
 import { AcceptInvitationPage } from './pages/auth/AcceptInvitationPage'
 import { InvitationInvalidPage } from './pages/auth/InvitationInvalidPage'
+import { CreateBusinessPage } from './pages/onboarding/CreateBusinessPage'
 import { lookupInvitation, isInviteValid } from './utils/invites'
+import { getSession } from './utils/accounts'
+import { getBusinessByOwner } from './utils/business'
 
 import './styles/booking.css'
 import './styles/auth.css'
+import './styles/onboarding.css'
 
 function parseLocation() {
   const hash = window.location.hash.replace(/^#\/?/, '')
@@ -42,9 +46,17 @@ function renderRoute() {
       return <LoginPage invitationId={invite ?? undefined} />
     case 'accept-invite':
       return <AcceptInvitationPage invitationId={invite ?? undefined} />
+    case 'onboarding':
+      return <CreateBusinessPage />
     case 'schedule':
-    case 'dashboard':
+    case 'dashboard': {
+      const session = getSession()
+      if (session?.role === 'owner' && !getBusinessByOwner(session.accountId)) {
+        window.location.hash = '#/onboarding'
+        return <CreateBusinessPage />
+      }
       return <DashboardPage />
+    }
 
     case 'invite': {
       const id = invite

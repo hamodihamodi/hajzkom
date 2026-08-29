@@ -627,6 +627,9 @@
     padding: 26px 20px;
     border-radius: 16px;
   }
+  .auth-title {
+    font-size: 1.35rem;
+  }
   .auth-top {
     flex-direction: column;
     align-items: flex-start;
@@ -634,5 +637,31 @@
   .auth-bottom {
     flex-direction: column;
     align-items: flex-start;
+  }
+  .dash-ph-card {
+    padding: 28px 20px;
+    border-radius: 16px;
+  }
+  .dash-ph-card h1 {
+    font-size: 1.25rem;
+  }
+  .invite-biz {
+    flex-direction: column;
+    text-align: center;
+  }
+  .invite-row {
+    grid-template-columns: 30px 1fr auto;
+    gap: 8px;
+    padding: 10px 12px;
+    font-size: 0.82rem;
+  }
+  .invite-ic {
+    width: 28px;
+    height: 28px;
+  }
+}
+@media (min-width: 481px) and (max-width: 768px) {
+  .auth-main {
+    padding: 28px 20px 48px;
   }
 }
