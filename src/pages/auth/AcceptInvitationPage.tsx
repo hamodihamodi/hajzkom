@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Briefcase, CalendarDays, CheckCircle2, Info, MapPin, ShieldCheck, X } from 'lucide-react'
+import { Briefcase, CalendarDays, CheckCircle2, MapPin, ShieldCheck, X } from 'lucide-react'
 import { AuthShell } from './AuthShell'
 import {
   lookupInvitation,
@@ -103,10 +103,6 @@ export function AcceptInvitationPage({ invitationId }: AcceptInvitationPageProps
             <strong>{invitation.businessName}</strong>
             <span>دعوة للانضمام لفريق العمل</span>
           </div>
-        </div>
-
-        <div className="invite-note">
-          <Info /> دورك محدد مسبقاً من قبل النشاط ولا يمكن تغييره من هنا.
         </div>
 
         <div className="invite-rows">
