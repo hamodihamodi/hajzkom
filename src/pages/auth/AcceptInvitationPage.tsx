@@ -1,14 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Briefcase, CalendarDays, CheckCircle2, MapPin, ShieldCheck, X } from 'lucide-react'
 import { AuthShell } from './AuthShell'
 import {
   lookupInvitation,
   isInviteValid,
-  markInvitationAccepted,
   roleDisplay,
   type Invitation,
 } from '../../utils/invites'
-import { attachInvitation, getSession } from '../../utils/accounts'
 
 function readInviteId(): string | null {
   const params = new URLSearchParams(window.location.hash.split('?')[1] ?? '')
@@ -37,64 +35,17 @@ interface AcceptInvitationPageProps {
 export function AcceptInvitationPage({ invitationId }: AcceptInvitationPageProps) {
   const id = invitationId ?? readInviteId()
   const [invitation] = useState<Invitation | null>(() => (id ? lookupInvitation(id) : null))
-  const [accepted, setAccepted] = useState(false)
-  const [busy, setBusy] = useState(false)
-
-  useEffect(() => {
-    if (!id || accepted) return
-    const session = getSession()
-    if (!session) {
-      window.location.hash = `#/login?invite=${encodeURIComponent(id)}`
-      return
-    }
-    if (!invitation || !isInviteValid(invitation)) {
-      window.location.hash = `#/invite/${encodeURIComponent(id)}`
-    }
-  }, [id, accepted, invitation])
 
   if (!invitation || !isInviteValid(invitation)) {
     return null
   }
 
   const handleAccept = () => {
-    setBusy(true)
-    window.setTimeout(() => {
-      const session = getSession()
-      if (session) {
-        attachInvitation(session.accountId, invitation.role, invitation.businessId)
-      }
-      markInvitationAccepted(invitation.id)
-      setBusy(false)
-      setAccepted(true)
-    }, 900)
+    window.location.hash = `#/invite/${invitation.id}?login=1`
   }
 
   const handleDecline = () => {
     window.location.hash = '#/login'
-  }
-
-  if (accepted) {
-    return (
-      <AuthShell
-        title="تم الانضمام"
-        subtitle={`أصبحت الآن من فريق ${invitation.businessName}`}
-        footer={
-          <button type="button" className="auth-link" onClick={() => (window.location.hash = '#/login')}>
-            العودة لتسجيل الدخول
-          </button>
-        }
-      >
-        <div className="auth-success">
-          <span className="auth-suc-ic">
-            <CheckCircle2 />
-          </span>
-          <p>تم قبول دعوتك. سيظهر لك جدول العمل والمهام الخاصة بدورك فور دخولك إلى لوحة التحكم.</p>
-          <a href="#/dashboard" className="btn btn-primary btn-block">
-            الانتقال إلى لوحة التحكم
-          </a>
-        </div>
-      </AuthShell>
-    )
   }
 
   return (
@@ -146,16 +97,10 @@ export function AcceptInvitationPage({ invitationId }: AcceptInvitationPageProps
           </div>
         </div>
 
-        <button className="btn btn-primary btn-block btn-lg invite-cta" type="button" onClick={handleAccept} disabled={busy}>
-          {busy ? (
-            <>جارٍ القبول...</>
-          ) : (
-            <>
-              <CheckCircle2 /> قبول الدعوة
-            </>
-          )}
+        <button className="btn btn-primary btn-block btn-lg invite-cta" type="button" onClick={handleAccept}>
+          <CheckCircle2 /> قبول الدعوة
         </button>
-        <button className="btn btn-ghost btn-block" type="button" onClick={handleDecline} disabled={busy}>
+        <button className="btn btn-ghost btn-block" type="button" onClick={handleDecline}>
           <X /> رفض
         </button>
       </div>

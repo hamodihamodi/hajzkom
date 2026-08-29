@@ -9,7 +9,7 @@ import { DashboardPage } from './pages/dashboard/DashboardPage'
 import { AcceptInvitationPage } from './pages/auth/AcceptInvitationPage'
 import { InvitationInvalidPage } from './pages/auth/InvitationInvalidPage'
 import { lookupInvitation, isInviteValid } from './utils/invites'
-import { getSession } from './utils/accounts'
+
 import './styles/booking.css'
 import './styles/auth.css'
 
@@ -56,10 +56,7 @@ function renderRoute() {
       if (login) {
         return <LoginPage invitationId={id} />
       }
-      if (getSession()) {
-        return <AcceptInvitationPage invitationId={id} />
-      }
-      return <SignupPage invitationId={id} />
+      return <AcceptInvitationPage invitationId={id} />
     }
 
     default:
