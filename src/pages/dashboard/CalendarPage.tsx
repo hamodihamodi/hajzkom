@@ -57,7 +57,8 @@ export function CalendarPage({ business, onRefresh }: CalendarPageProps) {
   const [detailAppt, setDetailAppt] = useState<Appointment | null>(null)
 
   const allAppts = useMemo(() => {
-    let list = getAppointmentsForBusiness(business.id)
+    const firstLoc = locations[0]
+    let list = getAppointmentsForBusiness(business.id, firstLoc?.id, firstLoc?.name)
     if (locationFilter !== 'all') {
       list = list.filter((a) => a.locationId === locationFilter)
     }
