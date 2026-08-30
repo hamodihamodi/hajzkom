@@ -19,6 +19,7 @@ import { getBusinessByOwner, getOnboardingStatus } from './utils/business'
 import './styles/booking.css'
 import './styles/auth.css'
 import './styles/onboarding.css'
+import './styles/dashboard.css'
 
 function parseLocation() {
   const hash = window.location.hash.replace(/^#\/?/, '')
@@ -29,6 +30,12 @@ function parseLocation() {
   if (pathPart.startsWith('invite/')) {
     inviteFromPath = pathPart.slice('invite/'.length).split('/')[0] || null
     path = 'invite'
+  }
+  if (pathPart.startsWith('dashboard') || pathPart.startsWith('schedule')) {
+    path = pathPart.split('/')[0] || 'dashboard'
+  }
+  if (pathPart.startsWith('onboarding/')) {
+    path = pathPart
   }
   return {
     path,
