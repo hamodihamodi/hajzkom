@@ -20,6 +20,7 @@ import { getAccountByEmail } from '../../utils/accounts'
 import { DashboardHome } from './DashboardHome'
 import { ServicesPage } from './ServicesPage'
 import { LocationsPage } from './LocationsPage'
+import { BusinessSettingsPage } from './BusinessSettingsPage'
 
 const ROLE_LABEL: Record<string, string> = {
   owner: 'مالك النشاط',
@@ -132,7 +133,7 @@ export function DashboardPage() {
       case 'locations':
         return <LocationsPage session={session} business={business} onRefresh={handleRefresh} />
       case 'settings':
-        return <Placeholder title="إعدادات النشاط" desc="تعديل معلومات وإعدادات نشاطك." />
+        return <BusinessSettingsPage session={session} business={business} onRefresh={handleRefresh} />
       case 'billing':
         return <Placeholder title="الاشتراك والفوترة" desc="إدارة خطتك وطرق الدفع." />
       default:
