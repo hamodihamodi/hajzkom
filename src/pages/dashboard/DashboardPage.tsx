@@ -22,6 +22,8 @@ import { ServicesPage } from './ServicesPage'
 import { LocationsPage } from './LocationsPage'
 import { BusinessSettingsPage } from './BusinessSettingsPage'
 import { TeamPage } from './TeamPage'
+import { CalendarPage } from './CalendarPage'
+import { AppointmentDetailPage } from './AppointmentDetailPage'
 
 const ROLE_LABEL: Record<string, string> = {
   owner: 'مالك النشاط',
@@ -52,7 +54,15 @@ function getSubPage(): string {
   const [path] = hash.split('?')
   const parts = path.split('/')
   if (parts[0] === 'schedule') return 'home'
+  if (parts[1] === 'appointment' && parts[2]) return 'appointment'
   return parts[1] ?? 'home'
+}
+
+function getAppointmentIdFromHash(): string | null {
+  const hash = window.location.hash.replace(/^#\/?/, '')
+  const parts = hash.split('/')
+  if (parts[1] === 'appointment' && parts[2]) return parts[2]
+  return null
 }
 
 function Placeholder({ title, desc }: { title: string; desc: string }) {
@@ -124,7 +134,18 @@ export function DashboardPage() {
       case 'home':
         return <DashboardHome session={session} business={business} />
       case 'calendar':
-        return <Placeholder title="التقويم" desc="عرض وإدارة حجوزاتك اليومية والأسبوعية." />
+        return <CalendarPage business={business} onRefresh={handleRefresh} />
+      case 'appointment': {
+        const apptId = getAppointmentIdFromHash()
+        return apptId ? (
+          <AppointmentDetailPage
+            appointmentId={apptId}
+            onBack={() => { window.location.hash = '#/dashboard/calendar' }}
+          />
+        ) : (
+          <CalendarPage business={business} onRefresh={handleRefresh} />
+        )
+      }
       case 'customers':
         return <Placeholder title="الزبائن" desc="إدارة بيانات زبائنك وسجل حجوزاتهم." />
       case 'services':
