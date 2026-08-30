@@ -166,3 +166,26 @@ export function attachInvitation(accountId: string, role: AccountRole, businessI
   saveAccounts(accounts)
   return account
 }
+
+export function getTeamMembers(businessId: string): Account[] {
+  return loadAccounts().filter((a) => a.businessId === businessId)
+}
+
+export function updateAccountRole(accountId: string, role: AccountRole): Account | null {
+  const accounts = loadAccounts()
+  const account = accounts.find((a) => a.id === accountId)
+  if (!account) return null
+  account.role = role
+  saveAccounts(accounts)
+  return account
+}
+
+export function removeAccountFromBusiness(accountId: string): Account | null {
+  const accounts = loadAccounts()
+  const account = accounts.find((a) => a.id === accountId)
+  if (!account) return null
+  account.businessId = ''
+  account.role = 'owner'
+  saveAccounts(accounts)
+  return account
+}

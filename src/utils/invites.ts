@@ -140,3 +140,42 @@ export function roleDisplay(role: AccountRole): string {
       return 'مالك'
   }
 }
+
+export function createInvitation(
+  businessId: string,
+  businessName: string,
+  role: 'admin' | 'staff',
+  email?: string,
+  locationId?: string,
+  locationName?: string,
+): Invitation {
+  const list = loadInvitations()
+  const inv: Invitation = {
+    id: `inv-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+    businessId,
+    businessName,
+    role,
+    email,
+    locationId,
+    locationName,
+    status: 'pending',
+    createdAt: Date.now(),
+    expiresAt: Date.now() + DAY,
+  }
+  list.push(inv)
+  saveInvitations(list)
+  return inv
+}
+
+export function revokeInvitation(id: string): Invitation | null {
+  const list = loadInvitations()
+  const found = list.find((i) => i.id === id)
+  if (!found) return null
+  found.status = 'revoked'
+  saveInvitations(list)
+  return { ...found, status: 'revoked' }
+}
+
+export function getBusinessInvitations(businessId: string): Invitation[] {
+  return loadInvitations().filter((i) => i.businessId === businessId)
+}

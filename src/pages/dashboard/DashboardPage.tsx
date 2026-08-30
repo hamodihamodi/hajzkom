@@ -21,6 +21,7 @@ import { DashboardHome } from './DashboardHome'
 import { ServicesPage } from './ServicesPage'
 import { LocationsPage } from './LocationsPage'
 import { BusinessSettingsPage } from './BusinessSettingsPage'
+import { TeamPage } from './TeamPage'
 
 const ROLE_LABEL: Record<string, string> = {
   owner: 'مالك النشاط',
@@ -129,7 +130,7 @@ export function DashboardPage() {
       case 'services':
         return <ServicesPage session={session} business={business} onRefresh={handleRefresh} />
       case 'team':
-        return <Placeholder title="الفريق" desc={session.role === 'staff' ? 'عرض أعضاء الفريق.' : 'إدارة مشرفين وموظفي نشاطك.'} />
+        return <TeamPage session={session} business={business} onRefresh={handleRefresh} />
       case 'locations':
         return <LocationsPage session={session} business={business} onRefresh={handleRefresh} />
       case 'settings':
