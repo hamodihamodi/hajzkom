@@ -147,6 +147,28 @@ export function addService(businessId: string, input: Omit<ServiceInfo, 'id'>): 
   return svc
 }
 
+export function updateService(businessId: string, serviceId: string, patch: Partial<ServiceInfo>): ServiceInfo | null {
+  const list = loadAll()
+  const biz = list.find((b) => b.id === businessId)
+  if (!biz) return null
+  const svc = biz.services.find((s) => s.id === serviceId)
+  if (!svc) return null
+  Object.assign(svc, patch)
+  saveAll(list)
+  return svc
+}
+
+export function deleteService(businessId: string, serviceId: string): boolean {
+  const list = loadAll()
+  const biz = list.find((b) => b.id === businessId)
+  if (!biz) return false
+  const idx = biz.services.findIndex((s) => s.id === serviceId)
+  if (idx === -1) return false
+  biz.services.splice(idx, 1)
+  saveAll(list)
+  return true
+}
+
 export function getOnboardingStatus(business: Business): {
   hasLocation: boolean
   hasHours: boolean

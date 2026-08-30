@@ -18,6 +18,7 @@ import { clearSession, getSession, type Session, type AccountRole } from '../../
 import { getBusinessByOwner, getBusinessById, type Business } from '../../utils/business'
 import { getAccountByEmail } from '../../utils/accounts'
 import { DashboardHome } from './DashboardHome'
+import { ServicesPage } from './ServicesPage'
 
 const ROLE_LABEL: Record<string, string> = {
   owner: 'مالك النشاط',
@@ -69,6 +70,7 @@ export function DashboardPage() {
   const [session, setSession] = useState<Session | null>(() => getSession())
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [subPage, setSubPage] = useState(getSubPage)
+  const [, setRefreshKey] = useState(0)
 
   const business: Business | null = (() => {
     if (!session) return null
@@ -112,6 +114,8 @@ export function DashboardPage() {
     billing: 'الاشتراك والفوترة',
   }
 
+  const handleRefresh = () => setRefreshKey((k) => k + 1)
+
   const renderContent = () => {
     switch (subPage) {
       case 'home':
@@ -121,7 +125,7 @@ export function DashboardPage() {
       case 'customers':
         return <Placeholder title="الزبائن" desc="إدارة بيانات زبائنك وسجل حجوزاتهم." />
       case 'services':
-        return <Placeholder title="الخدمات" desc="إدارة خدماتك ومدداتها وأسعارها." />
+        return <ServicesPage session={session} business={business} onRefresh={handleRefresh} />
       case 'team':
         return <Placeholder title="الفريق" desc={session.role === 'staff' ? 'عرض أعضاء الفريق.' : 'إدارة مشرفين وموظفي نشاطك.'} />
       case 'locations':
