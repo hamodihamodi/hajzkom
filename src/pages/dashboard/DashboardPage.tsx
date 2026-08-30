@@ -19,6 +19,7 @@ import { getBusinessByOwner, getBusinessById, type Business } from '../../utils/
 import { getAccountByEmail } from '../../utils/accounts'
 import { DashboardHome } from './DashboardHome'
 import { ServicesPage } from './ServicesPage'
+import { LocationsPage } from './LocationsPage'
 
 const ROLE_LABEL: Record<string, string> = {
   owner: 'مالك النشاط',
@@ -129,7 +130,7 @@ export function DashboardPage() {
       case 'team':
         return <Placeholder title="الفريق" desc={session.role === 'staff' ? 'عرض أعضاء الفريق.' : 'إدارة مشرفين وموظفي نشاطك.'} />
       case 'locations':
-        return <Placeholder title="المواقع والأوقات" desc="إدارة مواقع نشاطك وأوقات العمل." />
+        return <LocationsPage session={session} business={business} onRefresh={handleRefresh} />
       case 'settings':
         return <Placeholder title="إعدادات النشاط" desc="تعديل معلومات وإعدادات نشاطك." />
       case 'billing':
