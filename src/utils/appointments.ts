@@ -20,6 +20,7 @@ export interface Appointment {
 }
 
 const KEY = 'hajzkom:appointments'
+const SEED_VERSION = 2
 
 function makeId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`
@@ -91,6 +92,27 @@ function seed(): Appointment[] {
     {
       id: makeId(), businessId: bizId, locationId: 'loc-1', locationName: 'الفرع الرئيسي',
       serviceId: 'svc-1', serviceName: 'قص شعر', durationMin: 30,
+      date: today(), time: '09:00', customerName: 'يوسف كريم', customerPhone: '+9647701239876',
+      customerEmail: 'yousef@example.com', customerNotes: 'يحب قصة عصرية',
+      staffNotes: '', status: 'confirmed', createdAt: Date.now() - 10000000,
+    },
+    {
+      id: makeId(), businessId: bizId, locationId: 'loc-1', locationName: 'الفرع الرئيسي',
+      serviceId: 'svc-2', serviceName: 'صبغ شعر', durationMin: 90,
+      date: today(), time: '13:00', customerName: 'مريم عادل', customerPhone: '+9647705556677',
+      customerEmail: 'mariam@example.com', customerNotes: 'تريد لون كحلي غامق',
+      staffNotes: 'حجزت من الموقع', status: 'confirmed', createdAt: Date.now() - 5000000,
+    },
+    {
+      id: makeId(), businessId: bizId, locationId: 'loc-1', locationName: 'الفرع الرئيسي',
+      serviceId: 'svc-3', serviceName: 'حلاقة', durationMin: 45,
+      date: today(), time: '17:30', customerName: 'عمران فاطمي', customerPhone: '+9647708889911',
+      customerEmail: '', customerNotes: 'لحية كاملة فقط',
+      staffNotes: '', status: 'pending', createdAt: Date.now() - 2000000,
+    },
+    {
+      id: makeId(), businessId: bizId, locationId: 'loc-1', locationName: 'الفرع الرئيسي',
+      serviceId: 'svc-3', serviceName: 'حلاقة', durationMin: 45,
       date: dateOffset(-1), time: '10:30', customerName: 'حسن كريم', customerPhone: '+9647706667788',
       customerEmail: '', customerNotes: '',
       staffNotes: 'تم الإنجاز', status: 'completed', createdAt: Date.now() - 172800000,
@@ -115,8 +137,10 @@ function seed(): Appointment[] {
 export function loadAppointments(): Appointment[] {
   try {
     const raw = localStorage.getItem(KEY)
-    if (!raw) {
+    const ver = localStorage.getItem(`${KEY}:v`)
+    if (!raw || Number(ver) < SEED_VERSION) {
       localStorage.setItem(KEY, JSON.stringify(seed()))
+      localStorage.setItem(`${KEY}:v`, String(SEED_VERSION))
       return loadAppointments()
     }
     const parsed = JSON.parse(raw)
