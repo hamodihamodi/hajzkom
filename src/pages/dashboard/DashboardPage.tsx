@@ -134,7 +134,7 @@ export function DashboardPage() {
       case 'home':
         return <DashboardHome session={session} business={business} />
       case 'calendar':
-        return <CalendarPage business={business} onRefresh={handleRefresh} />
+        return <CalendarPage business={business} />
       case 'appointment': {
         const apptId = getAppointmentIdFromHash()
         return apptId ? (
@@ -145,7 +145,7 @@ export function DashboardPage() {
             onBack={() => { window.location.hash = '#/dashboard/calendar' }}
           />
         ) : (
-          <CalendarPage business={business} onRefresh={handleRefresh} />
+          <CalendarPage business={business} />
         )
       }
       case 'customers':

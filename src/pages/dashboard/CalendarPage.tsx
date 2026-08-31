@@ -7,7 +7,6 @@ import {
   MapPin,
   Phone,
   Scissors,
-  X,
 } from 'lucide-react'
 import type { Business } from '../../utils/business'
 import {
@@ -15,15 +14,13 @@ import {
   type Appointment,
   type AppointmentStatus,
 } from '../../utils/appointments'
-import { STATUS_AR, STATUS_COLORS, updateAppointmentStatus } from '../../utils/appointments'
-import { toast } from '../../utils/toast'
+import { STATUS_AR, STATUS_COLORS } from '../../utils/appointments'
 import { formatSlot12h } from '../../utils/booking'
 
 const PAGE_SIZE = 8
 
 interface CalendarPageProps {
   business: Business
-  onRefresh: () => void
 }
 
 function formatDateAr(d: string): string {
@@ -39,7 +36,7 @@ function todayStr(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
-export function CalendarPage({ business, onRefresh }: CalendarPageProps) {
+export function CalendarPage({ business }: CalendarPageProps) {
   const locations = business.locations
   const services = business.services
 
@@ -54,7 +51,6 @@ export function CalendarPage({ business, onRefresh }: CalendarPageProps) {
   const [serviceFilter, setServiceFilter] = useState('all')
   const [showFilters, setShowFilters] = useState(false)
   const [page, setPage] = useState(1)
-  const [detailAppt, setDetailAppt] = useState<Appointment | null>(null)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
 
   const allAppts = useMemo(() => {
@@ -259,7 +255,7 @@ export function CalendarPage({ business, onRefresh }: CalendarPageProps) {
               {group.items.map((appt) => (
                 <div
                   key={appt.id}
-                  onClick={() => setDetailAppt(appt)}
+                  onClick={() => { window.location.hash = `#/dashboard/appointment/${appt.id}` }}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 14,
                     padding: '14px 20px', borderBottom: '1px solid var(--color-border-subtle)',
@@ -320,197 +316,7 @@ export function CalendarPage({ business, onRefresh }: CalendarPageProps) {
           نهاية النتائج ({allAppts.length} موعد)
         </div>
       )}
-
-      {/* ── Detail modal ── */}
-      {detailAppt && (
-        <AppointmentDetailModal
-          appt={detailAppt}
-          onClose={() => { setDetailAppt(null); onRefresh() }}
-        />
-      )}
     </>
-  )
-}
-
-function AppointmentDetailModal({
-  appt,
-  onClose,
-}: {
-  appt: Appointment
-  onClose: () => void
-}) {
-  const [status, setStatus] = useState(appt.status)
-  const [confirmAction, setConfirmAction] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-
-  const handleStatus = (newStatus: AppointmentStatus) => {
-    if (newStatus === 'cancelled') {
-      setConfirmAction('cancelled')
-      return
-    }
-    setLoading(true)
-    window.setTimeout(() => {
-      updateAppointmentStatus(appt.id, newStatus)
-      setStatus(newStatus)
-      toast(`تم تحديث الحالة إلى "${STATUS_AR[newStatus]}".`)
-      setLoading(false)
-    }, 300)
-  }
-
-  const confirmCancel = () => {
-    setLoading(true)
-    window.setTimeout(() => {
-      updateAppointmentStatus(appt.id, 'cancelled')
-      setStatus('cancelled')
-      toast('تم إلغاء الموعد.')
-      setLoading(false)
-      setConfirmAction(null)
-    }, 300)
-  }
-
-  return (
-    <div className="dash-overlay open" onClick={onClose}>
-      <div
-        className="dash-section"
-        style={{ position: 'relative', width: '100%', maxWidth: 520, margin: '6vh auto', cursor: 'default', maxHeight: '88vh', overflow: 'auto' }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="dash-section-head">
-          <span className="dash-section-title"><CalendarDays /> تفاصيل الموعد</span>
-          <button className="dash-section-action" type="button" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X /></button>
-        </div>
-
-        <div style={{ padding: 20 }}>
-          {/* ── Status badge ── */}
-          <div style={{ marginBottom: 16 }}>
-            <span style={{
-              display: 'inline-block', fontSize: '0.78rem', fontWeight: 600, padding: '5px 14px',
-              borderRadius: '999px', background: STATUS_COLORS[status].bg, color: STATUS_COLORS[status].text,
-            }}>
-              {STATUS_AR[status]}
-            </span>
-          </div>
-
-          {/* ── Service & time ── */}
-          <div style={fieldRowS}>
-            <div style={fieldBoxS}>
-              <div style={fieldLabelS}>الخدمة</div>
-              <div style={{ fontSize: '0.9rem', fontWeight: 600 }}>{appt.serviceName}</div>
-            </div>
-            <div style={fieldBoxS}>
-              <div style={fieldLabelS}>المدة</div>
-              <div style={{ fontSize: '0.9rem', fontWeight: 600 }}>{appt.durationMin} دقيقة</div>
-            </div>
-          </div>
-          <div style={fieldRowS}>
-            <div style={fieldBoxS}>
-              <div style={fieldLabelS}>التاريخ</div>
-              <div style={{ fontSize: '0.9rem', fontWeight: 600 }}>{formatDateAr(appt.date)}</div>
-            </div>
-            <div style={fieldBoxS}>
-              <div style={fieldLabelS}>الوقت</div>
-              <div style={{ fontSize: '0.9rem', fontWeight: 600 }}>{formatSlot12h(appt.time)}</div>
-            </div>
-          </div>
-          <div style={fieldRowS}>
-            <div style={fieldBoxS}>
-              <div style={fieldLabelS}>الموقع</div>
-              <div style={{ fontSize: '0.9rem', fontWeight: 600 }}>{appt.locationName}</div>
-            </div>
-          </div>
-
-          {/* ── Customer ── */}
-          <div style={{ ...fieldRowS, marginTop: 16 }}>
-            <div style={fieldBoxS}>
-              <div style={fieldLabelS}>الزبون</div>
-              <div style={{ fontSize: '0.9rem', fontWeight: 600 }}>{appt.customerName}</div>
-            </div>
-          </div>
-          <div style={fieldRowS}>
-            <div style={fieldBoxS}>
-              <div style={fieldLabelS}>الهاتف</div>
-              <div style={{ fontSize: '0.9rem' }} dir="ltr">{appt.customerPhone || '—'}</div>
-            </div>
-            <div style={fieldBoxS}>
-              <div style={fieldLabelS}>البريد</div>
-              <div style={{ fontSize: '0.9rem' }}>{appt.customerEmail || '—'}</div>
-            </div>
-          </div>
-
-          {/* ── Notes ── */}
-          {appt.customerNotes && (
-            <div style={{ marginTop: 14 }}>
-              <div style={fieldLabelS}>ملاحظات الزبون</div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', lineHeight: 1.7, padding: '10px 14px', background: 'var(--color-surface-subtle)', borderRadius: 8 }}>
-                {appt.customerNotes}
-              </div>
-            </div>
-          )}
-          {appt.staffNotes && (
-            <div style={{ marginTop: 10 }}>
-              <div style={fieldLabelS}>ملاحظات الموظف</div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', lineHeight: 1.7, padding: '10px 14px', background: 'var(--color-surface-subtle)', borderRadius: 8 }}>
-                {appt.staffNotes}
-              </div>
-            </div>
-          )}
-
-          {/* ── Actions ── */}
-          {(status === 'confirmed' || status === 'pending' || status === 'no-show') && (
-            <div style={{ display: 'flex', gap: 8, marginTop: 20, flexWrap: 'wrap' }}>
-              <button
-                type="button" disabled={loading}
-                onClick={() => handleStatus('completed')}
-                style={{ ...actionBtnS, background: 'var(--color-success)', color: '#fff', borderColor: 'var(--color-success)' }}
-              >
-                مكتمل
-              </button>
-              {status !== 'no-show' && (
-                <button
-                  type="button" disabled={loading}
-                  onClick={() => handleStatus('no-show')}
-                  style={{ ...actionBtnS, background: 'var(--color-warning)', color: '#fff', borderColor: 'var(--color-warning)' }}
-                >
-                  لم يحضر
-                </button>
-              )}
-              <button
-                type="button" disabled={loading}
-                onClick={() => handleStatus('cancelled')}
-                style={{ ...actionBtnS, background: 'var(--color-error)', color: '#fff', borderColor: 'var(--color-error)' }}
-              >
-                إلغاء
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* ── Cancel confirmation ── */}
-        {confirmAction === 'cancelled' && (
-          <div style={{ padding: '0 20px 20px' }}>
-            <div style={{ padding: 14, borderRadius: 10, background: 'var(--color-error-background)', border: '1px solid var(--color-error)' }}>
-              <p style={{ margin: '0 0 10px', fontSize: '0.85rem', color: 'var(--color-error)' }}>هل أنت متأكد من إلغاء هذا الموعد؟</p>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button
-                  type="button" disabled={loading}
-                  onClick={confirmCancel}
-                  style={{ ...actionBtnS, background: 'var(--color-error)', color: '#fff', borderColor: 'var(--color-error)' }}
-                >
-                  نعم، إلغاء
-                </button>
-                <button
-                  type="button" disabled={loading}
-                  onClick={() => setConfirmAction(null)}
-                  style={{ ...actionBtnS, borderColor: 'var(--color-border-default)' }}
-                >
-                  تراجع
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
   )
 }
 
@@ -531,13 +337,6 @@ const quickBtnS: React.CSSProperties = {
 const filterSelectS: React.CSSProperties = {
   padding: '6px 10px', borderRadius: 8, border: '1px solid var(--color-border-default)',
   fontSize: '0.82rem', fontFamily: 'inherit', outline: 'none', background: 'var(--color-surface)',
-}
-const fieldLabelS: React.CSSProperties = { fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text-tertiary)', marginBottom: 4 }
-const fieldBoxS: React.CSSProperties = { flex: 1, minWidth: 120 }
-const fieldRowS: React.CSSProperties = { display: 'flex', gap: 14, marginBottom: 6 }
-const actionBtnS: React.CSSProperties = {
-  padding: '8px 16px', borderRadius: 8, border: '1px solid',
-  fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
 }
 
 export default CalendarPage
