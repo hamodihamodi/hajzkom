@@ -140,6 +140,8 @@ export function DashboardPage() {
         return apptId ? (
           <AppointmentDetailPage
             appointmentId={apptId}
+            session={session}
+            business={business}
             onBack={() => { window.location.hash = '#/dashboard/calendar' }}
           />
         ) : (

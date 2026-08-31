@@ -1,22 +1,30 @@
-import { useState, useEffect } from 'react'
+import { useMemo, useState } from 'react'
 import {
   CalendarDays,
+  Check,
   Clock,
   Mail,
   MapPin,
   Phone,
   Scissors,
   User,
+  X,
 } from 'lucide-react'
 import {
   getAppointmentById,
   updateAppointmentStatus,
+  rescheduleAppointment,
   type Appointment,
   type AppointmentStatus,
 } from '../../utils/appointments'
 import { STATUS_AR, STATUS_COLORS } from '../../utils/appointments'
 import { toast } from '../../utils/toast'
 import { formatSlot12h } from '../../utils/booking'
+import type { Session } from '../../utils/accounts'
+import type { Business } from '../../utils/business'
+import type { BusinessLocationInfo } from '../../types'
+import { getDayHours } from '../../utils/booking'
+import { generateSlotTimes, timeToMinutes, toTimeKey, dateKey } from '../../utils/datetime'
 
 function formatDateAr(d: string): string {
   const [y, m, day] = d.split('-').map(Number)
@@ -26,22 +34,47 @@ function formatDateAr(d: string): string {
   return `${weekdays[dt.getDay()]} ${day} ${months[dt.getMonth()]} ${y}`
 }
 
+function toDateInput(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
 interface AppointmentDetailPageProps {
   appointmentId: string
+  session: Session
+  business: Business
   onBack: () => void
 }
 
-export function AppointmentDetailPage({ appointmentId, onBack }: AppointmentDetailPageProps) {
+export function AppointmentDetailPage({ appointmentId, session, business, onBack }: AppointmentDetailPageProps) {
   const [appt, setAppt] = useState<Appointment | null>(() => getAppointmentById(appointmentId))
   const [status, setStatus] = useState<AppointmentStatus>(appt?.status ?? 'confirmed')
   const [confirmAction, setConfirmAction] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    const found = getAppointmentById(appointmentId)
-    setAppt(found)
-    if (found) setStatus(found.status)
-  }, [appointmentId])
+  // ── Reschedule state ──
+  const [rescheduling, setRescheduling] = useState(false)
+  const [rsLocationId, setRsLocationId] = useState(appt?.locationId ?? '')
+  const [rsDate, setRsDate] = useState(appt?.date ?? toDateInput(new Date()))
+  const [rsTime, setRsTime] = useState('')
+
+  const canReschedule = session.role === 'owner' || session.role === 'admin'
+
+  const rsLocation: BusinessLocationInfo | null =
+    business.locations.find((l) => l.id === rsLocationId) ?? null
+
+  const rsSlots: string[] = useMemo(() => {
+    if (!rsLocation || !rsDate) return []
+    const [y, m, d] = rsDate.split('-').map(Number)
+    const dt = new Date(y, m - 1, d)
+    const hours = getDayHours(rsLocation, dt)
+    if (!hours) return []
+    const today = dateKey(new Date()) === rsDate
+    const nowMin = new Date().getHours() * 60 + new Date().getMinutes()
+    return generateSlotTimes(hours.open, hours.close, 30).filter((t) => {
+      if (today && timeToMinutes(t) <= nowMin) return false
+      return true
+    })
+  }, [rsLocation, rsDate])
 
   if (!appt) {
     return (
@@ -57,6 +90,8 @@ export function AppointmentDetailPage({ appointmentId, onBack }: AppointmentDeta
       </div>
     )
   }
+
+  const endTime = toTimeKey(timeToMinutes(appt.time) + appt.durationMin)
 
   const handleStatus = (newStatus: AppointmentStatus) => {
     if (newStatus === 'cancelled') {
@@ -80,6 +115,30 @@ export function AppointmentDetailPage({ appointmentId, onBack }: AppointmentDeta
       toast('تم إلغاء الموعد.')
       setLoading(false)
       setConfirmAction(null)
+    }, 300)
+  }
+
+  const openReschedule = () => {
+    setRsLocationId(appt.locationId)
+    setRsDate(appt.date)
+    setRsTime('')
+    setRescheduling(true)
+  }
+
+  const applyReschedule = () => {
+    if (!rsTime) {
+      toast('يرجى اختيار وقت جديد.')
+      return
+    }
+    setLoading(true)
+    window.setTimeout(() => {
+      const updated = rescheduleAppointment(appt.id, rsDate, rsTime)
+      if (updated) {
+        setAppt(updated)
+        toast(`تمت إعادة جدولة الموعد إلى ${formatDateAr(rsDate)} - ${formatSlot12h(rsTime)}.`)
+      }
+      setLoading(false)
+      setRescheduling(false)
     }, 300)
   }
 
@@ -134,7 +193,9 @@ export function AppointmentDetailPage({ appointmentId, onBack }: AppointmentDeta
             </div>
             <div>
               <div style={labelS}>الوقت</div>
-              <div style={{ fontSize: '0.95rem', fontWeight: 600 }}>{formatSlot12h(appt.time)}</div>
+              <div style={{ fontSize: '0.95rem', fontWeight: 600 }}>
+                {formatSlot12h(appt.time)} – {formatSlot12h(endTime)}
+              </div>
             </div>
           </div>
 
@@ -210,6 +271,16 @@ export function AppointmentDetailPage({ appointmentId, onBack }: AppointmentDeta
                     لم يحضر
                   </button>
                 )}
+                {canReschedule && (
+                  <button
+                    type="button" disabled={loading}
+                    onClick={openReschedule}
+                    style={{ ...actionBtnS, background: 'var(--color-primary)', color: '#fff', borderColor: 'var(--color-primary)' }}
+                  >
+                    <CalendarDays size={14} style={{ marginInlineEnd: 4, verticalAlign: 'middle' }} />
+                    إعادة جدولة
+                  </button>
+                )}
                 <button
                   type="button" disabled={loading}
                   onClick={() => handleStatus('cancelled')}
@@ -237,6 +308,110 @@ export function AppointmentDetailPage({ appointmentId, onBack }: AppointmentDeta
           )}
         </div>
       </div>
+
+      {/* ── Reschedule modal ── */}
+      {rescheduling && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 100,
+          background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: 16,
+        }} onClick={() => !loading && setRescheduling(false)}>
+          <div
+            className="dash-section"
+            style={{ maxWidth: 440, width: '100%', margin: 0 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="dash-section-head">
+              <span className="dash-section-title"><CalendarDays /> إعادة جدولة الموعد</span>
+              <button
+                type="button" onClick={() => !loading && setRescheduling(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-muted)', display: 'inline-flex' }}
+                aria-label="إغلاق"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div style={{ padding: 20, display: 'grid', gap: 16 }}>
+              <div>
+                <div style={labelS}>الموقع</div>
+                <select
+                  value={rsLocationId}
+                  disabled={loading}
+                  onChange={(e) => { setRsLocationId(e.target.value); setRsTime('') }}
+                  style={inputS}
+                >
+                  <option value="" disabled>اختر الموقع</option>
+                  {business.locations.map((l) => (
+                    <option key={l.id} value={l.id}>{l.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <div style={labelS}>التاريخ</div>
+                <input
+                  type="date"
+                  value={rsDate}
+                  min={toDateInput(new Date())}
+                  disabled={loading}
+                  onChange={(e) => { setRsDate(e.target.value); setRsTime('') }}
+                  style={inputS}
+                />
+              </div>
+
+              <div>
+                <div style={labelS}>الوقت المتاح</div>
+                {rsSlots.length === 0 ? (
+                  <p style={{ color: 'var(--color-text-tertiary)', fontSize: '0.82rem', margin: 0 }}>
+                    لا توجد أوقات متاحة لهذا اليوم (الموقع مغلق أو انتهت الأوقات).
+                  </p>
+                ) : (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, maxHeight: 180, overflowY: 'auto' }}>
+                    {rsSlots.map((t) => {
+                      const selected = t === rsTime
+                      return (
+                        <button
+                          key={t}
+                          type="button"
+                          disabled={loading}
+                          onClick={() => setRsTime(t)}
+                          style={{
+                            padding: '8px 4px', borderRadius: 8, border: '1px solid',
+                            borderColor: selected ? 'var(--color-primary)' : 'var(--color-border-default)',
+                            background: selected ? 'var(--color-primary)' : 'var(--color-surface)',
+                            color: selected ? '#fff' : 'var(--color-text-primary)',
+                            fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+                          }}
+                        >
+                          {formatSlot12h(t)}
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                <button
+                  type="button" disabled={loading}
+                  onClick={() => setRescheduling(false)}
+                  style={{ ...actionBtnS, borderColor: 'var(--color-border-default)' }}
+                >
+                  تراجع
+                </button>
+                <button
+                  type="button" disabled={loading || !rsTime}
+                  onClick={applyReschedule}
+                  style={{ ...actionBtnS, background: 'var(--color-primary)', color: '#fff', borderColor: 'var(--color-primary)' }}
+                >
+                  <Check size={14} style={{ marginInlineEnd: 4, verticalAlign: 'middle' }} />
+                  تأكيد إعادة الجدولة
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }
@@ -257,6 +432,12 @@ const noteBoxS: React.CSSProperties = {
 const actionBtnS: React.CSSProperties = {
   padding: '8px 16px', borderRadius: 8, border: '1px solid',
   fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+  display: 'inline-flex', alignItems: 'center',
+}
+const inputS: React.CSSProperties = {
+  width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--color-border-default)',
+  background: 'var(--color-surface)', fontSize: '0.85rem', fontFamily: 'inherit',
+  color: 'var(--color-text-primary)', boxSizing: 'border-box',
 }
 
 export default AppointmentDetailPage

@@ -182,6 +182,10 @@ export function updateAppointmentStatus(id: string, status: AppointmentStatus): 
   return updateAppointment(id, { status })
 }
 
+export function rescheduleAppointment(id: string, date: string, time: string): Appointment | null {
+  return updateAppointment(id, { date, time })
+}
+
 export const STATUS_AR: Record<AppointmentStatus, string> = {
   confirmed: 'مؤكد',
   pending: 'قيد الانتظار',
