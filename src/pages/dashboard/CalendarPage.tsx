@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef, useEffect } from 'react'
 import {
   CalendarDays,
   ChevronLeft,
@@ -55,6 +55,7 @@ export function CalendarPage({ business, onRefresh }: CalendarPageProps) {
   const [showFilters, setShowFilters] = useState(false)
   const [page, setPage] = useState(1)
   const [detailAppt, setDetailAppt] = useState<Appointment | null>(null)
+  const sentinelRef = useRef<HTMLDivElement | null>(null)
 
   const allAppts = useMemo(() => {
     const firstLoc = locations[0]
@@ -74,11 +75,25 @@ export function CalendarPage({ business, onRefresh }: CalendarPageProps) {
       return a.time.localeCompare(b.time)
     })
     return list
-  }, [business.id, locationFilter, fromDate, toDate, statusFilter, serviceFilter])
+  }, [business.id, locationFilter, fromDate, toDate, statusFilter, serviceFilter, locations])
 
   const totalPages = Math.ceil(allAppts.length / PAGE_SIZE)
   const visibleAppts = allAppts.slice(0, page * PAGE_SIZE)
   const hasMore = page < totalPages
+
+  useEffect(() => {
+    if (!sentinelRef.current || !hasMore) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setPage((p) => p + 1)
+        }
+      },
+      { rootMargin: '200px' },
+    )
+    observer.observe(sentinelRef.current)
+    return () => observer.disconnect()
+  }, [hasMore, page])
 
   const prevWeek = () => {
     const d = new Date(fromDate)
@@ -291,20 +306,18 @@ export function CalendarPage({ business, onRefresh }: CalendarPageProps) {
         </div>
       )}
 
-      {/* ── Load more ── */}
+      {/* ── Infinite scroll sentinel ── */}
       {hasMore && (
-        <div style={{ textAlign: 'center', padding: '16px 0' }}>
-          <button
-            type="button"
-            onClick={() => setPage((p) => p + 1)}
-            style={{
-              padding: '10px 24px', borderRadius: 10, border: '1px solid var(--color-border-default)',
-              background: 'var(--color-surface)', fontSize: '0.85rem', fontWeight: 600,
-              cursor: 'pointer', fontFamily: 'inherit', color: 'var(--color-text-primary)',
-            }}
-          >
-            تحميل المزيد ({allAppts.length - visibleAppts.length} متبقي)
-          </button>
+        <div
+          ref={sentinelRef}
+          style={{ textAlign: 'center', padding: '18px 0', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}
+        >
+          جارٍ تحميل المزيد…
+        </div>
+      )}
+      {!hasMore && allAppts.length > 0 && (
+        <div style={{ textAlign: 'center', padding: '12px 0', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+          نهاية النتائج ({allAppts.length} موعد)
         </div>
       )}
 
