@@ -37,6 +37,7 @@ import { AppointmentDetailPage } from './AppointmentDetailPage'
 import { RescheduleAppointmentPage } from './RescheduleAppointmentPage'
 import { WalkInBookingPage } from './WalkInBookingPage'
 import { CustomersPage } from './CustomersPage'
+import { CustomerProfilePage } from './CustomerProfilePage'
 
 const PLAN_AR: Record<string, string> = {
   free: 'مجانية',
@@ -76,7 +77,21 @@ function getSubPage(): string {
   if (parts[0] === 'schedule') return 'home'
   if (parts[1] === 'appointment' && parts[2] && parts[3] === 'reschedule') return 'reschedule'
   if (parts[1] === 'appointment' && parts[2]) return 'appointment'
+  if (parts[1] === 'customer' && parts[2]) return 'customer'
   return parts[1] ?? 'home'
+}
+
+function getCustomerKeyFromHash(): string | null {
+  const hash = window.location.hash.replace(/^#\/?/, '')
+  const parts = hash.split('/')
+  if (parts[1] === 'customer' && parts[2]) {
+    try {
+      return decodeURIComponent(parts[2])
+    } catch {
+      return parts[2]
+    }
+  }
+  return null
 }
 
 function getAppointmentIdFromHash(): string | null {
@@ -194,8 +209,24 @@ export function DashboardPage() {
           <CalendarPage business={business} />
         )
       }
-      case 'customers':
-        return <CustomersPage business={business} />
+      case 'customers': {
+        const customerKey = getCustomerKeyFromHash()
+        if (customerKey) {
+          return (
+            <CustomerProfilePage
+              business={business}
+              customerKey={customerKey}
+              onBack={() => { window.location.hash = '#/dashboard/customers' }}
+            />
+          )
+        }
+        return (
+          <CustomersPage
+            business={business}
+            onOpenCustomer={(key) => { window.location.hash = `#/dashboard/customer/${encodeURIComponent(key)}` }}
+          />
+        )
+      }
       case 'services':
         return <ServicesPage session={session} business={business} onRefresh={handleRefresh} />
       case 'team':
@@ -246,7 +277,7 @@ export function DashboardPage() {
           <div className="dash-nav-label">القائمة</div>
           {filteredNav.map((item) => {
             const Icon = item.icon
-            const active = subPage === item.key
+            const active = subPage === item.key || (subPage === 'customer' && item.key === 'customers')
             return (
               <a
                 key={item.key}

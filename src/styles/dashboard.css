@@ -765,6 +765,184 @@
   flex: none;
   color: var(--color-text-disabled);
 }
+.cust-row {
+  cursor: pointer;
+}
+.cust-card {
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.cust-card:hover {
+  background: var(--color-surface-subtle);
+}
+.cust-row-chev {
+  flex: none;
+  color: var(--color-text-disabled);
+  margin-inline-start: 4px;
+}
+
+/* ===== Customer profile ===== */
+.cprof-hero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 22px 20px;
+}
+.cprof-avatar {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+.cprof-hero-info {
+  flex: 1;
+  min-width: 0;
+}
+.cprof-name {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.cprof-contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+.cprof-contact span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.84rem;
+  color: var(--color-text-secondary);
+}
+.cprof-contact .lucide {
+  width: 14px;
+  height: 14px;
+  color: var(--color-text-tertiary);
+}
+.cprof-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 16px 20px 20px;
+}
+.cprof-stat {
+  text-align: center;
+  padding: 14px 10px;
+  border-radius: 12px;
+  background: var(--color-surface-subtle);
+  border: 1px solid var(--color-border-subtle);
+}
+.cprof-stat-ic {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+  margin-bottom: 8px;
+}
+.cprof-stat-ic .lucide {
+  width: 16px;
+  height: 16px;
+}
+.cprof-stat-num {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.cprof-stat-txt {
+  font-size: 0.86rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.cprof-stat-label {
+  margin-top: 4px;
+  font-size: 0.74rem;
+  color: var(--color-text-tertiary);
+  font-weight: 600;
+}
+.cprof-table-wrap {
+  overflow-x: auto;
+}
+.cprof-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.cprof-table th {
+  text-align: start;
+  padding: 12px 20px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  background: var(--color-surface-muted);
+  border-bottom: 1px solid var(--color-border-subtle);
+  white-space: nowrap;
+}
+.cprof-table td {
+  padding: 13px 20px;
+  border-bottom: 1px solid var(--color-border-subtle);
+  color: var(--color-text-primary);
+  vertical-align: middle;
+}
+.cprof-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.cprof-table .cprof-svc {
+  font-weight: 600;
+}
+.cprof-cards {
+  display: none;
+}
+.cprof-card {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.cprof-card:last-child {
+  border-bottom: none;
+}
+.cprof-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.cprof-card-date {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+.cprof-card-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.84rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 6px;
+}
+.cprof-card-row:last-child {
+  margin-bottom: 0;
+}
+.cprof-card-row .lucide {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  color: var(--color-text-disabled);
+}
 
 /* ===== Responsive ===== */
 @media (max-width: 1024px) {
@@ -845,6 +1023,12 @@
   .cust-cards {
     display: block;
   }
+  .cprof-table-wrap {
+    display: none;
+  }
+  .cprof-cards {
+    display: block;
+  }
 }
 
 @media (max-width: 480px) {
@@ -865,5 +1049,26 @@
   }
   .dash-quick-btn {
     justify-content: center;
+  }
+  .cprof-hero {
+    padding: 18px 16px;
+  }
+  .cprof-stats {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 14px 16px 16px;
+  }
+  .cprof-stat {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: start;
+    padding: 12px 14px;
+  }
+  .cprof-stat-ic {
+    margin-bottom: 0;
+  }
+  .cprof-stat-num {
+    font-size: 1.25rem;
   }
 }

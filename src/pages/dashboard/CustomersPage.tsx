@@ -1,63 +1,17 @@
 import { useMemo, useState } from 'react'
-import { CalendarDays, FilterX, Mail, Phone, Search, Users } from 'lucide-react'
-import { getAppointmentsForBusiness } from '../../utils/appointments'
+import { CalendarDays, ChevronLeft, FilterX, Mail, Phone, Search, Users } from 'lucide-react'
 import type { Business } from '../../utils/business'
-
-interface Customer {
-  key: string
-  name: string
-  phone: string
-  email: string
-  bookings: number
-  lastDate: string
-}
+import { buildCustomers, type CustomerSummary } from '../../utils/customers'
 
 interface CustomersPageProps {
   business: Business
+  onOpenCustomer: (key: string) => void
 }
 
 const PAGE_SIZE = 10
 
 function normalize(s: string): string {
   return s.trim().toLowerCase()
-}
-
-function buildCustomers(business: Business): Customer[] {
-  const appointments = getAppointmentsForBusiness(
-    business.id,
-    business.locations[0]?.id,
-    business.locations[0]?.name,
-  ).filter((a) => a.status !== 'cancelled')
-
-  const map = new Map<string, Customer>()
-
-  for (const a of appointments) {
-    const name = a.customerName.trim()
-    const phone = a.customerPhone.trim()
-    const email = a.customerEmail.trim()
-    if (!name && !phone && !email) continue
-
-    const key = phone || email || `${name}|${a.createdAt}`
-    const existing = map.get(key)
-
-    if (existing) {
-      existing.bookings += 1
-      if (a.date > existing.lastDate) existing.lastDate = a.date
-    } else {
-      map.set(key, {
-        key,
-        name,
-        phone,
-        email,
-        bookings: 1,
-        lastDate: a.date,
-      })
-    }
-  }
-
-  return Array.from(map.values()).sort((x, y) =>
-    y.lastDate.localeCompare(x.lastDate) || x.name.localeCompare(y.name),
-  )
 }
 
 function fmtDate(iso: string): string {
@@ -71,13 +25,13 @@ function maskPhone(phone: string): string {
   return phone.replace(/^(\+?\d{3})(\d{4})(\d{2,})$/, '$1 •••• $3')
 }
 
-export function CustomersPage({ business }: CustomersPageProps) {
+export function CustomersPage({ business, onOpenCustomer }: CustomersPageProps) {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
   const [visible, setVisible] = useState(PAGE_SIZE)
 
-  const allCustomers = useMemo(() => buildCustomers(business), [business])
+  const allCustomers: CustomerSummary[] = useMemo(() => buildCustomers(business), [business])
 
   const filtered = useMemo(() => {
     const n = normalize(name)
@@ -184,10 +138,11 @@ export function CustomersPage({ business }: CustomersPageProps) {
                 </thead>
                 <tbody>
                   {shown.map((c) => (
-                    <tr key={c.key}>
+                    <tr key={c.key} className="cust-row" onClick={() => onOpenCustomer(c.key)}>
                       <td className="cust-cell-name">
                         <span className="cust-avatar">{c.name.charAt(0) || '؟'}</span>
                         {c.name || '—'}
+                        <ChevronLeft className="cust-row-chev" size={14} />
                       </td>
                       <td dir="ltr">{c.phone ? maskPhone(c.phone) : '—'}</td>
                       <td dir="ltr">{c.email || '—'}</td>
@@ -204,7 +159,7 @@ export function CustomersPage({ business }: CustomersPageProps) {
             {/* Mobile cards */}
             <div className="cust-cards">
               {shown.map((c) => (
-                <div className="cust-card" key={c.key}>
+                <div className="cust-card" key={c.key} onClick={() => onOpenCustomer(c.key)}>
                   <div className="cust-card-top">
                     <span className="cust-avatar">{c.name.charAt(0) || '؟'}</span>
                     <div className="cust-card-info">
@@ -213,6 +168,7 @@ export function CustomersPage({ business }: CustomersPageProps) {
                         <CalendarDays size={12} /> {c.bookings} {c.bookings === 1 ? 'حجز' : 'حجوزات'} · آخر زيارة {fmtDate(c.lastDate)}
                       </div>
                     </div>
+                    <ChevronLeft className="cust-row-chev" size={16} />
                   </div>
                   <div className="cust-card-rows">
                     {c.phone && (
