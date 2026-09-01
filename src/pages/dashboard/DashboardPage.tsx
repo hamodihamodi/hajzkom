@@ -25,6 +25,7 @@ import { BusinessSettingsPage } from './BusinessSettingsPage'
 import { TeamPage } from './TeamPage'
 import { CalendarPage } from './CalendarPage'
 import { AppointmentDetailPage } from './AppointmentDetailPage'
+import { RescheduleAppointmentPage } from './RescheduleAppointmentPage'
 import { WalkInBookingPage } from './WalkInBookingPage'
 
 const ROLE_LABEL: Record<string, string> = {
@@ -57,6 +58,7 @@ function getSubPage(): string {
   const [path] = hash.split('?')
   const parts = path.split('/')
   if (parts[0] === 'schedule') return 'home'
+  if (parts[1] === 'appointment' && parts[2] && parts[3] === 'reschedule') return 'reschedule'
   if (parts[1] === 'appointment' && parts[2]) return 'appointment'
   return parts[1] ?? 'home'
 }
@@ -123,6 +125,8 @@ export function DashboardPage() {
     home: 'الرئيسية',
     walkin: 'حجز مباشر',
     calendar: 'التقويم',
+    appointment: 'تفاصيل الموعد',
+    reschedule: 'إعادة جدولة',
     customers: 'الزبائن',
     services: 'الخدمات',
     team: 'الفريق',
@@ -147,8 +151,20 @@ export function DashboardPage() {
           <AppointmentDetailPage
             appointmentId={apptId}
             session={session}
-            business={business}
             onBack={() => { window.location.hash = '#/dashboard/calendar' }}
+          />
+        ) : (
+          <CalendarPage business={business} />
+        )
+      }
+      case 'reschedule': {
+        const apptId = getAppointmentIdFromHash()
+        return apptId ? (
+          <RescheduleAppointmentPage
+            appointmentId={apptId}
+            session={session}
+            business={business}
+            onBack={() => { window.location.hash = `#/dashboard/appointment/${apptId}` }}
           />
         ) : (
           <CalendarPage business={business} />

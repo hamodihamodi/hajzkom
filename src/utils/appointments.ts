@@ -225,8 +225,17 @@ export function updateAppointmentStatus(id: string, status: AppointmentStatus): 
   return updateAppointment(id, { status })
 }
 
-export function rescheduleAppointment(id: string, date: string, time: string): Appointment | null {
-  return updateAppointment(id, { date, time })
+export function rescheduleAppointment(
+  id: string,
+  date: string,
+  time: string,
+  locationId?: string,
+  locationName?: string,
+): Appointment | null {
+  const patch: Partial<Appointment> = { date, time }
+  if (locationId) patch.locationId = locationId
+  if (locationName) patch.locationName = locationName
+  return updateAppointment(id, patch)
 }
 
 export const STATUS_AR: Record<AppointmentStatus, string> = {
