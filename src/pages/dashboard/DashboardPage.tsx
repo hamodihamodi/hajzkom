@@ -36,6 +36,7 @@ import { CalendarPage } from './CalendarPage'
 import { AppointmentDetailPage } from './AppointmentDetailPage'
 import { RescheduleAppointmentPage } from './RescheduleAppointmentPage'
 import { WalkInBookingPage } from './WalkInBookingPage'
+import { CustomersPage } from './CustomersPage'
 
 const PLAN_AR: Record<string, string> = {
   free: 'مجانية',
@@ -194,7 +195,7 @@ export function DashboardPage() {
         )
       }
       case 'customers':
-        return <Placeholder title="الزبائن" desc="إدارة بيانات زبائنك وسجل حجوزاتهم." />
+        return <CustomersPage business={business} />
       case 'services':
         return <ServicesPage session={session} business={business} onRefresh={handleRefresh} />
       case 'team':
