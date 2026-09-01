@@ -169,6 +169,49 @@ function seedForBusiness(businessId: string, locationId?: string, locationName?:
   ]
 }
 
+export function createAppointment(input: {
+  businessId: string
+  locationId: string
+  locationName: string
+  serviceId: string
+  serviceName: string
+  durationMin: number
+  date: string
+  time: string
+  customerName: string
+  customerPhone: string
+  customerEmail: string
+  customerNotes: string
+  status?: AppointmentStatus
+}): Appointment {
+  const appt: Appointment = {
+    id: makeId(),
+    businessId: input.businessId,
+    locationId: input.locationId,
+    locationName: input.locationName,
+    serviceId: input.serviceId,
+    serviceName: input.serviceName,
+    durationMin: input.durationMin,
+    date: input.date,
+    time: input.time,
+    customerName: input.customerName,
+    customerPhone: input.customerPhone,
+    customerEmail: input.customerEmail,
+    customerNotes: input.customerNotes,
+    staffNotes: '',
+    status: input.status ?? 'confirmed',
+    createdAt: Date.now(),
+  }
+  saveAll([...loadAppointments(), appt])
+  return appt
+}
+
+export function getAppointmentsAt(locationId: string, date: string, time: string): Appointment[] {
+  return loadAppointments().filter(
+    (a) => a.locationId === locationId && a.date === date && a.time === time && a.status !== 'cancelled',
+  )
+}
+
 export function updateAppointment(id: string, patch: Partial<Appointment>): Appointment | null {
   const list = loadAppointments()
   const idx = list.findIndex((a) => a.id === id)

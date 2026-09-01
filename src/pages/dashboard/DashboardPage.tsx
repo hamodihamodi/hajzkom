@@ -11,6 +11,7 @@ import {
   Settings,
   UserCog,
   User,
+  UserPlus,
   Users,
 } from 'lucide-react'
 import { BrandIcon } from '../../components/marketing/BrandMark'
@@ -24,6 +25,7 @@ import { BusinessSettingsPage } from './BusinessSettingsPage'
 import { TeamPage } from './TeamPage'
 import { CalendarPage } from './CalendarPage'
 import { AppointmentDetailPage } from './AppointmentDetailPage'
+import { WalkInBookingPage } from './WalkInBookingPage'
 
 const ROLE_LABEL: Record<string, string> = {
   owner: 'مالك النشاط',
@@ -40,6 +42,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { key: 'home', label: 'الرئيسية', icon: Home, roles: ['owner', 'admin', 'staff'] },
+  { key: 'walkin', label: 'حجز مباشر', icon: UserPlus, roles: ['owner', 'admin', 'staff'] },
   { key: 'calendar', label: 'التقويم', icon: CalendarDays, roles: ['owner', 'admin'] },
   { key: 'customers', label: 'الزبائن', icon: Users, roles: ['owner', 'admin'] },
   { key: 'services', label: 'الخدمات', icon: Scissors, roles: ['owner', 'admin'] },
@@ -118,6 +121,7 @@ export function DashboardPage() {
 
   const pageTitles: Record<string, string> = {
     home: 'الرئيسية',
+    walkin: 'حجز مباشر',
     calendar: 'التقويم',
     customers: 'الزبائن',
     services: 'الخدمات',
@@ -133,6 +137,8 @@ export function DashboardPage() {
     switch (subPage) {
       case 'home':
         return <DashboardHome session={session} business={business} />
+      case 'walkin':
+        return <WalkInBookingPage business={business} />
       case 'calendar':
         return <CalendarPage business={business} />
       case 'appointment': {

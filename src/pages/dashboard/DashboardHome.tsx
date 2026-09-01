@@ -114,9 +114,9 @@ export function DashboardHome({ session, business }: DashboardHomeProps) {
           </span>
         </div>
         <div className="dash-quick">
-          <button className="dash-quick-btn primary" type="button">
+          <a href="#/dashboard/walkin" className="dash-quick-btn primary">
             <UserPlus /> حجز مباشر
-          </button>
+          </a>
           {!isStaff && (
             <>
               <a href="#/dashboard/services" className="dash-quick-btn">
