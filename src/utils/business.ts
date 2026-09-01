@@ -100,6 +100,35 @@ export function locationLimitForPlan(plan: PlanTier): number {
   }
 }
 
+export function appointmentLimitForPlan(plan: PlanTier): number {
+  switch (plan) {
+    case 'free':
+      return 200
+    case 'pro':
+      return 1000
+    default:
+      return Infinity
+  }
+}
+
+const ACTIVE_LOC_KEY = 'hajzkom:activeLocation'
+
+export function getActiveLocationId(businessId: string): string | null {
+  try {
+    return localStorage.getItem(`${ACTIVE_LOC_KEY}:${businessId}`)
+  } catch {
+    return null
+  }
+}
+
+export function setActiveLocationId(businessId: string, locationId: string): void {
+  try {
+    localStorage.setItem(`${ACTIVE_LOC_KEY}:${businessId}`, locationId)
+  } catch {
+    /* ignore */
+  }
+}
+
 export function canAddLocation(business: Business): boolean {
   return business.locations.length < locationLimitForPlan(business.plan)
 }

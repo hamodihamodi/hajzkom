@@ -16,8 +16,17 @@ import {
 } from 'lucide-react'
 import { BrandIcon } from '../../components/marketing/BrandMark'
 import { clearSession, getSession, type Session, type AccountRole } from '../../utils/accounts'
-import { getBusinessByOwner, getBusinessById, type Business } from '../../utils/business'
+import {
+  getBusinessByOwner,
+  getBusinessById,
+  appointmentLimitForPlan,
+  getActiveLocationId,
+  setActiveLocationId,
+  type Business,
+} from '../../utils/business'
 import { getAccountByEmail } from '../../utils/accounts'
+import { getAppointmentsForBusiness } from '../../utils/appointments'
+import { toast } from '../../utils/toast'
 import { DashboardHome } from './DashboardHome'
 import { ServicesPage } from './ServicesPage'
 import { LocationsPage } from './LocationsPage'
@@ -27,6 +36,12 @@ import { CalendarPage } from './CalendarPage'
 import { AppointmentDetailPage } from './AppointmentDetailPage'
 import { RescheduleAppointmentPage } from './RescheduleAppointmentPage'
 import { WalkInBookingPage } from './WalkInBookingPage'
+
+const PLAN_AR: Record<string, string> = {
+  free: 'مجانية',
+  pro: 'احترافية',
+  max: 'ماكس',
+}
 
 const ROLE_LABEL: Record<string, string> = {
   owner: 'مالك النشاط',
@@ -89,6 +104,20 @@ export function DashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [subPage, setSubPage] = useState(getSubPage)
   const [, setRefreshKey] = useState(0)
+  const [activeLoc, setActiveLoc] = useState(() => {
+    if (!session) return ''
+    const biz =
+      session.role === 'owner'
+        ? getBusinessByOwner(session.accountId)
+        : (() => {
+            const acc = getAccountByEmail(session.email)
+            return acc?.businessId ? getBusinessById(acc.businessId) : null
+          })()
+    if (!biz) return ''
+    const saved = getActiveLocationId(biz.id)
+    if (saved && biz.locations.some((l) => l.id === saved)) return saved
+    return biz.locations[0]?.id ?? ''
+  })
 
   const business: Business | null = (() => {
     if (!session) return null
@@ -121,21 +150,15 @@ export function DashboardPage() {
     window.location.hash = '#/login'
   }
 
-  const pageTitles: Record<string, string> = {
-    home: 'الرئيسية',
-    walkin: 'حجز مباشر',
-    calendar: 'التقويم',
-    appointment: 'تفاصيل الموعد',
-    reschedule: 'إعادة جدولة',
-    customers: 'الزبائن',
-    services: 'الخدمات',
-    team: 'الفريق',
-    locations: 'المواقع والأوقات',
-    settings: 'إعدادات النشاط',
-    billing: 'الاشتراك والفوترة',
-  }
-
   const handleRefresh = () => setRefreshKey((k) => k + 1)
+
+  const currentBranch = business.locations.find((l) => l.id === activeLoc) ?? business.locations[0] ?? null
+  const branchName = currentBranch?.name ?? '—'
+
+  const apptCount = getAppointmentsForBusiness(business.id, business.locations[0]?.id, business.locations[0]?.name)
+    .filter((a) => a.status !== 'cancelled').length
+  const planLimit = appointmentLimitForPlan(business.plan)
+  const showPlanUsage = Number.isFinite(planLimit)
 
   const renderContent = () => {
     switch (subPage) {
@@ -253,16 +276,56 @@ export function DashboardPage() {
       {/* ── Main ── */}
       <div className="dash-main">
         <header className="dash-head">
-          <button className="dash-burger" type="button" onClick={() => setSidebarOpen(true)}>
+          <button className="dash-burger" type="button" onClick={() => setSidebarOpen(true)} aria-label="فتح القائمة">
             <Menu />
           </button>
-          <h2 className="dash-head-title">{pageTitles[subPage] ?? 'لوحة التحكم'}</h2>
+
+          {/* ── الفرع الحالي ── */}
+          <div className="dash-head-branch">
+            <MapPin size={14} />
+            {business.locations.length > 1 ? (
+              <select
+                value={activeLoc}
+                onChange={(e) => {
+                  setActiveLoc(e.target.value)
+                  setActiveLocationId(business.id, e.target.value)
+                }}
+                aria-label="الفرع الحالي"
+              >
+                {business.locations.map((l) => (
+                  <option key={l.id} value={l.id}>{l.name}</option>
+                ))}
+              </select>
+            ) : (
+              <span className="dash-head-branch-name">{branchName}</span>
+            )}
+          </div>
+
           <div className="dash-head-spacer" />
-          <div className="dash-head-user">
-            <span className="dash-head-avatar">
-              <User />
+
+          {/* ── الخطة + الحجوزات + اللغة ── */}
+          <div className="dash-head-end">
+            <span className="dash-chip dash-chip-plan" title="الخطة الحالية">
+              <CreditCard size={13} />
+              {PLAN_AR[business.plan] ?? business.plan}
             </span>
-            <span>{session.fullName.split(' ')[0]}</span>
+            {showPlanUsage && (
+              <span className="dash-chip dash-chip-usage" title="عدد الحجوزات من الحد الأقصى">
+                <CalendarDays size={13} />
+                {apptCount} / {planLimit}
+              </span>
+            )}
+            <div className="dash-lang" role="group" aria-label="اختيار اللغة">
+              <button type="button" className="dash-lang-btn active" aria-pressed="true">عربي</button>
+              <button
+                type="button"
+                className="dash-lang-btn"
+                aria-pressed="false"
+                onClick={() => toast('النسخة الإنجليزية من الموقع قيد الإعداد حالياً.', false)}
+              >
+                EN
+              </button>
+            </div>
           </div>
         </header>
 

@@ -227,13 +227,86 @@
 .dash-head-spacer {
   flex: 1;
 }
-.dash-head-user {
+.dash-head-branch {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-secondary);
+  font-size: 0.84rem;
+  font-weight: 600;
+  white-space: nowrap;
+  min-width: 0;
+}
+.dash-head-branch .lucide {
+  flex: none;
+  color: var(--color-primary);
+}
+.dash-head-branch select {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: 8px;
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: 0.84rem;
+  font-weight: 600;
+  padding: 6px 10px;
+  outline: none;
+  cursor: pointer;
+  max-width: 180px;
+}
+.dash-head-branch-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dash-head-end {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.82rem;
-  font-weight: 600;
+  margin-inline-start: 12px;
+}
+.dash-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-surface-subtle);
   color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.dash-chip-plan .lucide {
+  color: var(--color-primary);
+}
+.dash-chip-usage {
+  background: var(--color-primary-subtle);
+  border-color: var(--color-primary-tint);
+  color: var(--color-primary);
+}
+.dash-lang {
+  display: flex;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  padding: 3px;
+  background: var(--color-surface);
+}
+.dash-lang-btn {
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.dash-lang-btn.active {
+  background: var(--color-primary);
+  color: #fff;
 }
 .dash-head-avatar {
   width: 32px;
@@ -590,8 +663,19 @@
     padding: 12px 16px;
     gap: 10px;
   }
-  .dash-head-user span:not(.dash-head-avatar) {
-    display: none;
+  .dash-head-end {
+    gap: 6px;
+  }
+  .dash-chip {
+    padding: 4px 9px;
+    font-size: 0.7rem;
+  }
+  .dash-lang-btn {
+    padding: 4px 8px;
+    font-size: 0.72rem;
+  }
+  .dash-head-branch select {
+    max-width: 120px;
   }
 }
 
