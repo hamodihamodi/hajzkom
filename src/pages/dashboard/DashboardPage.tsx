@@ -77,7 +77,7 @@ function getSubPage(): string {
   if (parts[0] === 'schedule') return 'home'
   if (parts[1] === 'appointment' && parts[2] && parts[3] === 'reschedule') return 'reschedule'
   if (parts[1] === 'appointment' && parts[2]) return 'appointment'
-  if (parts[1] === 'customer' && parts[2]) return 'customer'
+  if (parts[1] === 'customer' && parts[2]) return 'customers'
   return parts[1] ?? 'home'
 }
 
@@ -277,7 +277,7 @@ export function DashboardPage() {
           <div className="dash-nav-label">القائمة</div>
           {filteredNav.map((item) => {
             const Icon = item.icon
-            const active = subPage === item.key || (subPage === 'customer' && item.key === 'customers')
+            const active = subPage === item.key
             return (
               <a
                 key={item.key}
