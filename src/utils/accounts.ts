@@ -175,6 +175,43 @@ export function getTeamMembers(businessId: string): Account[] {
   return loadAccounts().filter((a) => a.businessId === businessId)
 }
 
+const DEFAULT_TEAM_KEY = 'hajzkom:defaultTeamSeeded'
+
+export function seedDefaultMembers(businessId: string, locationId?: string, locationName?: string): Account[] {
+  const accounts = loadAccounts()
+  const existing = accounts.filter((a) => a.businessId === businessId && a.role !== 'owner')
+  if (existing.length >= 3) return existing
+  if (localStorage.getItem(`${DEFAULT_TEAM_KEY}:${businessId}`)) return existing
+
+  const defaults = [
+    { fullName: 'كرار حسين', email: 'karar@hajzkom.iq', role: 'admin' as const },
+    { fullName: 'نور الهدى', email: 'noor@hajzkom.iq', role: 'staff' as const },
+    { fullName: 'زينب محمود', email: 'zainab@hajzkom.iq', role: 'staff' as const },
+  ]
+
+  const toAdd = defaults.filter((d) => !existing.some((a) => a.email === d.email))
+  const created: Account[] = []
+  for (const d of toAdd) {
+    const acc: Account = {
+      id: makeId(),
+      fullName: d.fullName,
+      email: d.email,
+      password: 'hajzkom123',
+      role: d.role,
+      status: 'active',
+      businessId,
+      locationId: d.role === 'staff' ? locationId : undefined,
+      locationName: d.role === 'staff' ? locationName : undefined,
+      createdAt: Date.now() - Math.floor(Math.random() * 90) * 86400000,
+    }
+    accounts.push(acc)
+    created.push(acc)
+  }
+  if (created.length > 0) saveAccounts(accounts)
+  localStorage.setItem(`${DEFAULT_TEAM_KEY}:${businessId}`, '1')
+  return [...existing, ...created]
+}
+
 export function updateAccountRole(accountId: string, role: AccountRole): Account | null {
   const accounts = loadAccounts()
   const account = accounts.find((a) => a.id === accountId)

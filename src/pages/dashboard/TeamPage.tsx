@@ -21,6 +21,7 @@ import {
   removeAccountFromBusiness,
   emailTaken,
   normalizeEmail,
+  seedDefaultMembers,
 } from '../../utils/accounts'
 import {
   createInvitation,
@@ -87,7 +88,9 @@ function initials(name: string): string {
 export function TeamPage({ session, business, onRefresh }: TeamPageProps) {
   const canManage = session.role === 'owner' || session.role === 'admin'
 
-  const [members, setMembers] = useState<Account[]>(() => getTeamMembers(business.id))
+  const [members, setMembers] = useState<Account[]>(() =>
+    seedDefaultMembers(business.id, business.locations[0]?.id, business.locations[0]?.name),
+  )
   const [invitations, setInvitations] = useState<Invitation[]>(() => getBusinessInvitations(business.id))
   const [modal, setModal] = useState<ModalState>(null)
 
