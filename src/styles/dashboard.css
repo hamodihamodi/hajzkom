@@ -1169,6 +1169,61 @@
   color: var(--color-text-disabled);
 }
 
+.team-remove-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--color-error);
+  background: var(--color-error-background);
+  color: var(--color-error);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.team-remove-btn:hover {
+  background: var(--color-error);
+  color: #fff;
+}
+.team-upgrade {
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--color-warning-background);
+  border: 1px solid var(--color-warning);
+}
+.team-upgrade-ic {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--color-warning);
+  color: #fff;
+}
+.team-upgrade-ic .lucide {
+  width: 18px;
+  height: 18px;
+}
+.team-upgrade h4 {
+  margin: 0 0 4px;
+  font-family: var(--font-heading);
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+.team-upgrade p {
+  margin: 0 0 10px;
+  font-size: 0.82rem;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 1024px) {
   .dash-stats {

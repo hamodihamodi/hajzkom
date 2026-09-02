@@ -111,6 +111,21 @@ export function appointmentLimitForPlan(plan: PlanTier): number {
   }
 }
 
+export function staffLimitForPlan(plan: PlanTier): number {
+  switch (plan) {
+    case 'free':
+      return 1
+    case 'pro':
+      return 5
+    default:
+      return Infinity
+  }
+}
+
+export function canAddStaff(business: Business, currentStaffCount: number): boolean {
+  return currentStaffCount < staffLimitForPlan(business.plan)
+}
+
 const ACTIVE_LOC_KEY = 'hajzkom:activeLocation'
 
 export function getActiveLocationId(businessId: string): string | null {

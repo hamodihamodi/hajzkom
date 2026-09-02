@@ -184,6 +184,29 @@ export function updateAccountRole(accountId: string, role: AccountRole): Account
   return account
 }
 
+export function updateAccountLocation(accountId: string, locationId?: string, locationName?: string): Account | null {
+  const accounts = loadAccounts()
+  const account = accounts.find((a) => a.id === accountId)
+  if (!account) return null
+  if (locationId) account.locationId = locationId
+  if (locationName) account.locationName = locationName
+  saveAccounts(accounts)
+  return account
+}
+
+export type LocationUpdate = { locationId?: string; locationName?: string }
+
+export function updateAccountRoleAndLocation(accountId: string, role: AccountRole, location?: LocationUpdate): Account | null {
+  const accounts = loadAccounts()
+  const account = accounts.find((a) => a.id === accountId)
+  if (!account) return null
+  account.role = role
+  account.locationId = location?.locationId
+  account.locationName = location?.locationName
+  saveAccounts(accounts)
+  return account
+}
+
 export function removeAccountFromBusiness(accountId: string): Account | null {
   const accounts = loadAccounts()
   const account = accounts.find((a) => a.id === accountId)
