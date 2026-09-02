@@ -7,6 +7,7 @@ import {
   MapPin,
   Pencil,
   Plus,
+  Trash2,
   X,
 } from 'lucide-react'
 import { toast } from '../../utils/toast'
@@ -18,7 +19,9 @@ import {
   updateLocation,
   updateLocationHours,
   locationLimitForPlan,
+  removeLocation,
 } from '../../utils/business'
+import { getAppointmentsForBusiness } from '../../utils/appointments'
 import type { BusinessLocationInfo, DayHours } from '../../types'
 
 const DAYS = [
@@ -64,6 +67,8 @@ type ModalState =
   | { kind: 'edit-name'; loc: BusinessLocationInfo }
   | { kind: 'edit-hours'; loc: BusinessLocationInfo }
   | { kind: 'upgrade' }
+  | { kind: 'confirm-delete'; loc: BusinessLocationInfo }
+  | { kind: 'blocked'; loc: BusinessLocationInfo; appointments: number }
 
 export function LocationsPage({ session, business, onRefresh }: LocationsPageProps) {
   const isStaff = session.role === 'staff'
@@ -105,6 +110,27 @@ export function LocationsPage({ session, business, onRefresh }: LocationsPagePro
   const openEditHours = (loc: BusinessLocationInfo) => {
     setHours(loc.hours.length === 7 ? loc.hours : defaultHours())
     setModal({ kind: 'edit-hours', loc })
+  }
+
+  const openDelete = (loc: BusinessLocationInfo) => {
+    const appointments = getAppointmentsForBusiness(business.id).filter((a) => a.locationId === loc.id).length
+    if (appointments > 0) {
+      setModal({ kind: 'blocked', loc, appointments })
+      return
+    }
+    setModal({ kind: 'confirm-delete', loc })
+  }
+
+  const handleDelete = () => {
+    if (!modal || modal.kind !== 'confirm-delete') return
+    setLoading(true)
+    window.setTimeout(() => {
+      removeLocation(business.id, modal.loc.id)
+      toast('تم حذف الموقع.')
+      resetModal()
+      setLoading(false)
+      onRefresh()
+    }, 400)
   }
 
   const toggleDay = (dayKey: string) => {
@@ -305,6 +331,56 @@ export function LocationsPage({ session, business, onRefresh }: LocationsPagePro
         </div>
       )}
 
+      {/* ── Confirm delete modal ── */}
+      {modal?.kind === 'confirm-delete' && (
+        <div className="dash-overlay open" onClick={resetModal}>
+          <div className="dash-section" style={{ position: 'relative', width: '100%', maxWidth: 440, margin: '12vh auto', cursor: 'default' }} onClick={(e) => e.stopPropagation()}>
+            <div className="dash-section-head">
+              <span className="dash-section-title"><Trash2 /> حذف الموقع</span>
+              <button className="dash-section-action" type="button" onClick={resetModal} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X /></button>
+            </div>
+            <div style={{ padding: 24 }}>
+              <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.9rem', lineHeight: 1.8, margin: '0 0 20px' }}>
+                هل أنت متأكد من حذف موقع <b style={{ color: 'var(--color-text-primary)' }}>{modal.loc.name}</b>؟ لا يمكن التراجع عن هذا الإجراء.
+              </p>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button className="btn btn-primary" type="button" disabled={loading} style={{ ...primaryBtnStyle, background: 'var(--color-error)' }} onClick={handleDelete}>
+                  {loading ? <><Loader2 className="auth-spin" /> جارٍ الحذف...</> : <><Trash2 /> نعم، احذف</>}
+                </button>
+                <button className="btn btn-secondary" type="button" onClick={resetModal} disabled={loading} style={secondaryBtnStyle}>تراجع</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Blocked delete modal ── */}
+      {modal?.kind === 'blocked' && (
+        <div className="dash-overlay open" onClick={resetModal}>
+          <div className="dash-section" style={{ position: 'relative', width: '100%', maxWidth: 460, margin: '12vh auto', cursor: 'default' }} onClick={(e) => e.stopPropagation()}>
+            <div className="dash-section-head">
+              <span className="dash-section-title"><MapPin /> تعذّر الحذف</span>
+              <button className="dash-section-action" type="button" onClick={resetModal} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X /></button>
+            </div>
+            <div style={{ padding: 24 }}>
+              <div className="team-upgrade" style={{ marginBottom: 16 }}>
+                <span className="team-upgrade-ic"><MapPin /></span>
+                <div>
+                  <h4>لا يمكن حذف هذا الموقع</h4>
+                  <p>
+                    يوجد <b>{(modal as { appointments: number }).appointments} موعد</b> مسجّلة في هذا الموقع.
+                    يجب نقل أو حذف المواعيد قبل إزالة الموقع.
+                  </p>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button className="btn btn-secondary" type="button" onClick={resetModal} style={secondaryBtnStyle}>فهمت</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Upgrade modal ── */}
       {modal?.kind === 'upgrade' && (
         <div className="dash-overlay open" onClick={resetModal}>
@@ -361,6 +437,9 @@ export function LocationsPage({ session, business, onRefresh }: LocationsPagePro
                     </button>
                     <button type="button" title="أوقات العمل" onClick={() => openEditHours(loc)} style={iconBtnStyle}>
                       <Clock />
+                    </button>
+                    <button type="button" title="حذف الموقع" onClick={() => openDelete(loc)} style={{ ...iconBtnStyle, color: 'var(--color-error)' }}>
+                      <Trash2 />
                     </button>
                   </div>
                 )}

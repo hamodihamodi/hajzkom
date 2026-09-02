@@ -181,6 +181,25 @@ export function updateLocationHours(businessId: string, locationId: string, hour
   return true
 }
 
+export function removeLocation(businessId: string, locationId: string): boolean {
+  const list = loadAll()
+  const biz = list.find((b) => b.id === businessId)
+  if (!biz) return false
+  const idx = biz.locations.findIndex((l) => l.id === locationId)
+  if (idx === -1) return false
+  biz.locations.splice(idx, 1)
+  if (biz.locations.length > 0) {
+    const activeId = localStorage.getItem(`${ACTIVE_LOC_KEY}:${businessId}`)
+    if (activeId === locationId || !biz.locations.some((l) => l.id === activeId)) {
+      localStorage.setItem(`${ACTIVE_LOC_KEY}:${businessId}`, biz.locations[0].id)
+    }
+  } else {
+    localStorage.removeItem(`${ACTIVE_LOC_KEY}:${businessId}`)
+  }
+  saveAll(list)
+  return true
+}
+
 export function addService(businessId: string, input: Omit<ServiceInfo, 'id'>): ServiceInfo | null {
   const list = loadAll()
   const biz = list.find((b) => b.id === businessId)
