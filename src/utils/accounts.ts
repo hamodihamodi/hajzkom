@@ -10,6 +10,8 @@ export interface Account {
   role: AccountRole
   status: AccountStatus
   businessId: string
+  locationId?: string
+  locationName?: string
   createdAt: number
 }
 
@@ -157,12 +159,14 @@ export function getAccountByEmail(email: string): Account | null {
   return loadAccounts().find((a) => a.email === normalized) ?? null
 }
 
-export function attachInvitation(accountId: string, role: AccountRole, businessId: string): Account | null {
+export function attachInvitation(accountId: string, role: AccountRole, businessId: string, locationId?: string, locationName?: string): Account | null {
   const accounts = loadAccounts()
   const account = accounts.find((a) => a.id === accountId)
   if (!account) return null
   account.role = role
   account.businessId = businessId
+  if (locationId) account.locationId = locationId
+  if (locationName) account.locationName = locationName
   saveAccounts(accounts)
   return account
 }

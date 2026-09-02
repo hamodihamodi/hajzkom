@@ -1,13 +1,15 @@
 import { useState, type FormEvent } from 'react'
 import {
+  CalendarDays,
   CheckCircle2,
+  Clock,
   Loader2,
   Mail,
+  MapPin,
   Pencil,
   Plus,
   Trash2,
   UserCog,
-  User,
   X,
 } from 'lucide-react'
 import { toast } from '../../utils/toast'
@@ -34,6 +36,18 @@ const ROLE_AR: Record<AccountRole, string> = {
   staff: 'موظف',
 }
 
+const ROLE_BG: Record<string, string> = {
+  owner: 'var(--color-primary-subtle)',
+  admin: 'var(--color-info-background)',
+  staff: 'var(--color-surface-subtle)',
+}
+
+const ROLE_COLOR: Record<string, string> = {
+  owner: 'var(--color-primary)',
+  admin: 'var(--color-info)',
+  staff: 'var(--color-text-secondary)',
+}
+
 interface TeamPageProps {
   session: Session
   business: Business
@@ -45,6 +59,28 @@ type ModalState =
   | { kind: 'invite' }
   | { kind: 'edit-role'; account: Account }
   | { kind: 'remove'; account: Account }
+
+function fmtDate(ts: number): string {
+  const d = new Date(ts)
+  if (Number.isNaN(d.getTime())) return '—'
+  return new Intl.DateTimeFormat('ar-IQ', { day: 'numeric', month: 'short', year: 'numeric' }).format(d)
+}
+
+function fmtExpiry(ts: number): string {
+  const diff = ts - Date.now()
+  if (diff <= 0) return 'منتهية'
+  const days = Math.floor(diff / 86400000)
+  if (days > 0) return `تنتهي بعد ${days} ${days === 1 ? 'يوم' : 'أيام'}`
+  const hours = Math.floor(diff / 3600000)
+  if (hours > 0) return `تنتهي بعد ${hours} ${hours === 1 ? 'ساعة' : 'ساعات'}`
+  return 'تنتهي خلال ساعة'
+}
+
+function initials(name: string): string {
+  const t = name.trim()
+  if (!t) return '?'
+  return t.charAt(0)
+}
 
 export function TeamPage({ session, business, onRefresh }: TeamPageProps) {
   const canManage = session.role === 'owner' || session.role === 'admin'
@@ -281,23 +317,46 @@ export function TeamPage({ session, business, onRefresh }: TeamPageProps) {
           <div className="dash-section-head">
             <span className="dash-section-title"><Mail /> دعوات قيد الانتظار ({activeInvites.length})</span>
           </div>
-          <div className="dash-section-body">
+
+          {/* Desktop table */}
+          <div className="team-invite-table-wrap">
+            <table className="team-invite-table">
+              <thead>
+                <tr>
+                  <th>البريد الإلكتروني</th>
+                  <th>الدور</th>
+                  <th>الموقع</th>
+                  <th>الانتهاء</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {activeInvites.map((inv) => (
+                  <tr key={inv.id}>
+                    <td>{inv.email ?? 'دعوة عامة'}</td>
+                    <td><span className="team-role-chip" style={{ background: ROLE_BG[inv.role] || 'var(--color-surface-subtle)', color: ROLE_COLOR[inv.role] || 'var(--color-text-secondary)' }}>{roleDisplay(inv.role)}</span></td>
+                    <td>{inv.locationName || '—'}</td>
+                    <td><span className="team-expiry"><Clock size={12} /> {fmtExpiry(inv.expiresAt)}</span></td>
+                    <td>
+                      <button type="button" onClick={() => handleRevoke(inv)} className="team-revoke-btn">إلغاء الدعوة</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile cards */}
+          <div className="team-invite-cards">
             {activeInvites.map((inv) => (
-              <div key={inv.id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 20px', borderBottom: '1px solid var(--color-border-subtle)' }}>
-                <span className="dash-stat-ic warning"><Mail /></span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>{inv.email ?? 'دعوة عامة'}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--color-text-tertiary)' }}>
-                    {roleDisplay(inv.role)} {inv.locationName ? `— ${inv.locationName}` : ''}
-                  </div>
+              <div className="team-invite-card" key={inv.id}>
+                <div className="team-invite-card-top">
+                  <span className="team-role-chip" style={{ background: ROLE_BG[inv.role] || 'var(--color-surface-subtle)', color: ROLE_COLOR[inv.role] || 'var(--color-text-secondary)' }}>{roleDisplay(inv.role)}</span>
+                  <button type="button" onClick={() => handleRevoke(inv)} className="team-revoke-btn">إلغاء الدعوة</button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => handleRevoke(inv)}
-                  style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid var(--color-border-default)', background: 'var(--color-surface)', color: 'var(--color-text-secondary)', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}
-                >
-                  إلغاء الدعوة
-                </button>
+                <div className="team-invite-card-row"><Mail size={13} /> {inv.email ?? 'دعوة عامة'}</div>
+                {inv.locationName && <div className="team-invite-card-row"><MapPin size={13} /> {inv.locationName}</div>}
+                <div className="team-invite-card-row"><Clock size={13} /> {fmtExpiry(inv.expiresAt)}</div>
               </div>
             ))}
           </div>
@@ -309,38 +368,95 @@ export function TeamPage({ session, business, onRefresh }: TeamPageProps) {
         <div className="dash-section-head">
           <span className="dash-section-title"><UserCog /> أعضاء الفريق</span>
         </div>
-        <div className="dash-section-body">
-          {teamMembers.length === 0 ? (
-            <div className="dash-empty">
-              <span className="dash-empty-ic"><UserCog /></span>
-              <p>لا يوجد أعضاء في الفريق بعد.</p>
+
+        {teamMembers.length === 0 ? (
+          <div className="dash-empty">
+            <span className="dash-empty-ic"><UserCog /></span>
+            <p>لا يوجد أعضاء في الفريق بعد.</p>
+          </div>
+        ) : (
+          <>
+            {/* Desktop table */}
+            <div className="team-table-wrap">
+              <table className="team-table">
+                <thead>
+                  <tr>
+                    <th>العضو</th>
+                    <th>البريد الإلكتروني</th>
+                    <th>الدور</th>
+                    <th>الموقع</th>
+                    <th>تاريخ الانضمام</th>
+                    {canManage && <th></th>}
+                  </tr>
+                </thead>
+                <tbody>
+                  {teamMembers.map((m) => (
+                    <tr key={m.id}>
+                      <td>
+                        <div className="team-member-cell">
+                          <span className="team-avatar">{initials(m.fullName)}</span>
+                          <span className="team-member-name">{m.fullName}</span>
+                        </div>
+                      </td>
+                      <td dir="ltr">{m.email}</td>
+                      <td>
+                        <span className="team-role-chip" style={{ background: ROLE_BG[m.role] || 'var(--color-surface-subtle)', color: ROLE_COLOR[m.role] || 'var(--color-text-secondary)' }}>
+                          {ROLE_AR[m.role]}
+                        </span>
+                      </td>
+                      <td>{m.locationName || (m.role === 'staff' ? '—' : '—')}</td>
+                      <td>{fmtDate(m.createdAt)}</td>
+                      {canManage && (
+                        <td>
+                          <div className="team-actions">
+                            <button type="button" title="تعديل الدور" onClick={() => setModal({ kind: 'edit-role', account: m })} className="team-action-btn">
+                              <Pencil size={14} />
+                            </button>
+                            <button type="button" title="إزالة" onClick={() => setModal({ kind: 'remove', account: m })} className="team-action-btn danger">
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          ) : (
-            teamMembers.map((m) => (
-              <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 20px', borderBottom: '1px solid var(--color-border-subtle)' }}>
-                <span className="dash-stat-ic primary"><User /></span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: '0.88rem', fontWeight: 600 }}>{m.fullName}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--color-text-tertiary)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span>{ROLE_AR[m.role]}</span>
-                    <span>·</span>
-                    <span>{m.email}</span>
+
+            {/* Mobile cards */}
+            <div className="team-cards">
+              {teamMembers.map((m) => (
+                <div className="team-card" key={m.id}>
+                  <div className="team-card-top">
+                    <div className="team-member-cell">
+                      <span className="team-avatar">{initials(m.fullName)}</span>
+                      <div>
+                        <div className="team-member-name">{m.fullName}</div>
+                        <div className="team-card-meta">{ROLE_AR[m.role]}</div>
+                      </div>
+                    </div>
+                    {canManage && (
+                      <div className="team-actions">
+                        <button type="button" title="تعديل الدور" onClick={() => setModal({ kind: 'edit-role', account: m })} className="team-action-btn">
+                          <Pencil size={14} />
+                        </button>
+                        <button type="button" title="إزالة" onClick={() => setModal({ kind: 'remove', account: m })} className="team-action-btn danger">
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <div className="team-card-rows">
+                    <div className="team-card-row"><Mail size={13} /> <span dir="ltr">{m.email}</span></div>
+                    {m.locationName && <div className="team-card-row"><MapPin size={13} /> {m.locationName}</div>}
+                    <div className="team-card-row"><CalendarDays size={13} /> انضم {fmtDate(m.createdAt)}</div>
                   </div>
                 </div>
-                {canManage && (
-                  <div style={{ display: 'flex', gap: 6 }}>
-                    <button type="button" title="تعديل الدور" onClick={() => setModal({ kind: 'edit-role', account: m })} style={iconBtnS}>
-                      <Pencil />
-                    </button>
-                    <button type="button" title="إزالة" onClick={() => setModal({ kind: 'remove', account: m })} style={{ ...iconBtnS, color: 'var(--color-error)' }}>
-                      <Trash2 />
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))
-          )}
-        </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </>
   )
@@ -355,6 +471,5 @@ const inputS = (error: string): React.CSSProperties => ({
 const errS: React.CSSProperties = { display: 'block', marginTop: 4, fontSize: '0.78rem', color: 'var(--color-error)' }
 const primaryBtnS: React.CSSProperties = { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '10px 16px', borderRadius: 10, border: 'none', fontSize: '0.88rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }
 const secondaryBtnS: React.CSSProperties = { padding: '10px 20px', borderRadius: 10, border: '1px solid var(--color-border-default)', fontSize: '0.88rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', background: 'var(--color-surface)' }
-const iconBtnS: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: 8, border: '1px solid var(--color-border-default)', background: 'var(--color-surface)', color: 'var(--color-text-secondary)', cursor: 'pointer' }
 
 export default TeamPage

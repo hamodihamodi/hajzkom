@@ -59,7 +59,7 @@ export function SignupPage({ invitationId }: SignupPageProps) {
       }
       const account = result.value
       if (invitation) {
-        attachInvitation(account.id, invitation.role, invitation.businessId)
+        attachInvitation(account.id, invitation.role, invitation.businessId, invitation.locationId, invitation.locationName)
         startSession(account)
       }
       setLoading(false)
