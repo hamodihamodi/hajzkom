@@ -1321,6 +1321,115 @@
   background: var(--color-primary-subtle);
 }
 
+/* ===== Change Plan ===== */
+.bill-change-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+}
+.bill-change-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+  padding: 18px;
+  border: 1.5px solid var(--color-border-default);
+  border-radius: 16px;
+  background: var(--color-surface);
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--color-text-primary);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.bill-change-card:hover {
+  border-color: var(--color-primary-tint);
+}
+.bill-change-card.active {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-subtle);
+}
+.bill-change-card.pro {
+  border-color: var(--color-primary-tint);
+  background: linear-gradient(180deg, var(--color-surface) 0%, var(--color-primary-subtle) 100%);
+}
+.bill-change-card.pro.active {
+  border-color: var(--color-primary);
+}
+.bill-change-name {
+  font-weight: 800;
+  font-size: 1rem;
+}
+.bill-change-desc {
+  margin: 4px 0 12px;
+  font-size: 0.76rem;
+  color: var(--color-text-tertiary);
+  line-height: 1.6;
+}
+.bill-change-price {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  direction: ltr;
+  justify-content: flex-end;
+}
+.bill-change-price span {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  direction: rtl;
+}
+.bill-change-free {
+  align-self: flex-end;
+  display: inline-flex;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--color-success-background, #E7F4EC);
+  color: var(--color-success);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.bill-change-feats {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bill-change-feats li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--color-text-primary);
+  text-align: right;
+}
+.bill-change-feats li .lucide {
+  flex: none;
+  color: var(--color-success);
+}
+.bill-change-radio {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border-default);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface);
+}
+.bill-change-card.active .bill-change-radio {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 1024px) {
   .dash-stats {

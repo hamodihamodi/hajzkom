@@ -38,6 +38,7 @@ import { WalkInBookingPage } from './WalkInBookingPage'
 import { CustomersPage } from './CustomersPage'
 import { CustomerProfilePage } from './CustomerProfilePage'
 import { BillingPage } from './BillingPage'
+import { ChangePlanPage } from './ChangePlanPage'
 
 const PLAN_AR: Record<string, string> = {
   free: 'مجانية',
@@ -222,7 +223,14 @@ export function DashboardPage() {
       case 'settings':
         return <BusinessSettingsPage session={session} business={business} onRefresh={handleRefresh} />
       case 'billing':
-        return <BillingPage business={business} onRefresh={handleRefresh} />
+        return <BillingPage business={business} />
+      case 'changeplan':
+        return (
+          <ChangePlanPage
+            business={business}
+            onBack={() => { window.location.hash = '#/dashboard/billing' }}
+          />
+        )
       default:
         return <DashboardHome session={session} business={business} />
     }
