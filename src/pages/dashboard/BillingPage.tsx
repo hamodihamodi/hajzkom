@@ -164,11 +164,10 @@ export function BillingPage({ business }: BillingPageProps) {
           <button className="btn btn-primary" type="button" onClick={() => { window.location.hash = '#/dashboard/changeplan' }}>
             <RefreshCcw /> تغيير الخطة
           </button>
-          {isPastDue ? (
-            <button className="btn btn-primary" type="button" onClick={() => { window.location.hash = '#/dashboard/extendrenew' }}>
-              <ShieldCheck /> تمديد وتجديد
-            </button>
-          ) : !hasActiveCancel ? (
+          <button className="btn btn-primary" type="button" onClick={() => { window.location.hash = '#/dashboard/extendrenew' }}>
+            <ShieldCheck /> تمديد وتجديد
+          </button>
+          {!hasActiveCancel ? (
             <button className="btn btn-secondary" type="button" onClick={() => setCancelModal(true)} style={{ borderColor: 'var(--color-error)', color: 'var(--color-error)' }}>
               <Ban /> إلغاء الاشتراك
             </button>
