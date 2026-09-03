@@ -1229,6 +1229,98 @@
   color: var(--color-text-secondary);
 }
 
+/* ===== Billing ===== */
+.billgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+.billitem {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 12px;
+}
+.billitem-label {
+  font-size: 0.74rem;
+  color: var(--color-text-tertiary);
+}
+.billitem-val {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+.bill-cycle-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+.bill-cycle-btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-default);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.bill-cycle-btn.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+.bill-feats {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+}
+.bill-feats li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.84rem;
+  color: var(--color-text-primary);
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 10px;
+}
+.bill-feats li .lucide {
+  color: var(--color-success);
+}
+.bill-plan-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 12px;
+  background: var(--color-surface);
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--color-text-primary);
+  transition: border-color 0.15s, background 0.15s;
+}
+.bill-plan-row:hover {
+  border-color: var(--color-primary);
+  background: var(--color-surface-hover);
+}
+.bill-plan-row.current {
+  border-color: var(--color-primary);
+  background: var(--color-primary-subtle);
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 1024px) {
   .dash-stats {

@@ -3,7 +3,6 @@ import {
   CalendarDays,
   CreditCard,
   Home,
-  LayoutDashboard,
   LogOut,
   MapPin,
   Menu,
@@ -38,6 +37,7 @@ import { RescheduleAppointmentPage } from './RescheduleAppointmentPage'
 import { WalkInBookingPage } from './WalkInBookingPage'
 import { CustomersPage } from './CustomersPage'
 import { CustomerProfilePage } from './CustomerProfilePage'
+import { BillingPage } from './BillingPage'
 
 const PLAN_AR: Record<string, string> = {
   free: 'مجانية',
@@ -99,20 +99,6 @@ function getAppointmentIdFromHash(): string | null {
   const parts = hash.split('/')
   if (parts[1] === 'appointment' && parts[2]) return parts[2]
   return null
-}
-
-function Placeholder({ title, desc }: { title: string; desc: string }) {
-  return (
-    <div className="dash-placeholder">
-      <div className="dash-ph-inner">
-        <span className="dash-ph-ic">
-          <LayoutDashboard />
-        </span>
-        <h2>{title}</h2>
-        <p>{desc}</p>
-      </div>
-    </div>
-  )
 }
 
 export function DashboardPage() {
@@ -236,7 +222,7 @@ export function DashboardPage() {
       case 'settings':
         return <BusinessSettingsPage session={session} business={business} onRefresh={handleRefresh} />
       case 'billing':
-        return <Placeholder title="الاشتراك والفوترة" desc="إدارة خطتك وطرق الدفع." />
+        return <BillingPage business={business} onRefresh={handleRefresh} />
       default:
         return <DashboardHome session={session} business={business} />
     }
