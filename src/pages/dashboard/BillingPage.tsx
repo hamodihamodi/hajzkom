@@ -16,7 +16,6 @@ import type { Business } from '../../utils/business'
 import {
   getBilling,
   setBillingCycle,
-  renewBilling,
   cancelBilling,
   resumeBilling,
   currentPeriod,
@@ -59,16 +58,6 @@ export function BillingPage({ business }: BillingPageProps) {
       }
       setBillingCycle(business.id, cycle)
       toast('تم تغيير دورة الفوترة.')
-      setLoading(null)
-      display()
-    }, 400)
-  }
-
-  const handleRenew = () => {
-    setLoading('renew')
-    window.setTimeout(() => {
-      renewBilling(business.id)
-      toast('تم تمديد الاشتراك وتجديد الفترة.')
       setLoading(null)
       display()
     }, 400)
@@ -176,8 +165,8 @@ export function BillingPage({ business }: BillingPageProps) {
             <RefreshCcw /> تغيير الخطة
           </button>
           {isPastDue ? (
-            <button className="btn btn-primary" type="button" onClick={handleRenew} disabled={loading === 'renew'}>
-              {loading === 'renew' ? <><Loader2 className="auth-spin" /> جارٍ التجديد...</> : <><ShieldCheck /> تمديد وتجديد</>}
+            <button className="btn btn-primary" type="button" onClick={() => { window.location.hash = '#/dashboard/extendrenew' }}>
+              <ShieldCheck /> تمديد وتجديد
             </button>
           ) : !hasActiveCancel ? (
             <button className="btn btn-secondary" type="button" onClick={() => setCancelModal(true)} style={{ borderColor: 'var(--color-error)', color: 'var(--color-error)' }}>
