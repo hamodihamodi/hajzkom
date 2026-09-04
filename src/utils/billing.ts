@@ -176,3 +176,41 @@ export function markPastDue(businessId: string): BillingInfo {
   save(bill)
   return bill
 }
+
+export interface PendingCheckout {
+  businessId: string
+  createdAt: number
+  expiresAt: number
+  amount: number
+  plan: PlanTier
+  cycle: BillingCycle
+}
+
+const PENDING_KEY = 'hajzkom:pendingCheckout'
+
+export function storePendingCheckout(input: Omit<PendingCheckout, 'createdAt' | 'expiresAt'>): PendingCheckout {
+  const now = Date.now()
+  const pending: PendingCheckout = { ...input, createdAt: now, expiresAt: now + 30 * 60 * 1000 }
+  localStorage.setItem(PENDING_KEY, JSON.stringify(pending))
+  return pending
+}
+
+export function getPendingCheckout(businessId: string): PendingCheckout | null {
+  try {
+    const raw = localStorage.getItem(PENDING_KEY)
+    if (!raw) return null
+    const pending = JSON.parse(raw) as PendingCheckout
+    if (pending.businessId !== businessId) return null
+    if (Date.now() > pending.expiresAt) {
+      localStorage.removeItem(PENDING_KEY)
+      return null
+    }
+    return pending
+  } catch {
+    return null
+  }
+}
+
+export function clearPendingCheckout(): void {
+  localStorage.removeItem(PENDING_KEY)
+}

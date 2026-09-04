@@ -11,11 +11,11 @@ import {
   X,
 } from 'lucide-react'
 import type { Business, PlanTier } from '../../utils/business'
-import { getBusinessById } from '../../utils/business'
 import {
   getBilling,
   setBillingCycle,
   setBillingPlan,
+  storePendingCheckout,
   PLAN_PRICING,
   type BillingInfo,
   type BillingCycle,
@@ -49,13 +49,9 @@ export function ChangePlanPage({ business, onBack }: ChangePlanPageProps) {
   const primary = () => {
     setLoading(true)
     window.setTimeout(() => {
-      setBillingPlan(business.id, selected)
-      const updated = getBusinessById(business.id)
-      if (updated) {
-        window.dispatchEvent(new Event('storage'))
-      }
+      storePendingCheckout({ businessId: business.id, amount: selPrice, plan: selected, cycle })
       setLoading(false)
-      setStep('done')
+      window.location.hash = `#/dashboard/payment-return?status=pending`
     }, 600)
   }
 

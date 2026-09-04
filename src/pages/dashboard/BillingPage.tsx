@@ -139,18 +139,24 @@ export function BillingPage({ business }: BillingPageProps) {
               </span>
             </div>
             {hasActiveCancel && (
-              <div className="billitem">
-                <span className="billitem-label">تاريخ الإنهاء المحدد</span>
-                <span className="billitem-val">
+              <div className="billitem" style={{ borderColor: 'var(--color-error-tint, var(--color-border-strong))' }}>
+                <span className="billitem-label">تاريخ الإنهاء المجدول (cancelScheduledAt)</span>
+                <span className="billitem-val" style={{ color: 'var(--color-error)' }}>
                   {new Date(bill.cancelAt).toLocaleDateString('ar-IQ', { day: 'numeric', month: 'long', year: 'numeric' })}
+                </span>
+                <span style={{ fontSize: '0.7rem', color: 'var(--color-text-tertiary)', lineHeight: 1.6 }}>
+                  عند هذا التاريخ سيتم تخفيض خطتك إلى <b>الخطة المجانية</b>.
                 </span>
               </div>
             )}
             {isPastDue && (
-              <div className="billitem">
-                <span className="billitem-label">فترة السماح (سن الرجوع)</span>
+              <div className="billitem" style={{ borderColor: 'var(--color-warning-tint, var(--color-border-strong))' }}>
+                <span className="billitem-label">موعد انتهاء فترة السماح (gracePeriodEndsAt)</span>
                 <span className="billitem-val" style={{ color: 'var(--color-warning)' }}>
                   {new Date(bill.graceEnd).toLocaleDateString('ar-IQ', { day: 'numeric', month: 'long', year: 'numeric' })}
+                </span>
+                <span style={{ fontSize: '0.7rem', color: 'var(--color-text-tertiary)', lineHeight: 1.6 }}>
+                  قم بتجديد الاشتراك قبل هذا التاريخ لتجنّب الإنهاء.
                 </span>
               </div>
             )}

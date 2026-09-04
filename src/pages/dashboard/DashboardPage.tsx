@@ -40,6 +40,7 @@ import { CustomerProfilePage } from './CustomerProfilePage'
 import { BillingPage } from './BillingPage'
 import { ChangePlanPage } from './ChangePlanPage'
 import { ExtendRenewPage } from './ExtendRenewPage'
+import { PaymentReturnPage } from './PaymentReturnPage'
 
 const PLAN_AR: Record<string, string> = {
   free: 'مجانية',
@@ -235,6 +236,13 @@ export function DashboardPage() {
       case 'extendrenew':
         return (
           <ExtendRenewPage
+            business={business}
+            onBack={() => { window.location.hash = '#/dashboard/billing' }}
+          />
+        )
+      case 'payment-return':
+        return (
+          <PaymentReturnPage
             business={business}
             onBack={() => { window.location.hash = '#/dashboard/billing' }}
           />

@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import {
   ArrowLeft,
-  BadgeCheck,
   CalendarCheck,
   Crown,
   Loader2,
@@ -13,7 +12,7 @@ import {
 import type { Business } from '../../utils/business'
 import {
   getBilling,
-  renewBilling,
+  storePendingCheckout,
   PLAN_PRICING,
   type BillingInfo,
   type BillingCycle,
@@ -36,7 +35,6 @@ export function ExtendRenewPage({ business, onBack }: ExtendRenewPageProps) {
   const [cycle, setCycle] = useState<BillingCycle>(bill.cycle)
   const [checkout, setCheckout] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [done, setDone] = useState(false)
 
   const plan = PLAN_PRICING[bill.plan]
   const price = cycle === 'y' ? plan.yearly : plan.monthly
@@ -47,10 +45,10 @@ export function ExtendRenewPage({ business, onBack }: ExtendRenewPageProps) {
   const applyRenew = () => {
     setLoading(true)
     window.setTimeout(() => {
-      renewBilling(business.id)
+      storePendingCheckout({ businessId: business.id, amount: price, plan: bill.plan, cycle })
       setLoading(false)
       setCheckout(false)
-      setDone(true)
+      window.location.hash = `#/dashboard/payment-return?status=pending`
     }, 700)
   }
 
@@ -70,27 +68,7 @@ export function ExtendRenewPage({ business, onBack }: ExtendRenewPageProps) {
         <span style={{ fontSize: '0.88rem', color: 'var(--color-text-secondary)' }}>تمديد / تجديد الاشتراك</span>
       </div>
 
-      {done ? (
-        <div className="dash-section">
-          <div className="dash-section-head">
-            <span className="dash-section-title"><BadgeCheck /> تم التجديد</span>
-          </div>
-          <div className="dash-section-body" style={{ textAlign: 'center', padding: '32px 20px' }}>
-            <span className="dash-stat-ic primary" style={{ margin: '0 auto 14px' }}><Crown /></span>
-            <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.05rem', fontWeight: 700, margin: '0 0 8px' }}>
-              تم تجديد اشتراكك بنجاح
-            </h3>
-            <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.88rem', margin: '0 0 20px', lineHeight: 1.7 }}>
-              خطتك ({plan.name}) محدّثة حتى <b>{formatDate(newEnd)}</b>.
-            </p>
-            <button className="btn btn-primary" type="button" onClick={onBack} style={{ padding: '10px 22px', borderRadius: 10, border: 'none', fontSize: '0.88rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-              العودة إلى صفحة الاشتراك
-            </button>
-          </div>
-        </div>
-      ) : (
-        <>
-          {/* ── Cycle toggle ── */}
+      {/* ── Cycle toggle ── */}
           <div className="dash-section" style={{ marginBottom: 18 }}>
             <div className="dash-section-body" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
               <span style={{ fontSize: '0.84rem', fontWeight: 600 }}>مدة التجديد:</span>
@@ -158,8 +136,6 @@ export function ExtendRenewPage({ business, onBack }: ExtendRenewPageProps) {
               </button>
             </div>
           </div>
-        </>
-      )}
 
       {/* ── Checkout modal ── */}
       {checkout && (

@@ -388,6 +388,19 @@
   background: var(--color-info-background);
   color: var(--color-info);
 }
+.dash-stat-ic.danger {
+  background: var(--color-error-background);
+  color: var(--color-error);
+}
+.dash-stat-ic.lg {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+}
+.dash-stat-ic.lg .lucide {
+  width: 30px;
+  height: 30px;
+}
 .dash-stat-val {
   font-family: var(--font-heading);
   font-size: 1.6rem;
