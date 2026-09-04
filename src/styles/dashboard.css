@@ -1443,6 +1443,97 @@
   color: #fff;
 }
 
+/* ===== Subscription history ===== */
+.sub-his-timeline {
+  display: grid;
+  gap: 0;
+}
+.sub-his-item {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 14px;
+}
+.sub-his-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.sub-his-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 4px var(--color-surface-muted);
+}
+.sub-his-line {
+  width: 2px;
+  flex: 1;
+  min-height: 24px;
+  margin: 4px 0;
+  background: var(--color-border-subtle);
+}
+.sub-his-card {
+  margin-bottom: 16px;
+  padding: 13px 16px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 13px;
+  background: var(--color-surface);
+}
+.sub-his-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.sub-his-head strong {
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+.sub-his-date {
+  font-size: 0.72rem;
+  color: var(--color-text-tertiary);
+}
+.sub-his-plan {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.sub-his-plan-tag {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  background: var(--color-primary-subtle);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+.sub-his-amount {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+.sub-his-reason {
+  margin: 8px 0 0;
+  font-size: 0.78rem;
+  color: var(--color-text-tertiary);
+  font-style: italic;
+}
+@media (max-width: 600px) {
+  .sub-his-item {
+    grid-template-columns: 40px 1fr;
+    gap: 10px;
+  }
+  .sub-his-dot {
+    width: 32px;
+    height: 32px;
+  }
+}
+
 /* ===== Payments ===== */
 .pay-filters {
   display: flex;

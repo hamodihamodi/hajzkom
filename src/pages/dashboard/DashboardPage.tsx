@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import {
   CalendarDays,
   CreditCard,
+  History,
   Home,
   LogOut,
   MapPin,
@@ -44,6 +45,7 @@ import { ExtendRenewPage } from './ExtendRenewPage'
 import { PaymentReturnPage } from './PaymentReturnPage'
 import { PaymentDetailPage } from './PaymentDetailPage'
 import { PaymentsPage } from './PaymentsPage'
+import { SubscriptionHistoryPage } from './SubscriptionHistoryPage'
 
 const PLAN_AR: Record<string, string> = {
   free: 'مجانية',
@@ -74,6 +76,7 @@ const NAV_ITEMS: NavItem[] = [
   { key: 'locations', label: 'المواقع والأوقات', icon: MapPin, roles: ['owner', 'admin'] },
   { key: 'settings', label: 'إعدادات النشاط', icon: Settings, roles: ['owner', 'admin'] },
   { key: 'billing', label: 'الاشتراك والفوترة', icon: CreditCard, roles: ['owner'] },
+  { key: 'subscriptions', label: 'سجل الاشتراك', icon: History, roles: ['owner'] },
   { key: 'payments', label: 'المدفوعات', icon: Wallet, roles: ['owner'] },
 ]
 
@@ -258,6 +261,8 @@ export function DashboardPage() {
             onOpenPayment={(id) => { window.location.hash = `#/dashboard/payment-detail/${encodeURIComponent(id)}` }}
           />
         )
+      case 'subscriptions':
+        return <SubscriptionHistoryPage business={business} />
       case 'payment-detail': {
         const parts = window.location.hash.replace(/^#\/?/, '').split('/')
         const paymentId = parts[2] ? decodeURIComponent(parts[2]) : ''

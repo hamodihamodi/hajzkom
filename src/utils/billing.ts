@@ -1,5 +1,6 @@
 import type { PlanTier } from './business'
 import { updateBusiness } from './business'
+import { addSubscriptionEvent } from './subscriptionHistory'
 
 export type BillingCycle = 'm' | 'y'
 export type SubscriptionStatus = 'active' | 'past_due'
@@ -123,6 +124,7 @@ export function setBillingCycle(businessId: string, cycle: BillingCycle): Billin
 
 export function setBillingPlan(businessId: string, plan: PlanTier): BillingInfo {
   const bill = getBilling(businessId)
+  const prev = bill.plan
   const now = Date.now()
   bill.plan = plan
   bill.periodStart = now
@@ -133,7 +135,21 @@ export function setBillingPlan(businessId: string, plan: PlanTier): BillingInfo 
   bill.graceEnd = now + cycleMillis(bill.cycle) + 5 * DAY
   save(bill)
   updateBusiness(businessId, { plan })
+  if (prev !== plan) {
+    addSubscriptionEvent({
+      businessId,
+      type: planRank(plan) > planRank(prev) ? 'upgraded' : 'downgraded',
+      date: now,
+      fromPlan: prev,
+      toPlan: plan,
+      amount: priceForPlan(plan, bill.cycle),
+    })
+  }
   return bill
+}
+
+function planRank(plan: PlanTier): number {
+  return plan === 'free' ? 0 : plan === 'pro' ? 1 : 2
 }
 
 export function renewBilling(businessId: string): BillingInfo {
@@ -150,6 +166,14 @@ export function renewBilling(businessId: string): BillingInfo {
     bill.cancelAt = 0
   }
   save(bill)
+  addSubscriptionEvent({
+    businessId,
+    type: 'extended',
+    date: now,
+    fromPlan: bill.plan,
+    toPlan: bill.plan,
+    amount: priceForPlan(bill.plan, bill.cycle),
+  })
   return bill
 }
 
@@ -158,6 +182,13 @@ export function cancelBilling(businessId: string): BillingInfo {
   bill.cancelScheduled = true
   bill.cancelAt = bill.periodEnd
   save(bill)
+  addSubscriptionEvent({
+    businessId,
+    type: 'cancelled',
+    date: Date.now(),
+    fromPlan: bill.plan,
+    toPlan: bill.plan,
+  })
   return bill
 }
 
@@ -166,6 +197,13 @@ export function resumeBilling(businessId: string): BillingInfo {
   bill.cancelScheduled = false
   bill.cancelAt = 0
   save(bill)
+  addSubscriptionEvent({
+    businessId,
+    type: 'cancellation_reverted',
+    date: Date.now(),
+    fromPlan: bill.plan,
+    toPlan: bill.plan,
+  })
   return bill
 }
 
