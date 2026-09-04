@@ -6,6 +6,7 @@ import {
   Clock,
   Loader2,
   RefreshCcw,
+  SlidersHorizontal,
   Timer,
   XCircle,
 } from 'lucide-react'
@@ -18,6 +19,13 @@ import {
 } from '../../utils/billing'
 
 type PaymentStatus = 'success' | 'failed' | 'expired' | 'pending'
+
+const STATUS_OPTIONS: Array<{ key: PaymentStatus; label: string; desc: string }> = [
+  { key: 'success', label: 'نجح الدفع', desc: 'status = success' },
+  { key: 'failed', label: 'فشل الدفع', desc: 'status = failed' },
+  { key: 'expired', label: 'انتهت المهلة', desc: 'status = expired' },
+  { key: 'pending', label: 'قيد الانتظار', desc: 'status = pending' },
+]
 
 function readStatus(): PaymentStatus {
   const hash = window.location.hash.replace(/^#\/?/, '')
@@ -43,7 +51,7 @@ interface StateShape {
 }
 
 export function PaymentReturnPage({ business, onBack }: PaymentReturnPageProps) {
-  const [status] = useState<PaymentStatus>(readStatus)
+  const [status, setStatus] = useState<PaymentStatus>(readStatus)
   const [refreshing, setRefreshing] = useState(false)
   const pending = getPendingCheckout(business.id)
   const bill = getBilling(business.id, business.plan)
@@ -58,6 +66,11 @@ export function PaymentReturnPage({ business, onBack }: PaymentReturnPageProps) 
 
   const goBack = () => {
     onBack()
+  }
+
+  const switchStatus = (next: PaymentStatus) => {
+    window.location.hash = `#/dashboard/payment-return?status=${next}`
+    setStatus(next)
   }
 
   const content = buildState()
@@ -77,32 +90,65 @@ export function PaymentReturnPage({ business, onBack }: PaymentReturnPageProps) 
         <span style={{ fontSize: '0.88rem', color: 'var(--color-text-secondary)' }}>العودة إلى صفحة الاشتراك</span>
       </div>
 
-      <div className="dash-section">
-        <div className="dash-section-body" style={{ textAlign: 'center', padding: '36px 24px' }}>
-          <span className={`dash-stat-ic lg ${content.tone}`} style={{ margin: '0 auto 16px' }}>
-            {content.icon}
-          </span>
-          <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.15rem', fontWeight: 800, margin: '0 0 8px' }}>
-            {content.title}
-          </h3>
-          <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.9rem', lineHeight: 1.8, maxWidth: 440, margin: '0 auto 22px' }}>
-            {content.message}
-          </p>
+      <div className="pay-return-grid">
+        {/* ── Main content (right) ── */}
+        <div className="dash-section">
+          <div className="dash-section-body" style={{ textAlign: 'center', padding: '36px 24px' }}>
+            <span className={`dash-stat-ic lg ${content.tone}`} style={{ margin: '0 auto 16px' }}>
+              {content.icon}
+            </span>
+            <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.15rem', fontWeight: 800, margin: '0 0 8px' }}>
+              {content.title}
+            </h3>
+            <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.9rem', lineHeight: 1.8, maxWidth: 440, margin: '0 auto 22px' }}>
+              {content.message}
+            </p>
 
-          {content.detail && (
-            <div className="billitem" style={{ maxWidth: 360, margin: '0 auto 22px', textAlign: 'right' }}>
-              {content.detail.map((d) => (
-                <div key={d.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', padding: '4px 0' }}>
-                  <span style={{ color: 'var(--color-text-tertiary)' }}>{d.label}</span>
-                  <span style={{ fontWeight: 700 }}>{d.value}</span>
-                </div>
+            {content.detail && (
+              <div className="billitem" style={{ maxWidth: 360, margin: '0 auto 22px', textAlign: 'right' }}>
+                {content.detail.map((d) => (
+                  <div key={d.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', padding: '4px 0' }}>
+                    <span style={{ color: 'var(--color-text-tertiary)' }}>{d.label}</span>
+                    <span style={{ fontWeight: 700 }}>{d.value}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center' }}>
+              {content.primaryAction()}
+              {content.secondaryAction?.()}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Gateway state switcher (left) ── */}
+        <div className="dash-section pay-return-switch">
+          <div className="dash-section-head">
+            <span className="dash-section-title"><SlidersHorizontal /> حالات الرجوع من البوابة</span>
+          </div>
+          <div className="dash-section-body">
+            <p style={{ fontSize: '0.78rem', color: 'var(--color-text-tertiary)', lineHeight: 1.7, margin: '0 0 14px' }}>
+              محاكاة لاستجابة بوابة ZainCash بعد تحويل الدفع:
+            </p>
+            <div className="pay-switch-list">
+              {STATUS_OPTIONS.map((opt) => (
+                <button
+                  key={opt.key}
+                  type="button"
+                  className={`pay-switch-btn${status === opt.key ? ' active' : ''}`}
+                  onClick={() => switchStatus(opt.key)}
+                >
+                  <span className="pay-switch-label">{opt.label}</span>
+                  <span className="pay-switch-desc">{opt.desc}</span>
+                </button>
               ))}
             </div>
-          )}
-
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center' }}>
-            {content.primaryAction()}
-            {content.secondaryAction?.()}
+            {pending && status !== 'failed' && status !== 'success' && (
+              <p style={{ fontSize: '0.74rem', color: 'var(--color-warning)', lineHeight: 1.6, margin: '14px 0 0' }}>
+                توجد عملية دفع معلّقة سارية — يمكن استئنافها بدل إنشاء عملية جديدة.
+              </p>
+            )}
           </div>
         </div>
       </div>

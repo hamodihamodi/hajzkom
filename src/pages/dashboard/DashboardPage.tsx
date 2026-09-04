@@ -12,6 +12,7 @@ import {
   User,
   UserPlus,
   Users,
+  Wallet,
 } from 'lucide-react'
 import { BrandIcon } from '../../components/marketing/BrandMark'
 import { clearSession, getSession, type Session, type AccountRole } from '../../utils/accounts'
@@ -41,6 +42,7 @@ import { BillingPage } from './BillingPage'
 import { ChangePlanPage } from './ChangePlanPage'
 import { ExtendRenewPage } from './ExtendRenewPage'
 import { PaymentReturnPage } from './PaymentReturnPage'
+import { PaymentsPage } from './PaymentsPage'
 
 const PLAN_AR: Record<string, string> = {
   free: 'مجانية',
@@ -71,6 +73,7 @@ const NAV_ITEMS: NavItem[] = [
   { key: 'locations', label: 'المواقع والأوقات', icon: MapPin, roles: ['owner', 'admin'] },
   { key: 'settings', label: 'إعدادات النشاط', icon: Settings, roles: ['owner', 'admin'] },
   { key: 'billing', label: 'الاشتراك والفوترة', icon: CreditCard, roles: ['owner'] },
+  { key: 'payments', label: 'المدفوعات', icon: Wallet, roles: ['owner'] },
 ]
 
 function getSubPage(): string {
@@ -247,6 +250,8 @@ export function DashboardPage() {
             onBack={() => { window.location.hash = '#/dashboard/billing' }}
           />
         )
+      case 'payments':
+        return <PaymentsPage business={business} />
       default:
         return <DashboardHome session={session} business={business} />
     }
