@@ -31,6 +31,7 @@ import {
   type BookingSelection,
   type SlotInfo,
 } from '../../utils/booking'
+import { NotFoundState, StateSwitcher, WarningState } from '../../components/ui/UiStates'
 
 function WhatsAppGlyph({ className = 'wa-ic' }: { className?: string }) {
   return (
@@ -108,6 +109,7 @@ export function PublicBookingPage({ business = sampleBusiness }: PublicBookingPa
   const [confirming, setConfirming] = useState(false)
   const [confirmed, setConfirmed] = useState(false)
   const [bookingRef, setBookingRef] = useState('')
+  const [scenario, setScenario] = useState<'normal' | 'closed' | 'not_found'>('normal')
 
   const dates = useMemo(() => buildUpcomingDates(14), [])
 
@@ -202,6 +204,57 @@ export function PublicBookingPage({ business = sampleBusiness }: PublicBookingPa
     )
   }
 
+  if (scenario !== 'normal') {
+    return (
+      <div className="bk-page">
+        <header className="bk-topbar">
+          <div className="bk-topbar-inner">
+            <div className="bk-topbar-logo">
+              <span>
+                <b>حجز</b>كوم
+              </span>
+            </div>
+          </div>
+        </header>
+        <div style={{ maxWidth: 640, margin: '0 auto', padding: '16px 20px 40px' }}>
+          <div style={{ marginBottom: 16 }}>
+            <StateSwitcher
+              title="سيناريوهات صفحة الحجز العامة"
+              hint="بدّل بين حالات العرض لتجربة الحالات المشتركة:"
+              options={[
+                { key: 'normal', label: 'وضع طبيعي' },
+                { key: 'closed', label: 'مغلق اليوم', desc: 'closed' },
+                { key: 'not_found', label: 'النشاط غير موجود', desc: '404' },
+              ]}
+              value={scenario}
+              onChange={(k) => setScenario(k as typeof scenario)}
+            />
+          </div>
+          {scenario === 'closed' ? (
+            <div className="dash-section">
+              <div className="dash-section-body" style={{ padding: '30px 20px' }}>
+                <WarningState
+                  title="النشاط مغلق اليوم"
+                  message="عذراً، هذا النشاط لا يستقبل الحجوزات في هذا اليوم. جرّب موعداً آخر."
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="dash-section">
+              <div className="dash-section-body" style={{ padding: '30px 20px' }}>
+                <NotFoundState
+                  title="النشاط غير موجود"
+                  message="لم نتمكن من العثور على هذه الصفحة. قد يكون الرابط غير صحيح."
+                  onBack={() => setScenario('normal')}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="bk-page">
       <header className="bk-topbar">
@@ -216,6 +269,20 @@ export function PublicBookingPage({ business = sampleBusiness }: PublicBookingPa
           </span>
         </div>
       </header>
+
+      <div style={{ maxWidth: 640, margin: '0 auto', padding: '12px 20px 0' }}>
+        <StateSwitcher
+          title="سيناريوهات صفحة الحجز العامة"
+          hint="بدّل بين حالات العرض لتجربة الحالات المشتركة:"
+          options={[
+            { key: 'normal', label: 'وضع طبيعي' },
+            { key: 'closed', label: 'مغلق اليوم', desc: 'closed' },
+            { key: 'not_found', label: 'النشاط غير موجود', desc: '404' },
+          ]}
+          value={scenario}
+          onChange={(k) => setScenario(k as typeof scenario)}
+        />
+      </div>
 
       <section className="bk-cover" aria-hidden="true">
         <div className="bk-cover-shape" />

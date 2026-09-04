@@ -8,6 +8,7 @@ import {
   PAYMENT_STATUS_TONE,
   type PaymentStatus,
 } from '../../utils/payments'
+import { EmptyStateView } from '../../components/ui/UiStates'
 
 const FILTERS: Array<{ key: PaymentStatus | 'all'; label: string }> = [
   { key: 'all', label: 'الكل' },
@@ -74,10 +75,11 @@ export function PaymentsPage({ business, onOpenPayment }: PaymentsPageProps) {
           <span className="dash-section-title"><Wallet /> المدفوعات</span>
         </div>
         {filtered.length === 0 ? (
-          <div className="dash-empty" style={{ padding: 40 }}>
-            <span className="dash-empty-ic"><Wallet /></span>
-            <p>لا توجد مدفوعات في هذه الحالة.</p>
-          </div>
+          <EmptyStateView
+            icon={<Wallet size={22} />}
+            title="لا توجد مدفوعات في هذه الحالة"
+            message="جرّب فلترة حالة أخرى، أو انتظر وصول أول دفعة عبر ZainCash."
+          />
         ) : (
           <>
             <div className="pay-table-wrap">

@@ -9,7 +9,6 @@ import {
   Loader2,
   RefreshCcw,
   ShieldCheck,
-  X,
 } from 'lucide-react'
 import { toast } from '../../utils/toast'
 import type { Business } from '../../utils/business'
@@ -23,6 +22,7 @@ import {
   type BillingInfo,
   type BillingCycle,
 } from '../../utils/billing'
+import { ConfirmDialog, StateSwitcher } from '../../components/ui/UiStates'
 
 const CYCLE_AR: Record<BillingCycle, string> = { m: 'شهري', y: 'سنوي' }
 const STATUS_AR: Record<string, string> = {
@@ -38,11 +38,13 @@ export function BillingPage({ business }: BillingPageProps) {
   const [bill, setBill] = useState<BillingInfo>(() => getBilling(business.id, business.plan))
   const [loading, setLoading] = useState<null | 'cycle' | 'plan' | 'renew' | 'cancel' | 'resume'>(null)
   const [cancelModal, setCancelModal] = useState(false)
+  const [demoState, setDemoState] = useState<'active' | 'past_due' | 'cancelled'>('active')
 
   const plan = PLAN_PRICING[bill.plan]
   const price = bill.cycle === 'y' ? plan.yearly : plan.monthly
-  const hasActiveCancel = bill.cancelScheduled
-  const isPastDue = bill.status === 'past_due'
+  const isPastDue = demoState === 'past_due'
+  const hasActiveCancel = demoState === 'cancelled' || bill.cancelScheduled
+  const demoMode = demoState !== 'active'
 
   const display = () => {
     setBill(getBilling(business.id, business.plan))
@@ -94,12 +96,28 @@ export function BillingPage({ business }: BillingPageProps) {
         </span>
       </div>
 
+      {/* ── Scenario switcher ── */}
+      <div style={{ marginBottom: 16 }}>
+        <StateSwitcher
+          title="حالات الاشتراك"
+          hint="بدّل بين حالات العرض لتجربة الحالات المشتركة (لا يغيّر الاشتراك الفعلي):"
+          options={[
+            { key: 'active', label: 'نشط' },
+            { key: 'past_due', label: 'متأخر السداد', desc: 'past_due' },
+            { key: 'cancelled', label: 'إلغاء مجدول', desc: 'cancelled' },
+          ]}
+          value={demoState}
+          onChange={(k) => setDemoState(k as typeof demoState)}
+          note={demoMode ? 'أنت تعرض وضع المحاكاة — بيانات الحالة لا تُحفظ.' : undefined}
+        />
+      </div>
+
       {/* ── Plan overview card ── */}
       <div className="dash-section" style={{ marginBottom: 18 }}>
         <div className="dash-section-head">
           <span className="dash-section-title"><Crown /> الخطة الحالية</span>
           <span className="dash-chip dash-chip-plan" title="حالة الاشتراك">
-            {STATUS_AR[bill.status] ?? bill.status}
+            {demoState === 'past_due' ? 'متأخر السداد' : demoState === 'cancelled' ? 'سيُنهى' : (STATUS_AR[bill.status] ?? bill.status)}
           </span>
         </div>
         <div className="dash-section-body">
@@ -142,7 +160,7 @@ export function BillingPage({ business }: BillingPageProps) {
               <div className="billitem" style={{ borderColor: 'var(--color-error-tint, var(--color-border-strong))' }}>
                 <span className="billitem-label">تاريخ الإنهاء المجدول (cancelScheduledAt)</span>
                 <span className="billitem-val" style={{ color: 'var(--color-error)' }}>
-                  {new Date(bill.cancelAt).toLocaleDateString('ar-IQ', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  {new Date(demoState === 'cancelled' ? bill.periodEnd : bill.cancelAt).toLocaleDateString('ar-IQ', { day: 'numeric', month: 'long', year: 'numeric' })}
                 </span>
                 <span style={{ fontSize: '0.7rem', color: 'var(--color-text-tertiary)', lineHeight: 1.6 }}>
                   عند هذا التاريخ سيتم تخفيض خطتك إلى <b>الخطة المجانية</b>.
@@ -200,34 +218,26 @@ export function BillingPage({ business }: BillingPageProps) {
       </div>
 
       {/* ── Cancel modal ── */}
-      {cancelModal && (
-        <div className="dash-overlay open" onClick={() => setCancelModal(false)}>
-          <div className="dash-section" style={{ position: 'relative', width: '100%', maxWidth: 440, margin: '12vh auto', cursor: 'default' }} onClick={(e) => e.stopPropagation()}>
-            <div className="dash-section-head">
-              <span className="dash-section-title"><Ban /> إلغاء الاشتراك</span>
-              <button className="dash-section-action" type="button" onClick={() => setCancelModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X /></button>
-            </div>
-            <div style={{ padding: 24 }}>
-              <p style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', lineHeight: 1.8, margin: '0 0 20px' }}>
-                سيبقى اشتراكك فعّالاً حتى نهاية الفترة الحالية
-                ({new Date(bill.periodEnd).toLocaleDateString('ar-IQ', { day: 'numeric', month: 'long' })}),
-                ثم يُخفض إلى الخطة المجانية. يمكنك استئناف الاشتراك في أي وقت قبل ذلك.
-              </p>
-              <div style={{ display: 'flex', gap: 10 }}>
-                <button className="btn btn-primary" type="button" disabled={loading === 'cancel'} style={{ ...primaryBtnS, background: 'var(--color-error)' }} onClick={handleCancel}>
-                  {loading === 'cancel' ? <><Loader2 className="auth-spin" /> جارٍ الإلغاء...</> : <><Ban /> جدولة الإلغاء</>}
-                </button>
-                <button className="btn btn-secondary" type="button" onClick={() => setCancelModal(false)} disabled={loading === 'cancel'} style={secondaryBtnS}>تراجع</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog
+        open={cancelModal}
+        title="إلغاء الاشتراك"
+        tone="danger"
+        confirmLabel="جدولة الإلغاء"
+        cancelLabel="تراجع"
+        loading={loading === 'cancel'}
+        showIcon={<Ban size={16} />}
+        onConfirm={handleCancel}
+        onCancel={() => setCancelModal(false)}
+        message={
+          <p style={{ margin: 0 }}>
+            سيبقى اشتراكك فعّالاً حتى نهاية الفترة الحالية (
+            {new Date(bill.periodEnd).toLocaleDateString('ar-IQ', { day: 'numeric', month: 'long' })}
+            )، ثم يُخفض إلى <b>الخطة المجانية</b>. يمكنك استئناف الاشتراك في أي وقت قبل ذلك.
+          </p>
+        }
+      />
     </>
   )
 }
-
-const primaryBtnS: React.CSSProperties = { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '10px 16px', borderRadius: 10, border: 'none', fontSize: '0.88rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }
-const secondaryBtnS: React.CSSProperties = { padding: '10px 20px', borderRadius: 10, border: '1px solid var(--color-border-default)', fontSize: '0.88rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', background: 'var(--color-surface)' }
 
 export default BillingPage

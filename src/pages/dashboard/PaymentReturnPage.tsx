@@ -6,7 +6,6 @@ import {
   Clock,
   Loader2,
   RefreshCcw,
-  SlidersHorizontal,
   Timer,
   XCircle,
 } from 'lucide-react'
@@ -17,6 +16,7 @@ import {
   clearPendingCheckout,
   PLAN_PRICING,
 } from '../../utils/billing'
+import { StateSwitcher } from '../../components/ui/UiStates'
 
 type PaymentStatus = 'success' | 'failed' | 'expired' | 'pending'
 
@@ -123,33 +123,15 @@ export function PaymentReturnPage({ business, onBack }: PaymentReturnPageProps) 
         </div>
 
         {/* ── Gateway state switcher (left) ── */}
-        <div className="dash-section pay-return-switch">
-          <div className="dash-section-head">
-            <span className="dash-section-title"><SlidersHorizontal /> حالات الرجوع من البوابة</span>
-          </div>
-          <div className="dash-section-body">
-            <p style={{ fontSize: '0.78rem', color: 'var(--color-text-tertiary)', lineHeight: 1.7, margin: '0 0 14px' }}>
-              محاكاة لاستجابة بوابة ZainCash بعد تحويل الدفع:
-            </p>
-            <div className="pay-switch-list">
-              {STATUS_OPTIONS.map((opt) => (
-                <button
-                  key={opt.key}
-                  type="button"
-                  className={`pay-switch-btn${status === opt.key ? ' active' : ''}`}
-                  onClick={() => switchStatus(opt.key)}
-                >
-                  <span className="pay-switch-label">{opt.label}</span>
-                  <span className="pay-switch-desc">{opt.desc}</span>
-                </button>
-              ))}
-            </div>
-            {pending && status !== 'failed' && status !== 'success' && (
-              <p style={{ fontSize: '0.74rem', color: 'var(--color-warning)', lineHeight: 1.6, margin: '14px 0 0' }}>
-                توجد عملية دفع معلّقة سارية — يمكن استئنافها بدل إنشاء عملية جديدة.
-              </p>
-            )}
-          </div>
+        <div style={{ display: 'grid', gap: 12 }}>
+          <StateSwitcher
+            title="حالات الرجوع من البوابة"
+            hint="محاكاة لاستجابة بوابة ZainCash بعد تحويل الدفع:"
+            options={STATUS_OPTIONS.map((o) => ({ key: o.key, label: o.label, desc: o.desc }))}
+            value={status}
+            onChange={(k) => switchStatus(k as PaymentStatus)}
+            note={pending && status !== 'failed' && status !== 'success' ? 'توجد عملية دفع معلّقة سارية — يمكن استئنافها بدل إنشاء عملية جديدة.' : undefined}
+          />
         </div>
       </div>
     </>

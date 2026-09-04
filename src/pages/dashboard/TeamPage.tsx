@@ -32,6 +32,7 @@ import {
 import type { Business } from '../../utils/business'
 import { staffLimitForPlan } from '../../utils/business'
 import type { Invitation } from '../../utils/invites'
+import { ConfirmDialog, EmptyStateView } from '../../components/ui/UiStates'
 
 const ROLE_AR: Record<AccountRole, string> = {
   owner: 'مالك النشاط',
@@ -356,30 +357,22 @@ export function TeamPage({ session, business, onRefresh }: TeamPageProps) {
 
       {/* ── Remove confirmation modal ── */}
       {modal?.kind === 'confirm-remove' && (
-        <div className="dash-overlay open" onClick={() => setModal(null)}>
-          <div className="dash-section" style={{ position: 'relative', width: '100%', maxWidth: 420, margin: '12vh auto', cursor: 'default' }} onClick={(e) => e.stopPropagation()}>
-            <div className="dash-section-head" style={{ borderBottomColor: 'var(--color-error-background)' }}>
-              <span className="dash-section-title" style={{ color: 'var(--color-error)' }}><Trash2 /> إزالة العضو</span>
-              <button className="dash-section-action" type="button" onClick={() => setModal(null)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X /></button>
-            </div>
-            <div style={{ padding: 20 }}>
-              <p style={{ margin: '0 0 20px', color: 'var(--color-text-secondary)', fontSize: '0.88rem', lineHeight: 1.7 }}>
-                هل أنت متأكد من إزالة "<strong>{modal.account.fullName}</strong>" من النشاط؟ سيتم إلغاء وصوله إلى لوحة التحكم.
-              </p>
-              <div style={{ display: 'flex', gap: 10 }}>
-                <button
-                  type="button"
-                  disabled={loading}
-                  onClick={() => handleRemove(modal.account)}
-                  style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '10px 16px', borderRadius: 10, border: 'none', fontSize: '0.88rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', background: 'var(--color-error)', color: '#fff' }}
-                >
-                  {loading ? <><Loader2 className="auth-spin" /> جارٍ...</> : <><Trash2 /> نعم، إزالة</>}
-                </button>
-                <button type="button" onClick={() => setModal({ kind: 'edit-member', account: modal.account })} disabled={loading} style={secondaryBtnS}>تراجع</button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ConfirmDialog
+          open
+          title="إزالة العضو"
+          tone="danger"
+          confirmLabel="نعم، إزالة"
+          cancelLabel="تراجع"
+          loading={loading}
+          showIcon={<Trash2 size={16} />}
+          onConfirm={() => handleRemove(modal.account)}
+          onCancel={() => setModal({ kind: 'edit-member', account: modal.account })}
+          message={
+            <p style={{ margin: 0 }}>
+              هل أنت متأكد من إزالة "<strong>{modal.account.fullName}</strong>" من النشاط؟ سيتم إلغاء وصوله إلى لوحة التحكم.
+            </p>
+          }
+        />
       )}
 
       {/* ── Pending invitations ── */}
@@ -441,10 +434,11 @@ export function TeamPage({ session, business, onRefresh }: TeamPageProps) {
         </div>
 
         {teamMembers.length === 0 ? (
-          <div className="dash-empty">
-            <span className="dash-empty-ic"><UserCog /></span>
-            <p>لا يوجد أعضاء في الفريق بعد.</p>
-          </div>
+          <EmptyStateView
+            icon={<UserCog size={22} />}
+            title="لا يوجد أعضاء في الفريق بعد"
+            message="ابدأ بإرسال دعوة إلى فريقك للانضمام إلى نشاطك."
+          />
         ) : (
           <>
             {/* Desktop table */}

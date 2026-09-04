@@ -16,6 +16,7 @@ import {
   Wallet,
 } from 'lucide-react'
 import { BrandIcon } from '../../components/marketing/BrandMark'
+import { ForbiddenState, LoadingState, NotFoundState } from '../../components/ui/UiStates'
 import { clearSession, getSession, type Session, type AccountRole } from '../../utils/accounts'
 import {
   getBusinessByOwner,
@@ -115,6 +116,7 @@ export function DashboardPage() {
   const [session, setSession] = useState<Session | null>(() => getSession())
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [subPage, setSubPage] = useState(getSubPage)
+  const [booting, setBooting] = useState(true)
   const [, setRefreshKey] = useState(0)
   const [activeLoc, setActiveLoc] = useState(() => {
     if (!session) return ''
@@ -142,6 +144,11 @@ export function DashboardPage() {
   useEffect(() => {
     if (!session) window.location.hash = '#/login'
   }, [session])
+
+  useEffect(() => {
+    const t = window.setTimeout(() => setBooting(false), 650)
+    return () => window.clearTimeout(t)
+  }, [])
 
   useEffect(() => {
     const onHash = () => {
@@ -231,41 +238,40 @@ export function DashboardPage() {
         return <LocationsPage session={session} business={business} onRefresh={handleRefresh} />
       case 'settings':
         return <BusinessSettingsPage session={session} business={business} onRefresh={handleRefresh} />
-      case 'billing':
-        return <BillingPage business={business} />
+case 'billing':
+        return session.role === 'owner' ? <BillingPage business={business} /> : <ForbiddenState onBack={() => { window.location.hash = '#/dashboard/home' }} />
       case 'changeplan':
-        return (
+        return session.role === 'owner' ? (
           <ChangePlanPage
             business={business}
             onBack={() => { window.location.hash = '#/dashboard/billing' }}
           />
-        )
+        ) : <ForbiddenState onBack={() => { window.location.hash = '#/dashboard/home' }} />
       case 'extendrenew':
-        return (
+        return session.role === 'owner' ? (
           <ExtendRenewPage
             business={business}
             onBack={() => { window.location.hash = '#/dashboard/billing' }}
           />
-        )
+        ) : <ForbiddenState onBack={() => { window.location.hash = '#/dashboard/home' }} />
       case 'payment-return':
-        return (
+        return session.role === 'owner' ? (
           <PaymentReturnPage
             business={business}
             onBack={() => { window.location.hash = '#/dashboard/billing' }}
           />
-        )
+        ) : <ForbiddenState onBack={() => { window.location.hash = '#/dashboard/home' }} />
       case 'payments':
-        return (
+        return session.role === 'owner' ? (
           <PaymentsPage
             business={business}
             onOpenPayment={(id) => { window.location.hash = `#/dashboard/payment-detail/${encodeURIComponent(id)}` }}
           />
-        )
-      case 'subscriptions':
-        return <SubscriptionHistoryPage business={business} />
+        ) : <ForbiddenState onBack={() => { window.location.hash = '#/dashboard/home' }} />
       case 'payment-detail': {
         const parts = window.location.hash.replace(/^#\/?/, '').split('/')
         const paymentId = parts[2] ? decodeURIComponent(parts[2]) : ''
+        if (session.role !== 'owner') return <ForbiddenState onBack={() => { window.location.hash = '#/dashboard/home' }} />
         return paymentId ? (
           <PaymentDetailPage
             business={business}
@@ -279,8 +285,15 @@ export function DashboardPage() {
           />
         )
       }
-      default:
-        return <DashboardHome session={session} business={business} />
+      case 'subscriptions':
+        return session.role === 'owner' ? <SubscriptionHistoryPage business={business} /> : <ForbiddenState onBack={() => { window.location.hash = '#/dashboard/home' }} />
+      default: {
+        const navRoles = NAV_ITEMS.find((n) => n.key === subPage)?.roles
+        if (navRoles && !navRoles.includes(session.role)) {
+          return <ForbiddenState onBack={() => { window.location.hash = '#/dashboard/home' }} />
+        }
+        return <NotFoundState onBack={() => { window.location.hash = '#/dashboard/home' }} />
+      }
     }
   }
 
@@ -403,7 +416,17 @@ export function DashboardPage() {
           </div>
         </header>
 
-        <div className="dash-body">{renderContent()}</div>
+        <div className="dash-body" style={{ position: 'relative' }}>
+          {booting ? (
+            <div className="dash-section">
+              <div className="dash-section-body" style={{ minHeight: 260 }}>
+                <LoadingState label="جارٍ تحميل لوحة التحكم..." />
+              </div>
+            </div>
+          ) : (
+            renderContent()
+          )}
+        </div>
       </div>
     </div>
   )

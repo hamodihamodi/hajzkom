@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { CalendarDays, Clock, CreditCard, UserPlus, Users, Scissors } from 'lucide-react'
 import type { Business } from '../../utils/business'
 import type { Session } from '../../utils/accounts'
+import { EmptyStateView, NetworkErrorState, StateSwitcher } from '../../components/ui/UiStates'
 
 const MOCK_TODAY = [
   { id: '1', customer: 'أحمد محمد', service: 'قص شعر', time: '10:00', status: 'confirmed' as const },
@@ -22,6 +24,26 @@ interface DashboardHomeProps {
 export function DashboardHome({ session, business }: DashboardHomeProps) {
   const isStaff = session.role === 'staff'
   const locationName = business.locations[0]?.name ?? 'الموقع الرئيسي'
+  const [scenario, setScenario] = useState<'normal' | 'empty' | 'offline'>('normal')
+
+  if (scenario === 'offline') {
+    return (
+      <div style={{ display: 'grid', gap: 14 }}>
+        <StateSwitcher
+          title="سيناريوهات الرئيسية"
+          hint="بدّل بين حالات العرض لتجربة الحالات المشتركة:"
+          options={[
+            { key: 'normal', label: 'وضع طبيعي' },
+            { key: 'empty', label: 'يوم بدون حجوزات', desc: 'empty state' },
+            { key: 'offline', label: 'تعذر الاتصال', desc: 'network error' },
+          ]}
+          value={scenario}
+          onChange={(k) => setScenario(k as typeof scenario)}
+        />
+        <NetworkErrorState onRetry={() => setScenario('normal')} />
+      </div>
+    )
+  }
 
   return (
     <>
@@ -35,6 +57,21 @@ export function DashboardHome({ session, business }: DashboardHomeProps) {
             ? `جدول يومك في ${locationName}`
             : `نظرة عامة على نشاطك — ${business.name}`}
         </p>
+      </div>
+
+      {/* ── Scenario switcher ── */}
+      <div style={{ marginBottom: 18 }}>
+        <StateSwitcher
+          title="سيناريوهات الرئيسية"
+          hint="بدّل بين حالات العرض لتجربة الحالات المشتركة:"
+          options={[
+            { key: 'normal', label: 'وضع طبيعي' },
+            { key: 'empty', label: 'يوم بدون حجوزات', desc: 'empty state' },
+            { key: 'offline', label: 'تعذر الاتصال', desc: 'network error' },
+          ]}
+          value={scenario}
+          onChange={(k) => setScenario(k as typeof scenario)}
+        />
       </div>
 
       {/* ── Stats ── */}
@@ -82,7 +119,18 @@ export function DashboardHome({ session, business }: DashboardHomeProps) {
           </a>
         </div>
         <div className="dash-section-body">
-          {MOCK_TODAY.length === 0 ? (
+          {scenario === 'empty' ? (
+            <EmptyStateView
+              icon={<CalendarDays size={22} />}
+              title="لا توجد حجوزات اليوم"
+              message="عندما يحجز الزبائن مواعيد، ستظهر هنا في جدول اليوم."
+              action={
+                <a href="#/dashboard/walkin" className="btn btn-primary" style={{ textDecoration: 'none' }}>
+                  <UserPlus size={15} /> حجز مباشر
+                </a>
+              }
+            />
+          ) : MOCK_TODAY.length === 0 ? (
             <div className="dash-empty">
               <span className="dash-empty-ic">
                 <CalendarDays />

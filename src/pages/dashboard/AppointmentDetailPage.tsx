@@ -19,6 +19,7 @@ import { toast } from '../../utils/toast'
 import { formatSlot12h } from '../../utils/booking'
 import type { Session } from '../../utils/accounts'
 import { timeToMinutes, toTimeKey } from '../../utils/datetime'
+import { NotFoundState, StateSwitcher } from '../../components/ui/UiStates'
 
 function formatDateAr(d: string): string {
   const [y, m, day] = d.split('-').map(Number)
@@ -39,19 +40,27 @@ export function AppointmentDetailPage({ appointmentId, session, onBack }: Appoin
   const [status, setStatus] = useState<AppointmentStatus>(appt?.status ?? 'confirmed')
   const [confirmAction, setConfirmAction] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [scenario, setScenario] = useState<'exists' | 'not_found'>('exists')
 
   const canReschedule = session.role === 'owner' || session.role === 'admin'
 
-  if (!appt) {
+  if (scenario === 'not_found' || !appt) {
     return (
-      <div className="dash-placeholder">
-        <div className="dash-ph-inner">
-          <span className="dash-ph-ic"><CalendarDays /></span>
-          <h2>الموعد غير موجود</h2>
-          <p>لم يتم العثور على هذا الموعد.</p>
-          <button type="button" onClick={onBack} style={{ marginTop: 16, ...actionBtnS, background: 'var(--color-primary)', color: '#fff', borderColor: 'var(--color-primary)' }}>
-            العودة
-          </button>
+      <div style={{ display: 'grid', gap: 14 }}>
+        <StateSwitcher
+          title="سيناريوهات تفاصيل الموعد"
+          hint="بدّل بين الحالات لتجربة الحالة المشتركة:"
+          options={[
+            { key: 'exists', label: 'الموعد موجود' },
+            { key: 'not_found', label: 'الموعد غير موجود', desc: '404' },
+          ]}
+          value={scenario}
+          onChange={(k) => setScenario(k as typeof scenario)}
+        />
+        <div className="dash-section">
+          <div className="dash-section-body" style={{ padding: '28px 20px' }}>
+            <NotFoundState title="الموعد غير موجود" message="لم يتم العثور على هذا الموعد." onBack={onBack} />
+          </div>
         </div>
       </div>
     )
@@ -90,6 +99,20 @@ export function AppointmentDetailPage({ appointmentId, session, onBack }: Appoin
 
   return (
     <>
+      {/* ── Scenario switcher ── */}
+      <div style={{ marginBottom: 16 }}>
+        <StateSwitcher
+          title="سيناريوهات تفاصيل الموعد"
+          hint="بدّل بين الحالات لتجربة الحالة المشتركة:"
+          options={[
+            { key: 'exists', label: 'الموعد موجود' },
+            { key: 'not_found', label: 'الموعد غير موجود', desc: '404' },
+          ]}
+          value={scenario}
+          onChange={(k) => setScenario(k as typeof scenario)}
+        />
+      </div>
+
       {/* ── Back button ── */}
       <button
         type="button"
