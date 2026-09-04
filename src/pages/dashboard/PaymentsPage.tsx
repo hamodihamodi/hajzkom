@@ -28,9 +28,10 @@ function fmtDateTime(ts: number): string {
 
 interface PaymentsPageProps {
   business: Business
+  onOpenPayment: (paymentId: string) => void
 }
 
-export function PaymentsPage({ business }: PaymentsPageProps) {
+export function PaymentsPage({ business, onOpenPayment }: PaymentsPageProps) {
   const [filter, setFilter] = useState<PaymentStatus | 'all'>('all')
   const [payments] = useState(() => getPayments(business.id))
 
@@ -93,7 +94,7 @@ export function PaymentsPage({ business }: PaymentsPageProps) {
                 </thead>
                 <tbody>
                   {filtered.map((p) => (
-                    <tr key={p.id}>
+                    <tr key={p.id} className="pay-row" onClick={() => onOpenPayment(p.id)}>
                       <td>{fmtDate(p.date)}</td>
                       <td>{PLAN_PRICING[p.plan].name}</td>
                       <td style={{ fontWeight: 700 }}>{p.amount.toLocaleString('en-US')} د.ع</td>
@@ -113,7 +114,7 @@ export function PaymentsPage({ business }: PaymentsPageProps) {
             {/* ── Mobile cards ── */}
             <div className="pay-cards">
               {filtered.map((p) => (
-                <div className="pay-card" key={p.id}>
+                <div className="pay-card" key={p.id} onClick={() => onOpenPayment(p.id)}>
                   <div className="pay-card-top">
                     <span className="pay-card-plan">{PLAN_PRICING[p.plan].name}</span>
                     <span className="pay-status" style={{ color: PAYMENT_STATUS_TONE[p.status], background: 'var(--color-surface-muted)' }}>

@@ -13,6 +13,9 @@ export interface PaymentRecord {
   status: PaymentStatus
   gateway: 'ZainCash'
   paidAt?: number
+  transactionId?: string
+  checkoutId?: string
+  checkoutExpiry?: number
 }
 
 const KEY = 'hajzkom:payments'
@@ -20,7 +23,7 @@ const KEY = 'hajzkom:payments'
 const PLANS: PlanTier[] = ['pro', 'pro', 'pro', 'max', 'pro']
 const CYCLES: BillingCycle[] = ['m', 'm', 'y', 'm', 'm']
 const AMOUNTS = [15000, 15000, 150000, 36000, 15000]
-const STATUSES: PaymentStatus[] = ['paid', 'paid', 'failed', 'refunded', 'expired']
+const STATUSES: PaymentStatus[] = ['paid', 'pending', 'failed', 'refunded', 'expired']
 
 function makeId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`
@@ -55,6 +58,7 @@ export function seedForBusiness(businessId: string): PaymentRecord[] {
   const seeded: PaymentRecord[] = []
   for (let i = 0; i < STATUSES.length; i++) {
     const paid = STATUSES[i] === 'paid'
+    const pending = STATUSES[i] === 'pending'
     const daysAgo = (i + 1) * 24
     seeded.push({
       id: makeId(),
@@ -66,10 +70,17 @@ export function seedForBusiness(businessId: string): PaymentRecord[] {
       status: STATUSES[i],
       gateway: 'ZainCash',
       paidAt: paid ? now - daysAgo * 3600000 + 60000 : undefined,
+      transactionId: paid ? `ZNC-${(0x100000 + i * 7919).toString(36).toUpperCase()}` : undefined,
+      checkoutId: pending ? `CHK-${(0x100000 + i * 104729).toString(36).toUpperCase()}` : undefined,
+      checkoutExpiry: pending ? now + 30 * 60000 : undefined,
     })
   }
   save([...all, ...seeded])
   return seeded
+}
+
+export function getPaymentById(businessId: string, paymentId: string): PaymentRecord | null {
+  return getPayments(businessId).find((p) => p.id === paymentId) ?? null
 }
 
 export function addPayment(input: Omit<PaymentRecord, 'id'>): PaymentRecord {

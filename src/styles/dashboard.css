@@ -1537,6 +1537,104 @@
   gap: 16px;
   align-items: start;
 }
+.pay-status-lg {
+  padding: 5px 12px;
+  font-size: 0.78rem;
+}
+.pay-detail-amount {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  line-height: 1.2;
+}
+.pay-detail-amount span {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+.pay-detail-amount-sub {
+  font-size: 0.82rem;
+  color: var(--color-text-tertiary);
+  margin-top: 4px;
+}
+.pay-detail-list {
+  margin-top: 18px;
+}
+.pay-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px dashed var(--color-border-subtle);
+  font-size: 0.84rem;
+}
+.pay-detail-row:last-child {
+  border-bottom: none;
+}
+.pay-detail-row > span {
+  color: var(--color-text-tertiary);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.pay-detail-row b {
+  color: var(--color-text-primary);
+  font-weight: 700;
+  direction: ltr;
+}
+.pay-detail-id {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.pay-detail-copy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-surface-muted);
+  cursor: pointer;
+  color: var(--color-text-secondary);
+}
+.pay-detail-copy:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary-tint);
+}
+.pay-detail-warn {
+  color: var(--color-error) !important;
+}
+.pay-detail-period {
+  margin-top: 4px;
+}
+.pay-detail-period > span {
+  color: var(--color-text-secondary);
+}
+.pay-detail-resume {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 13px;
+  background: var(--color-primary-subtle);
+}
+.pay-detail-resume .btn-primary {
+  white-space: nowrap;
+}
+@media (max-width: 600px) {
+  .pay-detail-resume {
+    flex-wrap: wrap;
+  }
+  .pay-detail-resume .btn-primary {
+    width: 100%;
+  }
+}
 .pay-return-switch {
   position: sticky;
   top: 16px;
@@ -1597,6 +1695,18 @@
   border-radius: 14px;
   background: var(--color-surface);
   margin-bottom: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+.pay-card:hover {
+  border-color: var(--color-border-strong);
+}
+.pay-row {
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+.pay-row:hover {
+  background: var(--color-surface-muted);
 }
 .pay-card-top {
   display: flex;

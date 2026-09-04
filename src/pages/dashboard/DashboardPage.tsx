@@ -42,6 +42,7 @@ import { BillingPage } from './BillingPage'
 import { ChangePlanPage } from './ChangePlanPage'
 import { ExtendRenewPage } from './ExtendRenewPage'
 import { PaymentReturnPage } from './PaymentReturnPage'
+import { PaymentDetailPage } from './PaymentDetailPage'
 import { PaymentsPage } from './PaymentsPage'
 
 const PLAN_AR: Record<string, string> = {
@@ -251,7 +252,28 @@ export function DashboardPage() {
           />
         )
       case 'payments':
-        return <PaymentsPage business={business} />
+        return (
+          <PaymentsPage
+            business={business}
+            onOpenPayment={(id) => { window.location.hash = `#/dashboard/payment-detail/${encodeURIComponent(id)}` }}
+          />
+        )
+      case 'payment-detail': {
+        const parts = window.location.hash.replace(/^#\/?/, '').split('/')
+        const paymentId = parts[2] ? decodeURIComponent(parts[2]) : ''
+        return paymentId ? (
+          <PaymentDetailPage
+            business={business}
+            paymentId={paymentId}
+            onBack={() => { window.location.hash = '#/dashboard/payments' }}
+          />
+        ) : (
+          <PaymentsPage
+            business={business}
+            onOpenPayment={(id) => { window.location.hash = `#/dashboard/payment-detail/${encodeURIComponent(id)}` }}
+          />
+        )
+      }
       default:
         return <DashboardHome session={session} business={business} />
     }
