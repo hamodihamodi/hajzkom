@@ -1192,6 +1192,29 @@
   color: var(--color-error);
   background: var(--color-error-background);
 }
+.team-inv-actions {
+  display: flex;
+  gap: 8px;
+}
+.team-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-default);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.team-copy-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-subtle);
+}
 .team-actions {
   display: flex;
   gap: 6px;

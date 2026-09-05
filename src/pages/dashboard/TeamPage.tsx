@@ -3,6 +3,7 @@ import {
   CalendarDays,
   CheckCircle2,
   Clock,
+  Copy,
   Crown,
   Loader2,
   Mail,
@@ -205,6 +206,14 @@ export function TeamPage({ session, business, onRefresh }: TeamPageProps) {
     revokeInvitation(inv.id)
     toast('تم إلغاء الدعوة.')
     refresh()
+  }
+
+  const handleCopyInvite = (inv: Invitation) => {
+    const url = `${window.location.origin}${window.location.pathname}#/invite/${inv.id}`
+    window.navigator.clipboard?.writeText(url).then(
+      () => toast('تم نسخ رابط الدعوة.'),
+      () => toast('انسخ الرابط يدوياً: ' + url, false),
+    )
   }
 
   const ghostInvite: Invitation = {
@@ -451,7 +460,10 @@ export function TeamPage({ session, business, onRefresh }: TeamPageProps) {
                     </td>
                     <td>
                       {row.status === 'pending' && (
-                        <button type="button" onClick={() => handleRevoke(row.inv)} className="team-revoke-btn">إلغاء الدعوة</button>
+                        <div className="team-inv-actions">
+                          <button type="button" title="نسخ رابط الدعوة" onClick={() => handleCopyInvite(row.inv)} className="team-copy-btn"><Copy size={13} /> نسخ الرابط</button>
+                          <button type="button" onClick={() => handleRevoke(row.inv)} className="team-revoke-btn">إلغاء الدعوة</button>
+                        </div>
                       )}
                     </td>
                   </tr>
@@ -469,7 +481,10 @@ export function TeamPage({ session, business, onRefresh }: TeamPageProps) {
                     {roleDisplay(row.inv.role)}
                   </span>
                   {row.status === 'pending' && (
-                    <button type="button" onClick={() => handleRevoke(row.inv)} className="team-revoke-btn">إلغاء الدعوة</button>
+                    <div className="team-inv-actions">
+                      <button type="button" title="نسخ رابط الدعوة" onClick={() => handleCopyInvite(row.inv)} className="team-copy-btn"><Copy size={13} /></button>
+                      <button type="button" onClick={() => handleRevoke(row.inv)} className="team-revoke-btn">إلغاء الدعوة</button>
+                    </div>
                   )}
                 </div>
                 <div className="team-invite-card-row"><Mail size={13} /> {row.inv.email ?? 'دعوة عامة'}</div>
