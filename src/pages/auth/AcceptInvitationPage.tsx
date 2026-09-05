@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Briefcase, CalendarDays, CheckCircle2, MapPin, ShieldCheck, X } from 'lucide-react'
 import { AuthShell } from './AuthShell'
+import { InvitationInvalidPage } from './InvitationInvalidPage'
 import {
   lookupInvitation,
   isInviteValid,
@@ -32,12 +33,23 @@ interface AcceptInvitationPageProps {
   invitationId?: string
 }
 
+type DemoState = 'default' | 'closed' | 'expired' | 'not_found'
+
+const DEMO_OPTIONS: { key: DemoState; label: string }[] = [
+  { key: 'default', label: 'سارية' },
+  { key: 'closed', label: 'مغلقة' },
+  { key: 'expired', label: 'منتهية' },
+  { key: 'not_found', label: 'غير موجودة' },
+]
+
 export function AcceptInvitationPage({ invitationId }: AcceptInvitationPageProps) {
   const id = invitationId ?? readInviteId()
   const [invitation] = useState<Invitation | null>(() => (id ? lookupInvitation(id) : null))
+  const [demoState, setDemoState] = useState<DemoState>('default')
+  const [closedVariant, setClosedVariant] = useState<'accepted' | 'revoked'>('accepted')
 
   if (!invitation || !isInviteValid(invitation)) {
-    return null
+    return <InvitationInvalidPage invitation={invitation} />
   }
 
   const handleAccept = () => {
@@ -48,16 +60,69 @@ export function AcceptInvitationPage({ invitationId }: AcceptInvitationPageProps
     window.location.hash = '#/login'
   }
 
+  const demoInvitation: Invitation | null =
+    demoState === 'closed'
+      ? { ...invitation, status: closedVariant }
+      : demoState === 'expired'
+        ? { ...invitation, status: 'pending', expiresAt: Date.now() - 60000 }
+        : demoState === 'not_found'
+          ? null
+          : invitation
+
+  const closedLabel = closedVariant === 'accepted' ? 'مغلقة (مقبولة)' : 'مغلقة (ملغية)'
+
+  const demoSwitcher = (
+    <div className="invite-demo">
+      <span className="invite-demo-label">معاينة حالات الدعوة (من واجهة المدعو)</span>
+      <div className="ui-switch-list">
+        {DEMO_OPTIONS.map((opt) => {
+          const isActive = demoState === opt.key
+          const label = opt.key === 'closed' ? closedLabel : opt.label
+          return (
+            <button
+              key={opt.key}
+              type="button"
+              className={`ui-switch-btn${isActive ? ' active' : ''}`}
+              onClick={() => {
+                if (opt.key === 'closed') {
+                  setDemoState('closed')
+                  if (demoState === 'closed') {
+                    setClosedVariant((v) => (v === 'accepted' ? 'revoked' : 'accepted'))
+                  }
+                } else {
+                  setDemoState(opt.key)
+                }
+              }}
+            >
+              <span className="ui-switch-label">{label}</span>
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+
+  if (demoState !== 'default') {
+    return (
+      <>
+        {demoSwitcher}
+        <InvitationInvalidPage invitation={demoInvitation} />
+      </>
+    )
+  }
+
   return (
-    <AuthShell
-      title="دعوة للانضمام"
-      subtitle={`تمت دعوتك للانضمام إلى ${invitation.businessName}`}
-      footer={
-        <button type="button" className="auth-link" onClick={handleDecline}>
-          رفض الدعوة
-        </button>
-      }
-    >
+    <>
+      {demoSwitcher}
+      <AuthShell
+        title="دعوة للانضمام"
+        subtitle={`تمت دعوتك للانضمام إلى ${invitation.businessName}`}
+        footer={
+          <button type="button" className="auth-link" onClick={handleDecline}>
+            رفض الدعوة
+          </button>
+        }
+      >
       <div className="invite-detail">
         <div className="invite-biz">
           <span className="invite-biz-logo">{invitation.businessName.charAt(0)}</span>
@@ -104,7 +169,8 @@ export function AcceptInvitationPage({ invitationId }: AcceptInvitationPageProps
           <X /> رفض
         </button>
       </div>
-    </AuthShell>
+      </AuthShell>
+    </>
   )
 }
 
