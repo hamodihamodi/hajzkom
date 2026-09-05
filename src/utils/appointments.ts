@@ -62,13 +62,57 @@ export function getAppointmentsForBusiness(
   locationName?: string,
 ): Appointment[] {
   const all = loadAppointments()
-  const filtered = all.filter((a) => a.businessId === businessId)
+  let filtered = all.filter((a) => a.businessId === businessId)
   if (filtered.length === 0) {
     const seeded = seedForBusiness(businessId, locationId, locationName)
     saveAll([...all, ...seeded])
     return seeded
   }
+  filtered = topUpUpcoming(businessId, locationId, locationName, filtered)
   return filtered
+}
+
+function seedKey(businessId: string): string {
+  return `hajzkom:appointmentsSeeded:${businessId}`
+}
+
+function isSeededToday(businessId: string): boolean {
+  try {
+    return localStorage.getItem(seedKey(businessId)) === today()
+  } catch {
+    return false
+  }
+}
+
+function markSeededToday(businessId: string): void {
+  try {
+    localStorage.setItem(seedKey(businessId), today())
+  } catch {
+    /* ignore */
+  }
+}
+
+function topUpUpcoming(
+  businessId: string,
+  locationId?: string,
+  locationName?: string,
+  current: Appointment[] = [],
+): Appointment[] {
+  if (isSeededToday(businessId)) return current
+  const upcoming = current.filter((a) => a.status !== 'cancelled' && a.date >= today())
+  if (upcoming.length >= 3) {
+    markSeededToday(businessId)
+    return current
+  }
+  const fresh = seedForBusiness(businessId, locationId, locationName).filter((a) => a.date >= today())
+  const existing = new Set(current.map((a) => `${a.date}|${a.time}|${a.customerName}`))
+  const addable = fresh.filter((a) => !existing.has(`${a.date}|${a.time}|${a.customerName}`))
+  if (addable.length > 0) {
+    saveAll([...loadAppointments(), ...addable])
+    current = [...current, ...addable]
+  }
+  markSeededToday(businessId)
+  return current
 }
 
 function seedForBusiness(businessId: string, locationId?: string, locationName?: string): Appointment[] {
