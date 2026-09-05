@@ -1215,6 +1215,25 @@
   color: var(--color-primary);
   background: var(--color-primary-subtle);
 }
+.team-inv-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px dashed var(--color-border-default);
+  background: var(--color-surface);
+  color: var(--color-primary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.team-inv-link:hover {
+  background: var(--color-primary-subtle);
+}
 .team-actions {
   display: flex;
   gap: 6px;

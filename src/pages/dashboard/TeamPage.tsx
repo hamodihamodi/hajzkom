@@ -5,6 +5,7 @@ import {
   Clock,
   Copy,
   Crown,
+  Link2,
   Loader2,
   Mail,
   MapPin,
@@ -465,6 +466,11 @@ export function TeamPage({ session, business, onRefresh }: TeamPageProps) {
                           <button type="button" onClick={() => handleRevoke(row.inv)} className="team-revoke-btn">إلغاء الدعوة</button>
                         </div>
                       )}
+                      {row.status === 'not_found' && (
+                        <a className="team-inv-link" href={`#/invite/${row.inv.id}`} title="عرض رسالة هذه الحالة">
+                          <Link2 size={13} /> عرض رسالة الحالة
+                        </a>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -485,6 +491,11 @@ export function TeamPage({ session, business, onRefresh }: TeamPageProps) {
                       <button type="button" title="نسخ رابط الدعوة" onClick={() => handleCopyInvite(row.inv)} className="team-copy-btn"><Copy size={13} /></button>
                       <button type="button" onClick={() => handleRevoke(row.inv)} className="team-revoke-btn">إلغاء الدعوة</button>
                     </div>
+                  )}
+                  {row.status === 'not_found' && (
+                    <a className="team-inv-link" href={`#/invite/${row.inv.id}`} title="عرض رسالة هذه الحالة">
+                      <Link2 size={13} /> عرض رسالة الحالة
+                    </a>
                   )}
                 </div>
                 <div className="team-invite-card-row"><Mail size={13} /> {row.inv.email ?? 'دعوة عامة'}</div>
