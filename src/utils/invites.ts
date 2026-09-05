@@ -141,6 +141,20 @@ export function roleDisplay(role: AccountRole): string {
   }
 }
 
+export type InvitationDisplayStatus = InvitationStatus | 'not_found'
+
+export function displayStatus(inv: Invitation): InvitationStatus {
+  return effectiveStatus(inv)
+}
+
+export const INVITATION_STATUS_AR: Record<InvitationDisplayStatus, string> = {
+  pending: 'قيد الانتظار',
+  accepted: 'مقبولة',
+  expired: 'منتهية',
+  revoked: 'ملغية',
+  not_found: 'غير موجودة',
+}
+
 export function createInvitation(
   businessId: string,
   businessName: string,
@@ -176,6 +190,63 @@ export function revokeInvitation(id: string): Invitation | null {
   return { ...found, status: 'revoked' }
 }
 
-export function getBusinessInvitations(businessId: string): Invitation[] {
-  return loadInvitations().filter((i) => i.businessId === businessId)
+function seedForBusiness(businessId: string, businessName: string): Invitation[] {
+  const now = Date.now()
+  return [
+    {
+      id: `inv-${businessId}-pending`,
+      businessId,
+      businessName,
+      role: 'staff',
+      locationId: 'loc-main',
+      locationName: 'الفرع الرئيسي',
+      email: 'new.staff@example.com',
+      status: 'pending',
+      createdAt: now,
+      expiresAt: now + DAY,
+    },
+    {
+      id: `inv-${businessId}-accept`,
+      businessId,
+      businessName,
+      role: 'staff',
+      locationId: 'loc-main',
+      locationName: 'الفرع الرئيسي',
+      email: 'accepted@example.com',
+      status: 'accepted',
+      createdAt: now - 2 * DAY,
+      expiresAt: now + 2 * DAY,
+    },
+    {
+      id: `inv-${businessId}-expire`,
+      businessId,
+      businessName,
+      role: 'admin',
+      email: 'late@example.com',
+      status: 'pending',
+      createdAt: now - 3 * DAY,
+      expiresAt: now - 2 * DAY,
+    },
+    {
+      id: `inv-${businessId}-revoke`,
+      businessId,
+      businessName,
+      role: 'staff',
+      locationName: 'الفرع الرئيسي',
+      email: 'revoked@example.com',
+      status: 'revoked',
+      createdAt: now - 4 * DAY,
+      expiresAt: now - 3 * DAY,
+    },
+  ]
+}
+
+export function getBusinessInvitations(businessId: string, businessName?: string): Invitation[] {
+  const list = loadInvitations().filter((i) => i.businessId === businessId)
+  if (list.length === 0 && businessName) {
+    const seeded = seedForBusiness(businessId, businessName)
+    saveInvitations([...loadInvitations(), ...seeded])
+    return seedForBusiness(businessId, businessName)
+  }
+  return list
 }

@@ -1222,6 +1222,38 @@
   background: var(--color-error-background);
 }
 /* Team invitation table */
+.team-inv-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--color-border-subtle);
+  background: var(--color-surface-muted);
+}
+.team-inv-legend-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+.team-inv-legend-count {
+  color: var(--color-text-tertiary);
+  font-size: 0.72rem;
+}
+.team-inv-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
 .team-invite-table-wrap {
   overflow-x: auto;
 }

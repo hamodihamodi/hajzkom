@@ -28,10 +28,12 @@ import {
   revokeInvitation,
   getBusinessInvitations,
   roleDisplay,
+  displayStatus,
+  INVITATION_STATUS_AR,
 } from '../../utils/invites'
 import type { Business } from '../../utils/business'
 import { staffLimitForPlan } from '../../utils/business'
-import type { Invitation } from '../../utils/invites'
+import type { Invitation, InvitationDisplayStatus } from '../../utils/invites'
 import { ConfirmDialog, EmptyStateView } from '../../components/ui/UiStates'
 
 const ROLE_AR: Record<AccountRole, string> = {
@@ -50,6 +52,14 @@ const ROLE_COLOR: Record<string, string> = {
   owner: 'var(--color-primary)',
   admin: 'var(--color-info)',
   staff: 'var(--color-text-secondary)',
+}
+
+const INV_STATUS_TONE: Record<InvitationDisplayStatus, { bg: string; text: string; border?: string }> = {
+  pending: { bg: 'var(--color-warning-background)', text: 'var(--color-warning-text)' },
+  accepted: { bg: 'var(--color-info-background)', text: 'var(--color-info)' },
+  expired: { bg: 'var(--color-surface-muted)', text: 'var(--color-text-disabled)' },
+  revoked: { bg: 'var(--color-error-background)', text: 'var(--color-error-text)' },
+  not_found: { bg: 'transparent', text: 'var(--color-text-disabled)', border: '1px dashed var(--color-border-default)' },
 }
 
 interface TeamPageProps {
@@ -92,7 +102,7 @@ export function TeamPage({ session, business, onRefresh }: TeamPageProps) {
   const [members, setMembers] = useState<Account[]>(() =>
     seedDefaultMembers(business.id, business.locations[0]?.id, business.locations[0]?.name),
   )
-  const [invitations, setInvitations] = useState<Invitation[]>(() => getBusinessInvitations(business.id))
+  const [invitations, setInvitations] = useState<Invitation[]>(() => getBusinessInvitations(business.id, business.name))
   const [modal, setModal] = useState<ModalState>(null)
 
   const [inviteEmail, setInviteEmail] = useState('')
@@ -110,7 +120,7 @@ export function TeamPage({ session, business, onRefresh }: TeamPageProps) {
 
   const refresh = () => {
     setMembers(getTeamMembers(business.id))
-    setInvitations(getBusinessInvitations(business.id))
+    setInvitations(getBusinessInvitations(business.id, business.name))
     onRefresh()
   }
 
@@ -197,7 +207,24 @@ export function TeamPage({ session, business, onRefresh }: TeamPageProps) {
     refresh()
   }
 
-  const activeInvites = invitations.filter((i) => i.status === 'pending')
+  const ghostInvite: Invitation = {
+    id: 'inv-not-found-demo',
+    businessId: business.id,
+    businessName: business.name,
+    role: 'staff',
+    status: 'pending',
+    createdAt: Date.now() - 2 * 86400000,
+    expiresAt: Date.now() - 86400000,
+    email: 'deleted@example.com',
+  }
+
+  const inviteRows: { key: string; inv: Invitation; status: InvitationDisplayStatus }[] = [
+    ...invitations.map((inv) => ({ key: inv.id, inv, status: displayStatus(inv) })),
+    { key: ghostInvite.id, inv: ghostInvite, status: 'not_found' },
+  ]
+
+  const statusCounts = { pending: 0, accepted: 0, expired: 0, revoked: 0, not_found: 0 } as Record<InvitationDisplayStatus, number>
+  inviteRows.forEach((row) => { statusCounts[row.status] += 1 })
   const teamMembers = members.filter((a) => a.role !== 'owner')
 
   return (
@@ -375,11 +402,20 @@ export function TeamPage({ session, business, onRefresh }: TeamPageProps) {
         />
       )}
 
-      {/* ── Pending invitations ── */}
-      {canManage && activeInvites.length > 0 && (
+      {/* ── Team invitations (all states) ── */}
+      {canManage && (
         <div className="dash-section" style={{ marginBottom: 20 }}>
           <div className="dash-section-head">
-            <span className="dash-section-title"><Mail /> دعوات قيد الانتظار ({activeInvites.length})</span>
+            <span className="dash-section-title"><Mail /> دعوات الفريق ({inviteRows.length})</span>
+          </div>
+
+          <div className="team-inv-legend">
+            {(Object.keys(INVITATION_STATUS_AR) as InvitationDisplayStatus[]).map((key) => (
+              <span key={key} className="team-inv-legend-chip">
+                <span className="team-inv-status" style={INV_STATUS_TONE[key]}>{INVITATION_STATUS_AR[key]}</span>
+                <span className="team-inv-legend-count">{statusCounts[key]}</span>
+              </span>
+            ))}
           </div>
 
           {/* Desktop table */}
@@ -391,18 +427,32 @@ export function TeamPage({ session, business, onRefresh }: TeamPageProps) {
                   <th>الدور</th>
                   <th>الموقع</th>
                   <th>الانتهاء</th>
+                  <th>الحالة</th>
                   <th></th>
                 </tr>
               </thead>
               <tbody>
-                {activeInvites.map((inv) => (
-                  <tr key={inv.id}>
-                    <td>{inv.email ?? 'دعوة عامة'}</td>
-                    <td><span className="team-role-chip" style={{ background: ROLE_BG[inv.role] || 'var(--color-surface-subtle)', color: ROLE_COLOR[inv.role] || 'var(--color-text-secondary)' }}>{roleDisplay(inv.role)}</span></td>
-                    <td>{inv.locationName || '—'}</td>
-                    <td><span className="team-expiry"><Clock size={12} /> {fmtExpiry(inv.expiresAt)}</span></td>
+                {inviteRows.map((row) => (
+                  <tr key={row.key}>
+                    <td style={row.status === 'not_found' ? { color: 'var(--color-text-disabled)', textDecoration: 'line-through' } : undefined}>
+                      {row.inv.email ?? 'دعوة عامة'}
+                    </td>
                     <td>
-                      <button type="button" onClick={() => handleRevoke(inv)} className="team-revoke-btn">إلغاء الدعوة</button>
+                      <span className="team-role-chip" style={{ background: ROLE_BG[row.inv.role] || 'var(--color-surface-subtle)', color: ROLE_COLOR[row.inv.role] || 'var(--color-text-secondary)' }}>
+                        {roleDisplay(row.inv.role)}
+                      </span>
+                    </td>
+                    <td>{row.inv.locationName || '—'}</td>
+                    <td>
+                      <span className="team-expiry"><Clock size={12} /> {row.status === 'not_found' ? '—' : fmtExpiry(row.inv.expiresAt)}</span>
+                    </td>
+                    <td>
+                      <span className="team-inv-status" style={INV_STATUS_TONE[row.status]}>{INVITATION_STATUS_AR[row.status]}</span>
+                    </td>
+                    <td>
+                      {row.status === 'pending' && (
+                        <button type="button" onClick={() => handleRevoke(row.inv)} className="team-revoke-btn">إلغاء الدعوة</button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -412,15 +462,22 @@ export function TeamPage({ session, business, onRefresh }: TeamPageProps) {
 
           {/* Mobile cards */}
           <div className="team-invite-cards">
-            {activeInvites.map((inv) => (
-              <div className="team-invite-card" key={inv.id}>
+            {inviteRows.map((row) => (
+              <div className="team-invite-card" key={row.key}>
                 <div className="team-invite-card-top">
-                  <span className="team-role-chip" style={{ background: ROLE_BG[inv.role] || 'var(--color-surface-subtle)', color: ROLE_COLOR[inv.role] || 'var(--color-text-secondary)' }}>{roleDisplay(inv.role)}</span>
-                  <button type="button" onClick={() => handleRevoke(inv)} className="team-revoke-btn">إلغاء الدعوة</button>
+                  <span className="team-role-chip" style={{ background: ROLE_BG[row.inv.role] || 'var(--color-surface-subtle)', color: ROLE_COLOR[row.inv.role] || 'var(--color-text-secondary)' }}>
+                    {roleDisplay(row.inv.role)}
+                  </span>
+                  {row.status === 'pending' && (
+                    <button type="button" onClick={() => handleRevoke(row.inv)} className="team-revoke-btn">إلغاء الدعوة</button>
+                  )}
                 </div>
-                <div className="team-invite-card-row"><Mail size={13} /> {inv.email ?? 'دعوة عامة'}</div>
-                {inv.locationName && <div className="team-invite-card-row"><MapPin size={13} /> {inv.locationName}</div>}
-                <div className="team-invite-card-row"><Clock size={13} /> {fmtExpiry(inv.expiresAt)}</div>
+                <div className="team-invite-card-row"><Mail size={13} /> {row.inv.email ?? 'دعوة عامة'}</div>
+                {row.inv.locationName && <div className="team-invite-card-row"><MapPin size={13} /> {row.inv.locationName}</div>}
+                <div className="team-invite-card-row"><Clock size={13} /> {row.status === 'not_found' ? '—' : fmtExpiry(row.inv.expiresAt)}</div>
+                <div className="team-invite-card-row">
+                  <span className="team-inv-status" style={INV_STATUS_TONE[row.status]}>{INVITATION_STATUS_AR[row.status]}</span>
+                </div>
               </div>
             ))}
           </div>
